@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 
 function getPasswordStrength(p) {
   if (!p) return { score: 0, label: '', color: '' }
@@ -82,53 +81,40 @@ export default function NewDriver() {
   }
 
   async function handleSave() {
-    const allTouched = Object.fromEntries(
-      Object.keys(form).map(k => [k, true])
-    )
+    const allTouched = Object.fromEntries(Object.keys(form).map(k => [k, true]))
     setTouched(allTouched)
 
-    const hasErrors = ['name', 'email', 'password', 'confirm_password'].some(f => fieldError(f) || !form[f])
+    if (!form.name || !form.email || !form.password) return setError('Please fill in all required fields')
     if (form.password !== form.confirm_password) return setError('Passwords do not match')
-    if (hasErrors) return setError('Please fix the errors above')
-
-    const strength = getPasswordStrength(form.password)
-    if (strength.score < 2) return setError('Please choose a stronger password')
+    if (getPasswordStrength(form.password).score < 2) return setError('Please choose a stronger password')
 
     setSaving(true)
     setError('')
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.password,
+    const res = await fetch('/api/drivers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        license_number: form.license_number,
+        truck_number: form.truck_number,
+        trailer_number: form.trailer_number,
+        password: form.password,
+      }),
     })
 
-    if (authError) {
-      setError(authError.message)
-      setSaving(false)
-      return
-    }
+    const data = await res.json()
 
-    const auth_id = authData?.user?.id
-
-    const { error: dbError } = await supabase.from('drivers').insert({
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      license_number: form.license_number,
-      truck_number: form.truck_number,
-      trailer_number: form.trailer_number,
-      auth_id,
-      status: 'active',
-    })
-
-    if (dbError) {
-      setError(dbError.message)
+    if (!res.ok) {
+      setError(data.error || 'Something went wrong')
       setSaving(false)
       return
     }
 
     setSuccess(true)
-    setTimeout(() => router.replace('/admin'), 2000)
+    setTimeout(() => { window.location.href = '/admin' }, 2000)
   }
 
   const strength = getPasswordStrength(form.password)
@@ -140,9 +126,7 @@ export default function NewDriver() {
           <span className="text-4xl">✓</span>
         </div>
         <h2 className="text-2xl font-bold text-gray-800">Driver Created!</h2>
-        <p className="text-gray-500 text-center">
-          {form.name} has been added successfully. Redirecting...
-        </p>
+        <p className="text-gray-500 text-center">{form.name} has been added successfully. Redirecting...</p>
       </div>
     )
   }
@@ -156,8 +140,6 @@ export default function NewDriver() {
       </div>
 
       <div className="p-4 space-y-4 pb-32">
-
-        {/* Personal Info */}
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
           <h2 className="font-bold text-gray-700">Personal Info</h2>
           {[
@@ -176,9 +158,7 @@ export default function NewDriver() {
                   fieldError(field) ? 'border-red-400 bg-red-50' : 'border-gray-200 focus:border-[#2D7A5F]'
                 }`}
               />
-              {fieldError(field) && (
-                <p className="text-red-500 text-xs mt-1">{fieldError(field)}</p>
-              )}
+              {fieldError(field) && <p className="text-red-500 text-xs mt-1">{fieldError(field)}</p>}
             </div>
           ))}
           <div>
@@ -193,7 +173,6 @@ export default function NewDriver() {
           </div>
         </div>
 
-        {/* Truck Assignment */}
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
           <h2 className="font-bold text-gray-700">Truck Assignment</h2>
           <div className="grid grid-cols-2 gap-3">
@@ -214,21 +193,17 @@ export default function NewDriver() {
           </div>
         </div>
 
-        {/* Login Credentials */}
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
           <h2 className="font-bold text-gray-700">Login Credentials</h2>
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
             <p className="text-yellow-700 text-sm">⚠️ Share these credentials with the driver securely. They use these to log in.</p>
           </div>
-
           <button
             onClick={handleGenerate}
             className="w-full border-2 border-dashed border-[#2D7A5F] text-[#2D7A5F] py-3 rounded-xl font-semibold text-sm"
           >
             ⚡ Auto-Generate Secure Password
           </button>
-
-          {/* Password */}
           <div>
             <label className="text-xs text-gray-400 font-medium uppercase tracking-wide">Password</label>
             <div className="relative mt-1">
@@ -249,26 +224,17 @@ export default function NewDriver() {
               </button>
             </div>
             {fieldError('password') && <p className="text-red-500 text-xs mt-1">{fieldError('password')}</p>}
-
-            {/* Strength meter */}
             {form.password.length > 0 && (
               <div className="mt-2 space-y-1">
                 <div className="flex gap-1">
                   {[1, 2, 3, 4].map(i => (
-                    <div
-                      key={i}
-                      className={`h-1.5 flex-1 rounded-full transition-colors ${
-                        i <= strength.score ? strength.color : 'bg-gray-200'
-                      }`}
-                    />
+                    <div key={i} className={`h-1.5 flex-1 rounded-full transition-colors ${i <= strength.score ? strength.color : 'bg-gray-200'}`} />
                   ))}
                 </div>
                 <p className="text-xs text-gray-400">{strength.label}</p>
               </div>
             )}
           </div>
-
-          {/* Confirm Password */}
           <div>
             <label className="text-xs text-gray-400 font-medium uppercase tracking-wide">Confirm Password</label>
             <input
@@ -280,12 +246,8 @@ export default function NewDriver() {
                 fieldError('confirm_password') ? 'border-red-400 bg-red-50' : 'border-gray-200 focus:border-[#2D7A5F]'
               }`}
             />
-            {fieldError('confirm_password') && (
-              <p className="text-red-500 text-xs mt-1">{fieldError('confirm_password')}</p>
-            )}
+            {fieldError('confirm_password') && <p className="text-red-500 text-xs mt-1">{fieldError('confirm_password')}</p>}
           </div>
-
-          {/* Copy button */}
           {form.password && form.password === form.confirm_password && (
             <button
               onClick={handleCopy}
