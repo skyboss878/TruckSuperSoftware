@@ -1,0 +1,174 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "onMatchHeaders": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/admin/drivers/[id]",
+      "regex": "^/admin/drivers/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/admin/drivers/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/admin/maintenance/[id]",
+      "regex": "^/admin/maintenance/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/admin/maintenance/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/admin/ticket/[id]",
+      "regex": "^/admin/ticket/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/admin/ticket/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/driver/ticket/[id]",
+      "regex": "^/driver/ticket/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/driver/ticket/(?<nxtPid>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
+      "page": "/admin/compliance",
+      "regex": "^/admin/compliance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/compliance(?:/)?$"
+    },
+    {
+      "page": "/admin/drivers/new",
+      "regex": "^/admin/drivers/new(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/drivers/new(?:/)?$"
+    },
+    {
+      "page": "/admin/reports/maintenance",
+      "regex": "^/admin/reports/maintenance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/reports/maintenance(?:/)?$"
+    },
+    {
+      "page": "/admin/reports/settlements",
+      "regex": "^/admin/reports/settlements(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/reports/settlements(?:/)?$"
+    },
+    {
+      "page": "/admin/reports/tickets",
+      "regex": "^/admin/reports/tickets(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/reports/tickets(?:/)?$"
+    },
+    {
+      "page": "/admin/reports/timesheets",
+      "regex": "^/admin/reports/timesheets(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/reports/timesheets(?:/)?$"
+    },
+    {
+      "page": "/driver",
+      "regex": "^/driver(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/driver(?:/)?$"
+    },
+    {
+      "page": "/driver/compliance",
+      "regex": "^/driver/compliance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/driver/compliance(?:/)?$"
+    },
+    {
+      "page": "/driver/maintenance",
+      "regex": "^/driver/maintenance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/driver/maintenance(?:/)?$"
+    },
+    {
+      "page": "/driver/ticket/new",
+      "regex": "^/driver/ticket/new(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/driver/ticket/new(?:/)?$"
+    },
+    {
+      "page": "/driver/timesheet",
+      "regex": "^/driver/timesheet(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/driver/timesheet(?:/)?$"
+    },
+    {
+      "page": "/login",
+      "regex": "^/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/login(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

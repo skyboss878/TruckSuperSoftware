@@ -1,0 +1,22 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/_global-error/page": "/_global-error",
+  "/admin/compliance/page": "/admin/compliance",
+  "/admin/drivers/[id]/page": "/admin/drivers/[id]",
+  "/admin/drivers/new/page": "/admin/drivers/new",
+  "/admin/maintenance/[id]/page": "/admin/maintenance/[id]",
+  "/admin/page": "/admin",
+  "/admin/reports/maintenance/page": "/admin/reports/maintenance",
+  "/admin/reports/settlements/page": "/admin/reports/settlements",
+  "/admin/reports/tickets/page": "/admin/reports/tickets",
+  "/admin/reports/timesheets/page": "/admin/reports/timesheets",
+  "/admin/ticket/[id]/page": "/admin/ticket/[id]",
+  "/driver/compliance/page": "/driver/compliance",
+  "/driver/maintenance/page": "/driver/maintenance",
+  "/driver/page": "/driver",
+  "/driver/ticket/[id]/page": "/driver/ticket/[id]",
+  "/driver/ticket/new/page": "/driver/ticket/new",
+  "/driver/timesheet/page": "/driver/timesheet",
+  "/login/page": "/login",
+  "/page": "/"
+}

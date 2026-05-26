@@ -1,0 +1,22 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/admin/compliance/page": "app/admin/compliance/page.js",
+  "/admin/drivers/[id]/page": "app/admin/drivers/[id]/page.js",
+  "/admin/drivers/new/page": "app/admin/drivers/new/page.js",
+  "/admin/maintenance/[id]/page": "app/admin/maintenance/[id]/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/reports/maintenance/page": "app/admin/reports/maintenance/page.js",
+  "/admin/reports/settlements/page": "app/admin/reports/settlements/page.js",
+  "/admin/reports/tickets/page": "app/admin/reports/tickets/page.js",
+  "/admin/reports/timesheets/page": "app/admin/reports/timesheets/page.js",
+  "/admin/ticket/[id]/page": "app/admin/ticket/[id]/page.js",
+  "/driver/compliance/page": "app/driver/compliance/page.js",
+  "/driver/maintenance/page": "app/driver/maintenance/page.js",
+  "/driver/page": "app/driver/page.js",
+  "/driver/ticket/[id]/page": "app/driver/ticket/[id]/page.js",
+  "/driver/ticket/new/page": "app/driver/ticket/new/page.js",
+  "/driver/timesheet/page": "app/driver/timesheet/page.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js"
+}
