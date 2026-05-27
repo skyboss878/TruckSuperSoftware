@@ -17,13 +17,13 @@ export default function DriverDetail() {
   useEffect(() => { loadDriver() }, [])
 
   async function loadDriver() {
-    const [{ data: d }, { data: t }, { data: ts }] = await Promise.all([
-      supabase.from('drivers').select('*').eq('id', id).single(),
+    const [driverRes, { data: t }, { data: ts }] = await Promise.all([
+      fetch(`/api/drivers/${id}`).then(r => r.json()),
       supabase.from('tickets').select('*').eq('driver_id', id).order('created_at', { ascending: false }).limit(10),
       supabase.from('timesheets').select('*').eq('driver_id', id).order('date', { ascending: false }).limit(10),
     ])
-    setDriver(d)
-    setForm(d || {})
+    setDriver(driverRes?.id ? driverRes : null)
+    setForm(driverRes?.id ? driverRes : {})
     setTickets(t || [])
     setTimesheets(ts || [])
     setLoading(false)
@@ -35,13 +35,17 @@ export default function DriverDetail() {
 
   async function handleSave() {
     setSaving(true)
-    await supabase.from('drivers').update({
-      name: form.name,
-      phone: form.phone,
-      license_number: form.license_number,
-      truck_number: form.truck_number,
-      trailer_number: form.trailer_number,
-    }).eq('id', id)
+    await fetch(`/api/drivers/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: form.name,
+        phone: form.phone,
+        license_number: form.license_number,
+        truck_number: form.truck_number,
+        trailer_number: form.trailer_number,
+      }),
+    })
     await loadDriver()
     setEditing(false)
     setSaving(false)
@@ -49,7 +53,11 @@ export default function DriverDetail() {
 
   async function toggleStatus() {
     const newStatus = driver.status === 'active' ? 'inactive' : 'active'
-    await supabase.from('drivers').update({ status: newStatus }).eq('id', id)
+    await fetch(`/api/drivers/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus }),
+    })
     await loadDriver()
   }
 
