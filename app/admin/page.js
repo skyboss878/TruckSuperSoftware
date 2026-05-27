@@ -304,7 +304,7 @@ export default function AdminDashboard() {
             ))}
           </div>
         )}
-        {tab === 'messages' && router.push('/admin/messages')}
+        {tab === 'messages' && (() => { setTimeout(() => router.push('/admin/messages'), 0); return null })()}
       </div>
     </div>
   )
