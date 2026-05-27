@@ -26,36 +26,24 @@ export default function NewDriver() {
     setError('')
 
     try {
-      // Sign up the driver
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: form.email,
-        password: form.password,
-        options: { emailRedirectTo: null }
+      const res = await fetch('/api/drivers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone || null,
+          license_number: form.license_number || null,
+          truck_number: form.truck_number || null,
+          trailer_number: form.trailer_number || null,
+          password: form.password,
+        }),
       })
 
-      if (authError) {
-        setError(authError.message)
-        setSaving(false)
-        return
-      }
+      const result = await res.json()
 
-      const auth_id = authData?.user?.id
-
-      // Insert driver record
-      const { error: dbError } = await supabase.from('drivers').insert({
-        name: form.name,
-        email: form.email,
-        phone: form.phone || null,
-        license_number: form.license_number || null,
-        truck_number: form.truck_number || null,
-        trailer_number: form.trailer_number || null,
-        auth_id,
-        status: 'active',
-        language: 'en',
-      })
-
-      if (dbError) {
-        setError(dbError.message)
+      if (!res.ok) {
+        setError(result.error || 'Failed to create driver')
         setSaving(false)
         return
       }

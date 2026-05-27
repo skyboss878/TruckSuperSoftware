@@ -69,6 +69,7 @@ export default function DriverDetail() {
     rejected: 'bg-red-100 text-red-700',
   }
 
+  if (!driver) return <div className="p-8 text-center text-gray-400">Loading...</div>;
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b px-4 py-4 flex items-center justify-between sticky top-0 z-10">
