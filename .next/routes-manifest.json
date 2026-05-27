@@ -93,6 +93,12 @@
       "namedRegex": "^/admin/drivers/new(?:/)?$"
     },
     {
+      "page": "/admin/messages",
+      "regex": "^/admin/messages(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/messages(?:/)?$"
+    },
+    {
       "page": "/admin/reports/maintenance",
       "regex": "^/admin/reports/maintenance(?:/)?$",
       "routeKeys": {},
@@ -117,6 +123,12 @@
       "namedRegex": "^/admin/reports/timesheets(?:/)?$"
     },
     {
+      "page": "/api/drivers",
+      "regex": "^/api/drivers(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/drivers(?:/)?$"
+    },
+    {
       "page": "/driver",
       "regex": "^/driver(?:/)?$",
       "routeKeys": {},
@@ -133,6 +145,12 @@
       "regex": "^/driver/maintenance(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/driver/maintenance(?:/)?$"
+    },
+    {
+      "page": "/driver/messages",
+      "regex": "^/driver/messages(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/driver/messages(?:/)?$"
     },
     {
       "page": "/driver/ticket/new",

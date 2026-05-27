@@ -18,10 +18,10 @@ export default function SettlementsReport() {
   useEffect(() => { loadDrivers() }, [])
 
   async function loadDrivers() {
-    const { data } = await supabase.from('drivers').select('*').order('name')
-    setDrivers(data || [])
+    const res = await fetch("/api/drivers")
+    const data = await res.json()
+    setDrivers(Array.isArray(data) ? data : [])
   }
-
   async function generateSettlement() {
     if (!selectedDriver || !startDate || !endDate) {
       setError('Please select a driver and date range')

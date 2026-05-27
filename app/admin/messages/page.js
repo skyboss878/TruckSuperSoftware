@@ -62,12 +62,10 @@ export default function AdminMessages() {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) setAdminId(user.id)
 
-    const { data } = await supabase
-      .from('drivers')
-      .select('*')
-      .eq('status', 'active')
-      .order('name')
-    setDrivers(data || [])
+    const driversRes = await fetch("/api/drivers")
+    const driversData = await driversRes.json()
+    const activeDrivers = Array.isArray(driversData) ? driversData.filter(d => d.status === "active") : []
+    setDrivers(activeDrivers)
 
     // Get unread counts per driver
     const { data: unread } = await supabase

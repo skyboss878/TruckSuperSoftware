@@ -18,18 +18,20 @@ export default function AdminDashboard() {
     const auth = localStorage.getItem('admin_auth')
     if (!auth) { router.replace('/login'); return }
     loadAll()
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("refresh")) router.replace("/admin")
   }, [])
 
   async function loadAll() {
     setLoading(true)
     const [t, d, ts, m] = await Promise.all([
       supabase.from('tickets').select('*, drivers(name)').order('created_at', { ascending: false }),
-      supabase.from('drivers').select('*').order('name'),
+      fetch('/api/drivers').then(r => r.json()),
       supabase.from('timesheets').select('*, drivers(name)').order('date', { ascending: false }),
       supabase.from('maintenance').select('*, drivers(name)').order('created_at', { ascending: false }),
     ])
     setTickets(t.data || [])
-    setDrivers(d.data || [])
+    setDrivers(Array.isArray(d) ? d : [])
     setTimesheets(ts.data || [])
     setMaintenance(m.data || [])
     setLoading(false)
@@ -78,6 +80,7 @@ export default function AdminDashboard() {
             <h1 className="text-white text-xl font-bold">Smith's Freight Hub</h1>
             <p className="text-green-200 text-sm">Admin Dashboard</p>
           </div>
+          
           <button onClick={handleLogout} className="text-green-200 text-sm font-medium">Logout</button>
         </div>
 
@@ -304,3 +307,4 @@ export default function AdminDashboard() {
     </div>
   )
 }
+// Messages tab handled by redirect
