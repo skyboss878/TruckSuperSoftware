@@ -22,6 +22,23 @@ export default function AdminDashboard() {
     if (params.get("refresh")) router.replace("/admin")
   }, [])
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') loadAll()
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('admin-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, () => loadAll())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'timesheets' }, () => loadAll())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'maintenance' }, () => loadAll())
+      .subscribe()
+    return () => supabase.removeChannel(channel)
+  }, [])
+
   async function loadAll() {
     setLoading(true)
     const [t, d, ts, m] = await Promise.all([

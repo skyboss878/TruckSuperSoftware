@@ -47,6 +47,14 @@
       "namedRegex": "^/admin/ticket/(?<nxtPid>[^/]+?)(?:/)?$"
     },
     {
+      "page": "/api/drivers/[id]",
+      "regex": "^/api/drivers/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/drivers/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/driver/ticket/[id]",
       "regex": "^/driver/ticket/([^/]+?)(?:/)?$",
       "routeKeys": {
@@ -123,10 +131,22 @@
       "namedRegex": "^/admin/reports/timesheets(?:/)?$"
     },
     {
+      "page": "/api/compliance",
+      "regex": "^/api/compliance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/compliance(?:/)?$"
+    },
+    {
       "page": "/api/drivers",
       "regex": "^/api/drivers(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/drivers(?:/)?$"
+    },
+    {
+      "page": "/api/messages",
+      "regex": "^/api/messages(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/messages(?:/)?$"
     },
     {
       "page": "/driver",

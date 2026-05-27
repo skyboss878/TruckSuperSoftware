@@ -1,7 +1,10 @@
 {
   "/_not-found/page": "/_not-found",
   "/_global-error/page": "/_global-error",
+  "/api/compliance/route": "/api/compliance",
+  "/api/drivers/[id]/route": "/api/drivers/[id]",
   "/api/drivers/route": "/api/drivers",
+  "/api/messages/route": "/api/messages",
   "/admin/compliance/page": "/admin/compliance",
   "/admin/drivers/[id]/page": "/admin/drivers/[id]",
   "/admin/drivers/new/page": "/admin/drivers/new",

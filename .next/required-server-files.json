@@ -106,7 +106,8 @@
     },
     "outputFileTracingRoot": "/data/data/com.termux/files/home/Smiths",
     "allowedDevOrigins": [
-      "pdt-ccd-progress-hugo.trycloudflare.com"
+      "pdt-ccd-progress-hugo.trycloudflare.com",
+      "192.168.1.209"
     ],
     "cacheComponents": false,
     "cacheLife": {

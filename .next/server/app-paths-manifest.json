@@ -1,7 +1,10 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
   "/_global-error/page": "app/_global-error/page.js",
+  "/api/compliance/route": "app/api/compliance/route.js",
+  "/api/drivers/[id]/route": "app/api/drivers/[id]/route.js",
   "/api/drivers/route": "app/api/drivers/route.js",
+  "/api/messages/route": "app/api/messages/route.js",
   "/admin/compliance/page": "app/admin/compliance/page.js",
   "/admin/drivers/[id]/page": "app/admin/drivers/[id]/page.js",
   "/admin/drivers/new/page": "app/admin/drivers/new/page.js",
