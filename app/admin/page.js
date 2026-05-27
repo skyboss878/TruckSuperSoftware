@@ -110,6 +110,7 @@ export default function AdminDashboard() {
           { key: 'timesheets', label: '🕐 Time' },
           { key: 'maintenance', label: '🔧 Maint.' },
           { key: 'reports', label: '📊 Reports' },
+          { key: 'messages', label: '💬 Messages' },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`flex-shrink-0 px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${
@@ -303,8 +304,8 @@ export default function AdminDashboard() {
             ))}
           </div>
         )}
+        {tab === 'messages' && router.push('/admin/messages')}
       </div>
     </div>
   )
 }
-// Messages tab handled by redirect
