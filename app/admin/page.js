@@ -42,15 +42,15 @@ export default function AdminDashboard() {
   async function loadAll() {
     setLoading(true)
     const [t, d, ts, m] = await Promise.all([
-      supabase.from('tickets').select('*, drivers(name)').order('created_at', { ascending: false }),
+      fetch('/api/tickets').then(r => r.json()),
       fetch('/api/drivers').then(r => r.json()),
-      supabase.from('timesheets').select('*, drivers(name)').order('date', { ascending: false }),
-      supabase.from('maintenance').select('*, drivers(name)').order('created_at', { ascending: false }),
+      fetch('/api/timesheets').then(r => r.json()),
+      fetch('/api/maintenance').then(r => r.json()),
     ])
-    setTickets(t.data || [])
+    setTickets(Array.isArray(t) ? t : [])
     setDrivers(Array.isArray(d) ? d : [])
-    setTimesheets(ts.data || [])
-    setMaintenance(m.data || [])
+    setTimesheets(Array.isArray(ts) ? ts : [])
+    setMaintenance(Array.isArray(m) ? m : [])
     setLoading(false)
   }
 

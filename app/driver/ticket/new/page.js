@@ -78,7 +78,6 @@ export default function NewTicket() {
     setSaving(true)
     const payload = {
       ...form,
-      driver_id: driver.id,
       status: submitStatus,
       synced: true,
     }
@@ -92,8 +91,12 @@ export default function NewTicket() {
       return
     }
 
-    const { error } = await supabase.from('tickets').insert(payload)
-    if (error) {
+    const res = await fetch('/api/tickets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...payload, auth_id: driver.auth_id }),
+    })
+    if (!res.ok) {
       const offline = JSON.parse(localStorage.getItem('offline_tickets') || '[]')
       offline.push({ ...payload, synced: false, id: crypto.randomUUID() })
       localStorage.setItem('offline_tickets', JSON.stringify(offline))

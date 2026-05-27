@@ -44,12 +44,9 @@ export default function DriverDashboard() {
   }
 
   async function loadTickets() {
-    const { data } = await supabase
-      .from('tickets')
-      .select('*')
-      .eq('driver_id', driver.id)
-      .order('created_at', { ascending: false })
-    setTickets(data || [])
+    const res = await fetch(`/api/tickets?driver_id=${driver.id}`)
+    const data = await res.json()
+    setTickets(Array.isArray(data) ? data : [])
   }
 
   async function syncOfflineData() {
@@ -57,7 +54,11 @@ export default function DriverDashboard() {
     if (offline.length === 0) return
     setSyncing(true)
     for (const ticket of offline) {
-      await supabase.from('tickets').insert({ ...ticket, driver_id: driver.id, synced: true })
+      await fetch('/api/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...ticket, auth_id: driver.auth_id, synced: true }),
+      })
     }
     localStorage.removeItem('offline_tickets')
     await loadTickets()
