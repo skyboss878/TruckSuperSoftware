@@ -193,6 +193,7 @@ export default function DriverDashboard() {
                 { label: 'Maintenance', icon: '🔧', path: '/driver/maintenance' },
                 { label: 'Messages', icon: '💬', path: '/driver/messages' },
                 { label: 'Compliance', icon: '📋', path: '/driver/compliance' },
+                { label: 'AI Assistant', icon: '🤖', path: '/driver/assistant' },
               ].map(item => (
                 <button
                   key={item.path}
