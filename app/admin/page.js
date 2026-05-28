@@ -128,6 +128,8 @@ export default function AdminDashboard() {
           { key: 'maintenance', label: '🔧 Maint.' },
           { key: 'reports', label: '📊 Reports' },
           { key: 'messages', label: '💬 Messages' },
+          { key: 'assistant', label: '🤖 AI' },
+          { key: 'tracking', label: '📍 Live Map' },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`flex-shrink-0 px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${
@@ -323,6 +325,8 @@ export default function AdminDashboard() {
           </div>
         )}
         {tab === 'messages' && (() => { setTimeout(() => router.push('/admin/messages'), 0); return null })()}
+        {tab === 'assistant' && (() => { setTimeout(() => router.push('/admin/assistant'), 0); return null })()}
+        {tab === 'tracking' && (() => { setTimeout(() => router.push('/admin/tracking'), 0); return null })()}
       </div>
     </div>
   )
