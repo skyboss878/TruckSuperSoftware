@@ -300,6 +300,7 @@ export default function AdminDashboard() {
         {tab === 'reports' && (
           <div className="space-y-3">
             {[
+              { label: 'AI Assistant', desc: 'Ask anything about your fleet in plain English', icon: '✨', path: '/admin/ai' },
               { label: 'Driver Settlements', desc: 'AI-generated pay settlements by driver', icon: '💰', path: '/admin/reports/settlements' },
               { label: 'Ticket Report', desc: 'Export tickets by date range, driver, customer', icon: '📋', path: '/admin/reports/tickets' },
               { label: 'Timesheet Report', desc: 'Hours and miles by driver', icon: '🕐', path: '/admin/reports/timesheets' },
