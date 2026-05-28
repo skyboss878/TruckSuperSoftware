@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import DriveTracker from '@/components/DriveTracker'
 import { useLang } from '@/lib/LanguageContext'
 
 export default function DriverDashboard() {
@@ -122,6 +123,11 @@ export default function DriverDashboard() {
           <span className="text-sm text-[#2D7A5F] font-medium">Syncing Data</span>
         </div>
       )}
+
+      {/* GPS Drive Tracker */}
+      <div className="px-4 pt-4">
+        <DriveTracker driver={driver} onSessionComplete={() => loadTickets()} />
+      </div>
 
       {/* Ticket List */}
       <div className="p-4 space-y-4">
