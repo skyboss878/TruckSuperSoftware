@@ -194,6 +194,7 @@ export default function DriverDashboard() {
                 { label: 'Messages', icon: '💬', path: '/driver/messages' },
                 { label: 'Compliance', icon: '📋', path: '/driver/compliance' },
                 { label: 'AI Assistant', icon: '🤖', path: '/driver/assistant' },
+                { label: 'Trip Tracker', icon: '📍', path: '/driver/tracking' },
               ].map(item => (
                 <button
                   key={item.path}
