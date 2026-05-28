@@ -19,13 +19,13 @@ export default function DriverDetail() {
   async function loadDriver() {
     const [driverRes, { data: t }, { data: ts }] = await Promise.all([
       fetch(`/api/drivers/${id}`).then(r => r.json()),
-      supabase.from('tickets').select('*').eq('driver_id', id).order('created_at', { ascending: false }).limit(10),
-      supabase.from('timesheets').select('*').eq('driver_id', id).order('date', { ascending: false }).limit(10),
+      fetch(`/api/tickets?driver_id=${id}`).then(r=>r.json()),
+      fetch(`/api/timesheets?driver_id=${id}`).then(r=>r.json()),
     ])
     setDriver(driverRes?.id ? driverRes : null)
     setForm(driverRes?.id ? driverRes : {})
-    setTickets(t || [])
-    setTimesheets(ts || [])
+    setTickets(Array.isArray(t) ? t : [])
+    setTimesheets(Array.isArray(ts) ? ts : [])
     setLoading(false)
   }
 

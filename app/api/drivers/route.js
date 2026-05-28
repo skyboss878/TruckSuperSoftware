@@ -48,8 +48,15 @@ export async function POST(request) {
   }
 }
 
-export async function GET() {
+export async function GET(request) {
   try {
+    const { searchParams } = new URL(request.url)
+    const auth_id = searchParams.get('auth_id')
+    if (auth_id) {
+      const { data, error } = await supabaseAdmin.from('drivers').select('*').eq('auth_id', auth_id).single()
+      if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+      return NextResponse.json(data)
+    }
     const { data, error } = await supabaseAdmin.from('drivers').select('*').order('name')
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json(data)

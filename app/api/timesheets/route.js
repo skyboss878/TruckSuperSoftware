@@ -9,7 +9,11 @@ export async function GET(request) {
       .from('timesheets')
       .select('*, drivers(name)')
       .order('date', { ascending: false })
+    const start = searchParams.get('start')
+    const end   = searchParams.get('end')
     if (driver_id) query = query.eq('driver_id', driver_id)
+    if (start)     query = query.gte('date', start)
+    if (end)       query = query.lte('date', end)
     const { data, error } = await query
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json(data || [])

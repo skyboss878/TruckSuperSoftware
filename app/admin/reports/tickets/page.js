@@ -16,7 +16,7 @@ export default function TicketsReport() {
   useEffect(() => { loadDrivers() }, [])
 
   async function loadDrivers() {
-    const { data } = await supabase.from('drivers').select('*').order('name')
+    const data = await fetch('/api/drivers').then(r=>r.json())
     setDrivers(data || [])
   }
 
@@ -26,7 +26,8 @@ export default function TicketsReport() {
 
   async function runReport() {
     setLoading(true)
-    let query = supabase.from('tickets').select('*, drivers(name)').order('date', { ascending: false })
+    let url = '/api/tickets'
+    const params = new URLSearchParams()
     if (filters.driver_id) query = query.eq('driver_id', filters.driver_id)
     if (filters.start_date) query = query.gte('date', filters.start_date)
     if (filters.end_date) query = query.lte('date', filters.end_date)

@@ -13,7 +13,7 @@ export default function MaintenanceReport() {
   useEffect(() => { loadDrivers() }, [])
 
   async function loadDrivers() {
-    const { data } = await supabase.from('drivers').select('*').order('name')
+    const data = await fetch('/api/drivers').then(r=>r.json())
     setDrivers(data || [])
   }
 
@@ -21,7 +21,8 @@ export default function MaintenanceReport() {
 
   async function runReport() {
     setLoading(true)
-    let query = supabase.from('maintenance').select('*, drivers(name)').order('created_at', { ascending: false })
+    let url = '/api/maintenance'
+    const params = new URLSearchParams()
     if (filters.driver_id) query = query.eq('driver_id', filters.driver_id)
     if (filters.status) query = query.eq('status', filters.status)
     if (filters.severity) query = query.eq('severity', filters.severity)

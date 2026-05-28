@@ -14,19 +14,23 @@ export default function TicketDetail() {
   useEffect(() => { loadTicket() }, [])
 
   async function loadTicket() {
-    const { data } = await supabase.from('tickets').select('*').eq('id', id).single()
+    const data = await fetch(`/api/tickets/${id}`).then(r=>r.json())
     setTicket(data)
     setLoading(false)
   }
 
   async function handleDelete() {
     setDeleting(true)
-    await supabase.from('tickets').delete().eq('id', id)
+    await fetch(`/api/tickets/${id}`, { method: 'DELETE' })
     router.replace('/driver')
   }
 
   async function handleSubmit() {
-    await supabase.from('tickets').update({ status: 'submitted' }).eq('id', id)
+    await fetch(`/api/tickets/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'submitted' }),
+    })
     await loadTicket()
     setShowMenu(false)
   }

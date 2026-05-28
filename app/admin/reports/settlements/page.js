@@ -34,16 +34,9 @@ export default function SettlementsReport() {
     // Fetch driver data
     const driver = drivers.find(d => d.id === selectedDriver)
 
-    const [{ data: tickets }, { data: timesheets }] = await Promise.all([
-      supabase.from('tickets').select('*')
-        .eq('driver_id', selectedDriver)
-        .gte('date', startDate)
-        .lte('date', endDate)
-        .eq('status', 'approved'),
-      supabase.from('timesheets').select('*')
-        .eq('driver_id', selectedDriver)
-        .gte('date', startDate)
-        .lte('date', endDate),
+    const [tickets, timesheets] = await Promise.all([
+      fetch(`/api/tickets?driver_id=${selectedDriver}&start=${startDate}&end=${endDate}&status=approved`).then(r=>r.json()),
+      fetch(`/api/timesheets?driver_id=${selectedDriver}&start=${startDate}&end=${endDate}`).then(r=>r.json()),
     ])
 
     const totalLoads = tickets?.length || 0
@@ -114,7 +107,7 @@ Write a clean, professional settlement summary. Include:
 Keep it professional, clear, and under 400 words.`
 
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

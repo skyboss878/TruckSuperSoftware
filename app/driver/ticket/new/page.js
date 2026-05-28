@@ -33,7 +33,7 @@ export default function NewTicket() {
 
   async function loadDriver() {
     const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('drivers').select('*').eq('auth_id', user.id).single()
+    const data = await fetch(`/api/drivers?auth_id=${user.id}`).then(r=>r.json())
     setDriver(data)
     if (data) {
       setForm(f => ({ ...f, truck_number: data.truck_number || '', trailer_number: data.trailer_number || '' }))
@@ -67,10 +67,11 @@ export default function NewTicket() {
   }
 
   async function confirmTruck() {
-    await supabase.from('drivers').update({
-      truck_number: form.truck_number,
-      trailer_number: form.trailer_number
-    }).eq('id', driver.id)
+    await fetch(`/api/drivers/${driver.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ truck_number: form.truck_number, trailer_number: form.trailer_number }),
+    })
     setShowTruckModal(false)
   }
 

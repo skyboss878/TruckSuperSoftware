@@ -26,7 +26,11 @@ export default function AdminMaintenanceDetail() {
     setUpdating(true)
     const update = { status }
     if (status === 'resolved') update.resolved_at = new Date().toISOString()
-    await supabase.from('maintenance').update(update).eq('id', id)
+    await fetch('/api/maintenance', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...update }),
+    })
     await loadLog()
     setUpdating(false)
   }

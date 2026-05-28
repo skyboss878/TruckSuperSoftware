@@ -15,19 +15,20 @@ export default function AdminTicketDetail() {
   useEffect(() => { loadTicket() }, [])
 
   async function loadTicket() {
-    const { data } = await supabase
-      .from('tickets')
-      .select('*, drivers(*)')
-      .eq('id', id)
-      .single()
-    setTicket(data)
+    const res = await fetch(`/api/tickets/${id}`)
+    const data = await res.json()
+    setTicket(data?.id ? data : null)
     setDriver(data?.drivers)
     setLoading(false)
   }
 
   async function updateStatus(status) {
     setUpdating(true)
-    await supabase.from('tickets').update({ status }).eq('id', id)
+    await fetch(`/api/tickets/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    })
     await loadTicket()
     setShowActions(false)
     setUpdating(false)

@@ -42,7 +42,7 @@ export default function TimesheetPage() {
 
   async function loadDriver() {
     const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('drivers').select('*').eq('auth_id', user.id).single()
+    const data = await fetch(`/api/drivers?auth_id=${user.id}`).then(r=>r.json())
     setDriver(data)
   }
 
@@ -106,7 +106,11 @@ export default function TimesheetPage() {
       return
     }
 
-    await supabase.from('timesheets').insert(payload)
+    await fetch('/api/timesheets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...payload, auth_id: driver.auth_id }),
+    })
     setShowForm(false)
     setSaving(false)
     setForm({

@@ -39,12 +39,12 @@ export default function AdminCompliance() {
 
   async function loadAll() {
     setLoading(true)
-    const [{ data: d }, { data: r }] = await Promise.all([
-      supabase.from('drivers').select('*').order('name'),
-      supabase.from('dot_compliance').select('*, drivers(name)').order('expiry_date', { ascending: true }),
+    const [d, r] = await Promise.all([
+      fetch('/api/drivers').then(res=>res.json()),
+      fetch('/api/compliance').then(res=>res.json()),
     ])
-    setDrivers(d || [])
-    setRecords(r || [])
+    setDrivers(Array.isArray(d) ? d : [])
+    setRecords(Array.isArray(r) ? r : [])
     setLoading(false)
   }
 
@@ -97,7 +97,11 @@ export default function AdminCompliance() {
     if (!payload.expiry_date) delete payload.expiry_date
     if (!payload.result)      delete payload.result
     if (!payload.notes)       delete payload.notes
-    await supabase.from('dot_compliance').insert(payload)
+    await fetch('/api/compliance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
     setShowAdd(false)
     setForm(BLANK_FORM)
     setSaving(false)
@@ -146,7 +150,7 @@ Write a professional DOT compliance report with:
 Professional tone, under 500 words, clear headings.`
 
     try {
-      const res  = await fetch('https://api.anthropic.com/v1/messages', {
+      const res  = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

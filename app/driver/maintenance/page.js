@@ -27,7 +27,7 @@ export default function MaintenancePage() {
 
   async function loadDriver() {
     const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('drivers').select('*').eq('auth_id', user.id).single()
+    const data = await fetch(`/api/drivers?auth_id=${user.id}`).then(r=>r.json())
     setDriver(data)
   }
 
@@ -68,7 +68,11 @@ export default function MaintenancePage() {
       return
     }
 
-    await supabase.from('maintenance').insert(payload)
+    await fetch('/api/maintenance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...payload, auth_id: driver.auth_id }),
+    })
     setForm({ issue: '', severity: 'low', notes: '' })
     setShowForm(false)
     setSaving(false)

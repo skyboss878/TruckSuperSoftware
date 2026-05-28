@@ -12,8 +12,12 @@ export async function GET(request) {
       .select('*, drivers(name)')
       .order('created_at', { ascending: false })
 
+    const start  = searchParams.get('start')
+    const end    = searchParams.get('end')
     if (driver_id) query = query.eq('driver_id', driver_id)
     if (status)    query = query.eq('status', status)
+    if (start)     query = query.gte('date', start)
+    if (end)       query = query.lte('date', end)
 
     const { data, error } = await query
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
