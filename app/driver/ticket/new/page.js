@@ -7,6 +7,7 @@ export default function NewTicket() {
   const router = useRouter()
   const [driver, setDriver] = useState(null)
   const [customers, setCustomers] = useState([])
+  const [locations, setLocations] = useState([])
   const [saving, setSaving] = useState(false)
   const [step, setStep] = useState(1) // multi-step form
   const [showTruckModal, setShowTruckModal] = useState(false)
@@ -42,8 +43,12 @@ export default function NewTicket() {
   }
 
   async function loadCustomers() {
-    const { data } = await supabase.from('customers').select('*').eq('active', true).order('name')
-    setCustomers(data || [])
+    const [c, l] = await Promise.all([
+      fetch('/api/customers').then(r => r.json()),
+      fetch('/api/locations').then(r => r.json()),
+    ])
+    setCustomers(Array.isArray(c) ? c : [])
+    setLocations(Array.isArray(l) ? l : [])
   }
 
   function set(field, value) {
@@ -175,7 +180,11 @@ export default function NewTicket() {
                 <label className="text-xs text-gray-400 font-medium uppercase tracking-wide">Location Loaded</label>
                 <input value={form.location_loaded} onChange={e => set('location_loaded', e.target.value)}
                   placeholder="e.g. Odessa TX"
+                  list="locations-list"
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 mt-1 outline-none focus:border-[#2D7A5F]" />
+                <datalist id="locations-list">
+                  {locations.map(l => <option key={l.id} value={l.name} />)}
+                </datalist>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
