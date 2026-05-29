@@ -49,6 +49,8 @@ export default function AdminMaintenanceDetail() {
 
   const statusIcon = { open: '🔴', in_progress: '🟡', resolved: '🟢' }
 
+  if (!log) return <div className="p-8 text-center text-gray-400"><p>Loading...</p></div>
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b px-4 py-4 flex items-center gap-4 sticky top-0 z-10">
