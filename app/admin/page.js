@@ -331,7 +331,6 @@ export default function AdminDashboard() {
         {tab === 'tracking' && (() => { setTimeout(() => router.push('/admin/tracking'), 0); return null })()}
         {tab === 'dispatch' && (() => { setTimeout(() => router.push('/admin/dispatch'), 0); return null })()}
         {tab === 'settings' && (() => { setTimeout(() => router.push('/admin/settings'), 0); return null })()}
-        {tab === 'dispatch' && (() => { setTimeout(() => router.push('/admin/dispatch'), 0); return null })()}
       </div>
     </div>
   )
