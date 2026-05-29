@@ -62,15 +62,15 @@ export default function AdminMaintenanceDetail() {
         <div className="bg-white rounded-2xl p-4 shadow-sm">
           <div className="flex justify-between items-start mb-4">
             <div className="flex items-center gap-2">
-              <span className="text-xl">{statusIcon[log.status]}</span>
+              <span className="text-xl">{statusIcon[log?.status]}</span>
               <span className={`text-xs px-2 py-1 rounded-full font-semibold capitalize ${severityColor[log.severity]}`}>
-                {log.severity} severity
+                {log?.severity} severity
               </span>
             </div>
             <span className="text-xs text-gray-400">{new Date(log.created_at).toLocaleDateString()}</span>
           </div>
 
-          <h2 className="text-lg font-bold text-gray-800 mb-4">{log.issue}</h2>
+          <h2 className="text-lg font-bold text-gray-800 mb-4">{log?.issue}</h2>
 
           {[
             ['Driver', log.drivers?.name],
@@ -89,7 +89,7 @@ export default function AdminMaintenanceDetail() {
           {log.notes && (
             <div className="mt-4 bg-gray-50 rounded-xl p-3">
               <p className="text-xs text-gray-400 font-medium mb-1">NOTES</p>
-              <p className="text-gray-600 text-sm">{log.notes}</p>
+              <p className="text-gray-600 text-sm">{log?.notes}</p>
             </div>
           )}
         </div>
