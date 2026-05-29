@@ -55,6 +55,14 @@
       "namedRegex": "^/api/drivers/(?<nxtPid>[^/]+?)(?:/)?$"
     },
     {
+      "page": "/api/tickets/[id]",
+      "regex": "^/api/tickets/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/tickets/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/driver/ticket/[id]",
       "regex": "^/driver/ticket/([^/]+?)(?:/)?$",
       "routeKeys": {
@@ -87,6 +95,18 @@
       "regex": "^/admin(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/admin(?:/)?$"
+    },
+    {
+      "page": "/admin/ai",
+      "regex": "^/admin/ai(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/ai(?:/)?$"
+    },
+    {
+      "page": "/admin/assistant",
+      "regex": "^/admin/assistant(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/assistant(?:/)?$"
     },
     {
       "page": "/admin/compliance",
@@ -131,6 +151,24 @@
       "namedRegex": "^/admin/reports/timesheets(?:/)?$"
     },
     {
+      "page": "/admin/tracking",
+      "regex": "^/admin/tracking(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/tracking(?:/)?$"
+    },
+    {
+      "page": "/api/ai",
+      "regex": "^/api/ai(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/ai(?:/)?$"
+    },
+    {
+      "page": "/api/assistant",
+      "regex": "^/api/assistant(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/assistant(?:/)?$"
+    },
+    {
       "page": "/api/compliance",
       "regex": "^/api/compliance(?:/)?$",
       "routeKeys": {},
@@ -143,16 +181,52 @@
       "namedRegex": "^/api/drivers(?:/)?$"
     },
     {
+      "page": "/api/maintenance",
+      "regex": "^/api/maintenance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/maintenance(?:/)?$"
+    },
+    {
       "page": "/api/messages",
       "regex": "^/api/messages(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/messages(?:/)?$"
     },
     {
+      "page": "/api/tickets",
+      "regex": "^/api/tickets(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/tickets(?:/)?$"
+    },
+    {
+      "page": "/api/timesheets",
+      "regex": "^/api/timesheets(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/timesheets(?:/)?$"
+    },
+    {
+      "page": "/api/tracking",
+      "regex": "^/api/tracking(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/tracking(?:/)?$"
+    },
+    {
+      "page": "/api/upload",
+      "regex": "^/api/upload(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/upload(?:/)?$"
+    },
+    {
       "page": "/driver",
       "regex": "^/driver(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/driver(?:/)?$"
+    },
+    {
+      "page": "/driver/assistant",
+      "regex": "^/driver/assistant(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/driver/assistant(?:/)?$"
     },
     {
       "page": "/driver/compliance",
@@ -183,6 +257,12 @@
       "regex": "^/driver/timesheet(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/driver/timesheet(?:/)?$"
+    },
+    {
+      "page": "/driver/tracking",
+      "regex": "^/driver/tracking(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/driver/tracking(?:/)?$"
     },
     {
       "page": "/login",
