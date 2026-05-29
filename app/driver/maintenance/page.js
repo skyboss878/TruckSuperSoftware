@@ -20,7 +20,11 @@ export default function MaintenancePage() {
     issue: '',
     severity: 'low',
     notes: '',
+    maintenance_type: 'unscheduled',
+    vehicle_type: 'truck',
   })
+  const [receipt, setReceipt] = useState(null)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => { loadDriver() }, [])
   useEffect(() => { if (driver) loadLogs() }, [driver, tab])
@@ -32,13 +36,8 @@ export default function MaintenancePage() {
   }
 
   async function loadLogs() {
-    const { data } = await supabase
-      .from('maintenance')
-      .select('*')
-      .eq('driver_id', driver.id)
-      .eq('status', tab)
-      .order('created_at', { ascending: false })
-    setLogs(data || [])
+    const data = await fetch(`/api/maintenance?driver_id=${driver.id}`).then(r=>r.json())
+    setLogs((Array.isArray(data) ? data : []).filter(m => m.status === tab))
   }
 
   function set(field, value) {
@@ -55,6 +54,8 @@ export default function MaintenancePage() {
       issue: form.issue,
       severity: form.severity,
       notes: form.notes,
+      maintenance_type: form.maintenance_type,
+      vehicle_type: form.vehicle_type,
       status: 'open',
       synced: true,
     }
@@ -73,7 +74,8 @@ export default function MaintenancePage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...payload, auth_id: driver.auth_id }),
     })
-    setForm({ issue: '', severity: 'low', notes: '' })
+    setForm({ issue: '', severity: 'low', notes: '', maintenance_type: 'unscheduled', vehicle_type: 'truck' })
+    setReceipt(null)
     setShowForm(false)
     setSaving(false)
     loadLogs()
@@ -175,6 +177,32 @@ export default function MaintenancePage() {
               </div>
             )}
 
+            {/* Maintenance Type */}
+            <div>
+              <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">Maintenance Type</label>
+              <div className="flex gap-2">
+                {[['scheduled','📅 Scheduled'],['unscheduled','⚠️ Unscheduled']].map(([val, label]) => (
+                  <button key={val} onClick={() => set('maintenance_type', val)}
+                    className={`flex-1 py-3 rounded-xl border-2 font-semibold text-sm transition-colors ${
+                      form.maintenance_type === val ? 'border-[#2D7A5F] bg-green-50 text-[#2D7A5F]' : 'border-gray-200 text-gray-400'
+                    }`}>{label}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* Vehicle Type */}
+            <div>
+              <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">Vehicle</label>
+              <div className="flex gap-2">
+                {[['truck','🚛 Truck'],['trailer','🚚 Trailer'],['both','🔧 Both']].map(([val, label]) => (
+                  <button key={val} onClick={() => set('vehicle_type', val)}
+                    className={`flex-1 py-3 rounded-xl border-2 font-semibold text-sm transition-colors ${
+                      form.vehicle_type === val ? 'border-[#2D7A5F] bg-green-50 text-[#2D7A5F]' : 'border-gray-200 text-gray-400'
+                    }`}>{label}</button>
+                ))}
+              </div>
+            </div>
+
             {/* Issue */}
             <div>
               <label className="text-xs text-gray-400 font-medium uppercase tracking-wide">Issue Description</label>
@@ -216,6 +244,25 @@ export default function MaintenancePage() {
                 rows={3}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 mt-1 outline-none focus:border-[#2D7A5F] resize-none"
               />
+            </div>
+
+            {/* Receipt Photo */}
+            <div>
+              <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">Receipt / Photo</label>
+              {receipt ? (
+                <div className="relative">
+                  <img src={URL.createObjectURL(receipt)} className="w-full rounded-xl object-cover max-h-40" />
+                  <button onClick={() => setReceipt(null)}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center">✕</button>
+                </div>
+              ) : (
+                <label className="w-full border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center gap-2 cursor-pointer active:opacity-70">
+                  <span className="text-3xl">📷</span>
+                  <span className="text-sm text-gray-400">Tap to add photo or receipt</span>
+                  <input type="file" accept="image/*" capture="environment" className="hidden"
+                    onChange={e => setReceipt(e.target.files[0] || null)} />
+                </label>
+              )}
             </div>
           </div>
 

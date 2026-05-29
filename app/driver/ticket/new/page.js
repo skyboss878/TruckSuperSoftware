@@ -11,6 +11,8 @@ export default function NewTicket() {
   const [saving, setSaving] = useState(false)
   const [step, setStep] = useState(1) // multi-step form
   const [showTruckModal, setShowTruckModal] = useState(false)
+  const [showPreTrip, setShowPreTrip] = useState(false)
+  const [pretripChecks, setPretripChecks] = useState({})
   const [form, setForm] = useState({
     customer_name: '',
     load_id: '',
@@ -78,7 +80,27 @@ export default function NewTicket() {
       body: JSON.stringify({ truck_number: form.truck_number, trailer_number: form.trailer_number }),
     })
     setShowTruckModal(false)
+    setShowPreTrip(true)
   }
+
+  function toggleCheck(key) {
+    setPretripChecks(c => ({ ...c, [key]: !c[key] }))
+  }
+
+  const PRETRIP_ITEMS = [
+    { key: 'lights', label: 'Lights (head, tail, brake, turn)' },
+    { key: 'tires', label: 'Tires — no flats or damage' },
+    { key: 'brakes', label: 'Brakes operational' },
+    { key: 'mirrors', label: 'Mirrors clean and adjusted' },
+    { key: 'horn', label: 'Horn working' },
+    { key: 'wipers', label: 'Wipers functional' },
+    { key: 'fuel', label: 'Fuel level checked' },
+    { key: 'fluids', label: 'Oil & coolant levels OK' },
+    { key: 'cargo', label: 'Cargo area secure and clean' },
+    { key: 'docs', label: 'License, registration & insurance' },
+  ]
+
+  const allChecked = PRETRIP_ITEMS.every(i => pretripChecks[i.key])
 
   async function handleSave(submitStatus = 'started') {
     setSaving(true)
@@ -343,6 +365,40 @@ export default function NewTicket() {
       </div>
 
       {/* Confirm Truck Modal */}
+      {showPreTrip && (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/40">
+          <div className="bg-white rounded-t-3xl w-full p-6 max-h-[90vh] overflow-y-auto">
+            <div className="text-center mb-5">
+              <div className="text-4xl mb-2">✅</div>
+              <h2 className="text-xl font-bold text-gray-800">Pre-Trip Inspection</h2>
+              <p className="text-gray-400 text-sm mt-1">Check each item before starting your load.</p>
+            </div>
+            <div className="space-y-2 mb-5">
+              {PRETRIP_ITEMS.map(item => (
+                <button key={item.key} onClick={() => toggleCheck(item.key)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-colors text-left ${
+                    pretripChecks[item.key] ? 'border-[#2D7A5F] bg-green-50' : 'border-gray-200 bg-white'
+                  }`}>
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    pretripChecks[item.key] ? 'border-[#2D7A5F] bg-[#2D7A5F]' : 'border-gray-300'
+                  }`}>
+                    {pretripChecks[item.key] && <span className="text-white text-xs">✓</span>}
+                  </div>
+                  <span className="text-sm text-gray-700 font-medium">{item.label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="text-center text-xs text-gray-400 mb-3">
+              {Object.values(pretripChecks).filter(Boolean).length}/{PRETRIP_ITEMS.length} items checked
+            </div>
+            <button onClick={() => setShowPreTrip(false)} disabled={!allChecked}
+              className="w-full bg-[#2D7A5F] text-white py-4 rounded-2xl font-bold text-lg disabled:opacity-40">
+              {allChecked ? '✅ Start Ticket' : `Check all ${PRETRIP_ITEMS.length} items to continue`}
+            </button>
+          </div>
+        </div>
+      )}
+
       {showTruckModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6">
           <div className="bg-white rounded-3xl p-6 w-full max-w-sm">
