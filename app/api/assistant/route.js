@@ -73,6 +73,10 @@ IMPORTANT: When the user asks to "show" tickets or data, list them out clearly w
     })
 
     const data = await response.json()
+    if (!data.content) {
+      console.error('Anthropic error:', JSON.stringify(data))
+      return NextResponse.json({ reply: 'AI Error: ' + (data.error?.message || data.type || JSON.stringify(data)), messages })
+    }
     const reply = data.content?.find(c => c.type === 'text')?.text || 'Sorry, no response.'
 
     return NextResponse.json({
