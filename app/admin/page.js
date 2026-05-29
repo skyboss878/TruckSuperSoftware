@@ -132,7 +132,6 @@ export default function AdminDashboard() {
           { key: 'tracking', label: '📍 Live Map' },
           { key: 'dispatch', label: '⚡ Dispatch' },
           { key: 'settings', label: '⚙️ Settings' },
-          { key: 'dispatch', label: '⚡ Dispatch' },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`flex-shrink-0 px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${
