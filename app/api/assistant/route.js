@@ -1,148 +1,63 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
 
-const tools = [
-  {
-    name: 'get_tickets',
-    description: 'Get tickets. Filter by driver_id, status (started/submitted/approved/rejected), or date range.',
-    input_schema: {
-      type: 'object',
-      properties: {
-        driver_id: { type: 'string' },
-        status: { type: 'string' },
-        limit: { type: 'number' },
-      },
-    },
-  },
-  {
-    name: 'get_drivers',
-    description: 'Get all drivers or a specific driver by name or id.',
-    input_schema: {
-      type: 'object',
-      properties: {
-        name: { type: 'string' },
-        status: { type: 'string' },
-      },
-    },
-  },
-  {
-    name: 'update_ticket',
-    description: 'Update a ticket status (approved, rejected, submitted) or any field.',
-    input_schema: {
-      type: 'object',
-      required: ['id'],
-      properties: {
-        id: { type: 'string' },
-        status: { type: 'string' },
-      },
-    },
-  },
-  {
-    name: 'get_compliance',
-    description: 'Get DOT compliance records. Filter by driver_id.',
-    input_schema: {
-      type: 'object',
-      properties: {
-        driver_id: { type: 'string' },
-      },
-    },
-  },
-  {
-    name: 'get_timesheets',
-    description: 'Get timesheet records. Filter by driver_id.',
-    input_schema: {
-      type: 'object',
-      properties: {
-        driver_id: { type: 'string' },
-        limit: { type: 'number' },
-      },
-    },
-  },
-  {
-    name: 'get_maintenance',
-    description: 'Get maintenance records. Filter by driver_id or status.',
-    input_schema: {
-      type: 'object',
-      properties: {
-        driver_id: { type: 'string' },
-        status: { type: 'string' },
-      },
-    },
-  },
-  {
-    name: 'send_message',
-    description: 'Send a message to a driver or broadcast to all drivers.',
-    input_schema: {
-      type: 'object',
-      required: ['content', 'sender_id', 'sender_role'],
-      properties: {
-        content: { type: 'string' },
-        sender_id: { type: 'string' },
-        sender_role: { type: 'string' },
-        recipient_id: { type: 'string' },
-      },
-    },
-  },
-]
-
-async function runTool(name, input) {
-  switch (name) {
-    case 'get_tickets': {
-      let q = supabaseAdmin.from('tickets').select('*, drivers(name)').order('created_at', { ascending: false }).limit(input.limit || 20)
-      if (input.driver_id) q = q.eq('driver_id', input.driver_id)
-      if (input.status)    q = q.eq('status', input.status)
-      const { data } = await q
-      return data || []
-    }
-    case 'get_drivers': {
-      let q = supabaseAdmin.from('drivers').select('*').order('name')
-      if (input.status) q = q.eq('status', input.status)
-      const { data } = await q
-      if (input.name) return (data||[]).filter(d => d.name.toLowerCase().includes(input.name.toLowerCase()))
-      return data || []
-    }
-    case 'update_ticket': {
-      const { id, ...updates } = input
-      const { data } = await supabaseAdmin.from('tickets').update(updates).eq('id', id).select().single()
-      return data || { success: true }
-    }
-    case 'get_compliance': {
-      let q = supabaseAdmin.from('dot_compliance').select('*, drivers(name)').order('expiry_date', { ascending: true })
-      if (input.driver_id) q = q.eq('driver_id', input.driver_id)
-      const { data } = await q
-      return data || []
-    }
-    case 'get_timesheets': {
-      let q = supabaseAdmin.from('timesheets').select('*, drivers(name)').order('date', { ascending: false }).limit(input.limit || 20)
-      if (input.driver_id) q = q.eq('driver_id', input.driver_id)
-      const { data } = await q
-      return data || []
-    }
-    case 'get_maintenance': {
-      let q = supabaseAdmin.from('maintenance').select('*, drivers(name)').order('created_at', { ascending: false })
-      if (input.driver_id) q = q.eq('driver_id', input.driver_id)
-      if (input.status)    q = q.eq('status', input.status)
-      const { data } = await q
-      return data || []
-    }
-    case 'send_message': {
-      const { data } = await supabaseAdmin.from('messages').insert(input).select().single()
-      return data || { success: true }
-    }
-    default:
-      return { error: 'Unknown tool' }
-  }
+async function getData() {
+  const [
+    { data: drivers },
+    { data: tickets },
+    { data: timesheets },
+    { data: maintenance },
+    { data: compliance },
+  ] = await Promise.all([
+    supabaseAdmin.from('drivers').select('*').order('name'),
+    supabaseAdmin.from('tickets').select('*, drivers(name)').order('created_at', { ascending: false }).limit(200),
+    supabaseAdmin.from('timesheets').select('*, drivers(name)').order('date', { ascending: false }).limit(200),
+    supabaseAdmin.from('maintenance').select('*, drivers(name)').order('created_at', { ascending: false }),
+    supabaseAdmin.from('dot_compliance').select('*, drivers(name)').order('expiry_date', { ascending: true }),
+  ])
+  return { drivers, tickets, timesheets, maintenance, compliance }
 }
 
 export async function POST(request) {
   try {
-    const { messages, role, user_id, driver_id } = await request.json()
+    const { messages } = await request.json()
+    const db = await getData()
 
-    const system = role === 'admin'
-      ? `You are the AI assistant for Smith's Freight Hub, a trucking company management app. You have full access to tickets, drivers, timesheets, compliance records, maintenance, and messages. You can read data and take actions like approving tickets or sending messages. Be concise and action-oriented. Today is ${new Date().toLocaleDateString()}.`
-      : `You are the AI assistant for Smith's Freight Hub. You are helping a driver (driver_id: ${driver_id}). Only access data for this driver. Help them check their tickets, timesheets, miles, and compliance status. Be friendly and concise.`
+    // Build driver name lookup
+    const driverMap = {}
+    db.drivers?.forEach(d => { driverMap[d.id] = d.name })
 
-    let response = await fetch('https://api.anthropic.com/v1/messages', {
+    const systemPrompt = `You are an AI assistant for Smith's Freight Hub trucking company. You have access to live database data. Answer questions clearly and specifically. When showing tickets, always include: date, customer, driver name, load ID, location, status, and weight. Format numbers cleanly.
+
+DRIVERS (${db.drivers?.length || 0}):
+${db.drivers?.map(d => `- ${d.name} | Email: ${d.email} | Truck: ${d.truck_number || 'N/A'} | Trailer: ${d.trailer_number || 'N/A'} | Status: ${d.status}`).join('\n') || 'None'}
+
+TICKETS (${db.tickets?.length || 0} total):
+${db.tickets?.map(t => {
+  const weight = t.boxes?.reduce((s, b) => s + (parseFloat(b.weight) || 0), 0) || 0
+  return `- Date: ${t.date} | Driver: ${t.drivers?.name || driverMap[t.driver_id] || 'Unknown'} | Customer: ${t.customer_name || 'N/A'} | Load: ${t.load_id || 'N/A'} | BOL: ${t.bol_number || 'N/A'} | Location: ${t.location_loaded || 'N/A'} | Status: ${t.status} | Weight: ${weight}t | Boxes: ${t.boxes?.length || 0}`
+}).join('\n') || 'None'}
+
+TIMESHEETS (${db.timesheets?.length || 0}):
+${db.timesheets?.map(ts => {
+  const miles = ts.state_miles?.reduce((s, m) => s + (parseInt(m.miles) || 0), 0) || 0
+  return `- Date: ${ts.date} | Driver: ${ts.drivers?.name || driverMap[ts.driver_id] || 'Unknown'} | Type: ${ts.log_type} | Hours: ${ts.start_time} - ${ts.end_time || 'ongoing'} | Miles: ${miles} | Status: ${ts.status}`
+}).join('\n') || 'None'}
+
+MAINTENANCE (${db.maintenance?.length || 0}):
+${db.maintenance?.map(m => `- Driver: ${m.drivers?.name || 'Unknown'} | Issue: ${m.issue} | Severity: ${m.severity} | Status: ${m.status}`).join('\n') || 'None'}
+
+DOT COMPLIANCE (${db.compliance?.length || 0}):
+${db.compliance?.map(c => {
+  const days = c.expiry_date ? Math.floor((new Date(c.expiry_date) - new Date()) / 86400000) : null
+  return `- Driver: ${c.drivers?.name || 'Unknown'} | Type: ${c.record_type} | Status: ${c.status} | Expires: ${c.expiry_date || 'N/A'} | Days left: ${days !== null ? days : 'N/A'}`
+}).join('\n') || 'None'}
+
+Today: ${new Date().toLocaleDateString()}
+
+IMPORTANT: When the user asks to "show" tickets or data, list them out clearly with all details. Never just say "Done." Always provide the actual data. If asked for a CSV or export, format the data as a CSV table in your response wrapped in \`\`\`csv code blocks.`
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -151,51 +66,21 @@ export async function POST(request) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1024,
-        system,
-        tools,
-        messages,
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: messages,
       }),
     })
 
-    let data = await response.json()
+    const data = await response.json()
+    const reply = data.content?.find(c => c.type === 'text')?.text || 'Sorry, no response.'
 
-    // Agentic loop — keep running tools until done
-    while (data.stop_reason === 'tool_use') {
-      const toolUses = data.content.filter(b => b.type === 'tool_use')
-      const toolResults = await Promise.all(
-        toolUses.map(async t => ({
-          type: 'tool_result',
-          tool_use_id: t.id,
-          content: JSON.stringify(await runTool(t.name, t.input)),
-        }))
-      )
-
-      messages.push({ role: 'assistant', content: data.content })
-      messages.push({ role: 'user', content: toolResults })
-
-      response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': process.env.ANTHROPIC_API_KEY,
-          'anthropic-version': '2023-06-01',
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1024,
-          system,
-          tools,
-          messages,
-        }),
-      })
-      data = await response.json()
-    }
-
-    const text = data.content?.find(b => b.type === 'text')?.text || 'Done.'
-    return NextResponse.json({ reply: text, messages })
+    return NextResponse.json({
+      reply,
+      messages: [...messages, { role: 'assistant', content: reply }],
+    })
   } catch (err) {
-    console.error(err)
-    return NextResponse.json({ error: 'Assistant error' }, { status: 500 })
+    console.error('Assistant error:', err)
+    return NextResponse.json({ error: 'Server error: ' + err.message }, { status: 500 })
   }
 }

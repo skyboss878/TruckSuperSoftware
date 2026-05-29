@@ -52,7 +52,19 @@ export default function AdminAssistant() {
       })
       const data = await res.json()
       setHistory(data.messages || updatedHistory)
-      setMessages(m => [...m, { role: 'assistant', text: data.reply || data.error }])
+      const reply = data.reply || data.error || 'No response'
+      // Check if response contains CSV
+      const csvMatch = reply.match(/```csv\n([\s\S]*?)```/)
+      if (csvMatch) {
+        const csv = csvMatch[1]
+        const blob = new Blob([csv], { type: 'text/csv' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'smiths_export.csv'
+        a.click()
+      }
+      setMessages(m => [...m, { role: 'assistant', text: reply.replace(/```csv[\s\S]*?```/g, '[CSV file downloaded ✅]') }])
     } catch {
       setMessages(m => [...m, { role: 'assistant', text: 'Something went wrong. Try again.' }])
     }
