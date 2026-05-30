@@ -50,7 +50,7 @@ export async function POST(request) {
       .select()
       .single()
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    if (error) { console.error('Pre-trip upsert error:', error); return NextResponse.json({ error: error.message }, { status: 400 }) }
 
     // If defects found, also log to dot_compliance table
     if (defects_found) {
@@ -60,7 +60,7 @@ export async function POST(request) {
         status: 'needs_attention',
         notes: `Pre-trip defects found on ${today}: ${notes || 'See inspection record'}`,
         issue_date: today,
-      })
+      }) } catch(e) { console.error('dot_compliance log failed:', e) }
     }
 
     return NextResponse.json({ success: true, record: data })
