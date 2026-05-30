@@ -50,6 +50,9 @@ export default function DriveTracker({ driver, onSessionComplete }) {
   }, [])
 
   async function checkActiveSession() {
+    // Check localStorage first for fast resume
+    const saved = localStorage.getItem('active_drive')
+    
     const { data } = await supabase
       .from('drive_sessions')
       .select('*')
@@ -65,9 +68,14 @@ export default function DriveTracker({ driver, onSessionComplete }) {
         (data.state_miles || []).map(s => [s.state, s.miles])
       )
       setMiles(data.total_miles || 0)
-      const elapsed = Math.floor((Date.now() - new Date(data.started_at).getTime()) / 1000)
+      // Calculate elapsed from actual start time
+      const startTime = data.started_at || (saved ? JSON.parse(saved).startedAt : new Date().toISOString())
+      const elapsed = Math.floor((Date.now() - new Date(startTime).getTime()) / 1000)
       setElapsed(elapsed)
       resumeTracking(data)
+    } else {
+      // No active session - clear localStorage
+      localStorage.removeItem('active_drive')
     }
   }
 
@@ -125,6 +133,12 @@ export default function DriveTracker({ driver, onSessionComplete }) {
 
       setSession(data)
       sessionIdRef.current = data.id
+      // Save to localStorage so app can resume after background
+      localStorage.setItem('active_drive', JSON.stringify({
+        sessionId: data.id,
+        startedAt: data.started_at || new Date().toISOString(),
+        driverId: driver.id,
+      }))
       setTracking(true)
       setLoading(false)
 
@@ -258,6 +272,7 @@ export default function DriveTracker({ driver, onSessionComplete }) {
     pointsRef.current = []
     stateMilesRef.current = {}
     sessionIdRef.current = null
+    localStorage.removeItem('active_drive')
     setLoading(false)
 
     if (onSessionComplete) onSessionComplete(ts)
