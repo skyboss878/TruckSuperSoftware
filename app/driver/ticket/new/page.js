@@ -316,7 +316,6 @@ export default function NewTicket() {
           </div>
         )}
 
-        {
         {step === 3 && (
           <div className="space-y-4">
             <div className="bg-white rounded-2xl p-4 shadow-sm">
