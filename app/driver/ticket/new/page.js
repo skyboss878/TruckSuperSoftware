@@ -9,6 +9,7 @@ export default function NewTicket() {
   const [customers, setCustomers] = useState([])
   const [locations, setLocations] = useState([])
   const [saving, setSaving] = useState(false)
+  const [photos, setPhotos] = useState([])
   const [step, setStep] = useState(1) // multi-step form
   const [showTruckModal, setShowTruckModal] = useState(false)
   const [showPreTrip, setShowPreTrip] = useState(false)
@@ -124,10 +125,28 @@ export default function NewTicket() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...payload, auth_id: driver.auth_id }),
     })
+    let ticketId = null
     if (!res.ok) {
       const offline = JSON.parse(localStorage.getItem('offline_tickets') || '[]')
       offline.push({ ...payload, synced: false, id: crypto.randomUUID() })
       localStorage.setItem('offline_tickets', JSON.stringify(offline))
+    } else {
+      const ticketData = await res.json()
+      ticketId = ticketData?.id
+    }
+
+    // Upload photos if any
+    if (photos.length > 0 && ticketId) {
+      for (const photo of photos) {
+        try {
+          const formData = new FormData()
+          formData.append('file', photo.file)
+          formData.append('ticket_id', ticketId)
+          formData.append('type', 'photo')
+          formData.append('caption', photo.caption || '')
+          await fetch('/api/upload', { method: 'POST', body: formData })
+        } catch (e) { console.error('Photo upload failed:', e) }
+      }
     }
     setSaving(false)
     router.replace('/driver')
@@ -156,7 +175,7 @@ export default function NewTicket() {
           </div>
         ))}
         <span className="ml-2 text-sm text-gray-400">
-          {step === 1 ? 'Load Info' : step === 2 ? 'Loading Details' : 'Review'}
+          {step === 1 ? 'Load Info' : step === 2 ? 'Loading Details' : step === 3 ? 'Photos' : 'Review'}
         </span>
       </div>
 
@@ -297,7 +316,60 @@ export default function NewTicket() {
           </div>
         )}
 
+        {
         {step === 3 && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <h2 className="font-bold text-gray-700 mb-2">📸 Photos</h2>
+              <p className="text-xs text-gray-400 mb-4">Add photos of the load, BOL, or delivery location (optional)</p>
+
+              <label className="block w-full border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center cursor-pointer active:opacity-70">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  capture="environment"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const files = Array.from(e.target.files)
+                    const previews = files.map(f => ({ file: f, url: URL.createObjectURL(f), caption: '' }))
+                    setPhotos(prev => [...prev, ...previews])
+                  }}
+                />
+                <div className="text-4xl mb-2">📷</div>
+                <p className="text-sm font-medium text-gray-600">Tap to take photo or choose from gallery</p>
+                <p className="text-xs text-gray-400 mt-1">Multiple photos allowed</p>
+              </label>
+
+              {photos.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  {photos.map((p, i) => (
+                    <div key={i} className="flex items-start gap-3 bg-gray-50 rounded-xl p-3">
+                      <img src={p.url} alt="preview" className="w-16 h-16 object-cover rounded-xl shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <input
+                          type="text"
+                          placeholder="Caption (optional)"
+                          value={p.caption}
+                          onChange={e => {
+                            const updated = [...photos]
+                            updated[i].caption = e.target.value
+                            setPhotos(updated)
+                          }}
+                          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#2D7A5F]"
+                        />
+                      </div>
+                      <button onClick={() => setPhotos(photos.filter((_, j) => j !== i))}
+                        className="text-red-400 text-lg shrink-0">✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        step === 4 && (
           <div className="space-y-4">
             <div className="bg-white rounded-2xl p-4 shadow-sm">
               <h2 className="font-bold text-gray-700 mb-4">Review Ticket</h2>
@@ -350,7 +422,7 @@ export default function NewTicket() {
             Next
           </button>
         )}
-        {step === 3 && (
+        {step === 4 && (
           <>
             <button onClick={() => handleSave('started')} disabled={saving}
               className="flex-1 border-2 border-[#2D7A5F] text-[#2D7A5F] py-4 rounded-2xl font-semibold disabled:opacity-40">
