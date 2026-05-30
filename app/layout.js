@@ -1,5 +1,6 @@
 'use client'
 import './globals.css'
+import PWAManager from '@/components/PWAManager'
 import { LanguageProvider } from '@/lib/LanguageContext'
 import { useEffect, useState } from 'react'
 
@@ -30,6 +31,7 @@ export default function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning>
       <body>
         <LanguageProvider>
+        <PWAManager />
           <DynamicHtml>
             {children}
           </DynamicHtml>
