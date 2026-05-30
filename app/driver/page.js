@@ -40,6 +40,15 @@ export default function DriverDashboard() {
       router.replace('/login')
       return
     }
+    // Check if today's pre-trip inspection is done
+    const today = new Date().toISOString().split('T')[0]
+    const res = await fetch(`/api/pre-trip?driver_id=${data.id}&date=${today}`)
+    const pretrip = await res.json()
+    if (!pretrip.completed) {
+      router.replace('/driver/pretrip')
+      return
+    }
+
     setDriver(data)
     setLoading(false)
   }
