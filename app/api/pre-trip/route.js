@@ -5,7 +5,30 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
     const driver_id = searchParams.get('driver_id')
+    const admin = searchParams.get('admin')
     const date = searchParams.get('date') || new Date().toISOString().split('T')[0]
+
+    // Admin: return all active drivers + their inspection status for today
+    if (admin === 'true') {
+      const { data: drivers } = await supabaseAdmin
+        .from('drivers')
+        .select('id, name, truck_number, status')
+        .eq('status', 'active')
+        .order('name')
+
+      const { data: inspections } = await supabaseAdmin
+        .from('pre_trip_inspections')
+        .select('*')
+        .eq('inspection_date', date)
+
+      const result = (drivers || []).map(d => ({
+        ...d,
+        inspection: (inspections || []).find(i => i.driver_id === d.id) || null,
+      }))
+      return NextResponse.json({ date, drivers: result })
+    }
+
+    // Driver: check their own inspection
     if (!driver_id) return NextResponse.json({ error: 'driver_id required' }, { status: 400 })
 
     const { data, error } = await supabaseAdmin
