@@ -34,7 +34,6 @@ export async function POST(request) {
 
     const today = new Date().toISOString().split('T')[0]
 
-    // Upsert so duplicate submits don't error
     const { data, error } = await supabaseAdmin
       .from('pre_trip_inspections')
       .upsert({
@@ -50,17 +49,23 @@ export async function POST(request) {
       .select()
       .single()
 
-    if (error) { console.error('Pre-trip upsert error:', error); return NextResponse.json({ error: error.message }, { status: 400 }) }
+    if (error) {
+      console.error('Pre-trip upsert error:', error)
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
 
-    // If defects found, also log to dot_compliance table
     if (defects_found) {
-      await supabaseAdmin.from('dot_compliance').insert({
-        driver_id,
-        record_type: 'pre_trip_defect',
-        status: 'needs_attention',
-        notes: `Pre-trip defects found on ${today}: ${notes || 'See inspection record'}`,
-        issue_date: today,
-      }) } catch(e) { console.error('dot_compliance log failed:', e) }
+      try {
+        await supabaseAdmin.from('dot_compliance').insert({
+          driver_id,
+          record_type: 'pre_trip_defect',
+          status: 'needs_attention',
+          notes: `Pre-trip defects found on ${today}: ${notes || 'See inspection record'}`,
+          issue_date: today,
+        })
+      } catch (e) {
+        console.error('dot_compliance log failed:', e)
+      }
     }
 
     return NextResponse.json({ success: true, record: data })
