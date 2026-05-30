@@ -11,6 +11,7 @@ export default function AdminTracking() {
   const mapRef = useRef(null)
   const leafletMap = useRef(null)
   const markers = useRef({})
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
     loadScript()
@@ -51,10 +52,19 @@ export default function AdminTracking() {
   }
 
   async function loadDrivers() {
-    const data = await fetch('/api/tracking').then(r => r.json())
-    setDrivers(Array.isArray(data) ? data : [])
-    setLoading(false)
-    if (Array.isArray(data)) updateMarkers(data)
+    setRefreshing(true)
+    try {
+      const res = await fetch('/api/tracking')
+      if (!res.ok) throw new Error('Failed')
+      const data = await res.json()
+      setDrivers(Array.isArray(data) ? data : [])
+      if (Array.isArray(data)) updateMarkers(data)
+    } catch (e) {
+      console.error('Tracking fetch error:', e)
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
   }
 
   function updateMarkers(data) {
@@ -106,7 +116,7 @@ export default function AdminTracking() {
       <div className="bg-white border-b px-4 py-4 flex items-center gap-4 sticky top-0 z-10">
         <button onClick={() => router.back()} className="text-[#2D7A5F] font-medium">← Back</button>
         <h1 className="text-lg font-bold text-gray-800 flex-1 text-center">Live Fleet Map</h1>
-        <button onClick={loadDrivers} className="text-[#2D7A5F] text-sm font-medium">↻ Refresh</button>
+        <button onClick={loadDrivers} disabled={refreshing} className="text-[#2D7A5F] text-sm font-medium disabled:opacity-40">{refreshing ? '⏳' : '↻'} Refresh</button>
       </div>
 
       {/* Map */}
