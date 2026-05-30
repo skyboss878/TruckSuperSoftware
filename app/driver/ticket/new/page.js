@@ -166,12 +166,12 @@ export default function NewTicket() {
 
       {/* Step indicator */}
       <div className="bg-white px-6 py-3 flex items-center gap-2 border-b">
-        {[1, 2, 3].map(s => (
+        {[1, 2, 3, 4].map(s => (
           <div key={s} className="flex items-center gap-2">
             <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
               step >= s ? 'bg-[#2D7A5F] text-white' : 'bg-gray-200 text-gray-400'
             }`}>{s}</div>
-            {s < 3 && <div className={`h-0.5 w-8 ${step > s ? 'bg-[#2D7A5F]' : 'bg-gray-200'}`} />}
+            {s < 4 && <div className={`h-0.5 w-8 ${step > s ? 'bg-[#2D7A5F]' : 'bg-gray-200'}`} />}
           </div>
         ))}
         <span className="ml-2 text-sm text-gray-400">
@@ -369,7 +369,7 @@ export default function NewTicket() {
           </div>
         )}
 
-        step === 4 && (
+        {step === 4 && (
           <div className="space-y-4">
             <div className="bg-white rounded-2xl p-4 shadow-sm">
               <h2 className="font-bold text-gray-700 mb-4">Review Ticket</h2>
