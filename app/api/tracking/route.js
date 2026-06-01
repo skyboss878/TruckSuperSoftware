@@ -16,7 +16,7 @@ function calcMiles(lat1, lng1, lat2, lng2) {
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { action, driver_id, lat, lng, speed, accuracy, trip_id } = body
+    const { action, driver_id, lat, lng, speed, accuracy, trip_id, state, state_miles } = body
 
     if (action === 'start_trip') {
       const { data, error } = await supabaseAdmin
@@ -49,6 +49,8 @@ export async function POST(request) {
         last_lat: lat,
         last_lng: lng,
         last_seen: new Date().toISOString(),
+        ...(state && { state }),
+        ...(state_miles && { state_miles }),
       }).eq('id', trip_id)
 
       return NextResponse.json({ miles: newMiles })
