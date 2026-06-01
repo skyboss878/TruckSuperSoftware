@@ -413,7 +413,7 @@ export default function NewTicket() {
             Back
           </button>
         )}
-        {step < 3 && (
+        {step < 4 && (
           <button
             onClick={() => setStep(s => s + 1)}
             disabled={step === 1 && !stepOneComplete}
