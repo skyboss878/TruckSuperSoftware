@@ -327,7 +327,7 @@ export default function NewTicket() {
                   type="file"
                   accept="image/*"
                   multiple
-                  capture="environment"
+                  capture={false}
                   className="hidden"
                   onChange={async (e) => {
                     const files = Array.from(e.target.files)

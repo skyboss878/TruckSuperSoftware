@@ -13,6 +13,7 @@ export default function MaintenancePage() {
   const router = useRouter()
   const [driver, setDriver] = useState(null)
   const [logs, setLogs] = useState([])
+  const [allLogs, setAllLogs] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [tab, setTab] = useState('open')
@@ -27,7 +28,15 @@ export default function MaintenancePage() {
   const [uploading, setUploading] = useState(false)
 
   useEffect(() => { loadDriver() }, [])
-  useEffect(() => { if (driver) loadLogs() }, [driver, tab])
+  useEffect(() => { if (driver) loadLogs() }, [driver])
+  
+  // Filter by tab
+  const filteredLogs = allLogs.filter(m => m.status === tab)
+  const counts = {
+    open: allLogs.filter(m => m.status === 'open').length,
+    in_progress: allLogs.filter(m => m.status === 'in_progress').length,
+    resolved: allLogs.filter(m => m.status === 'resolved').length,
+  }
 
   async function loadDriver() {
     const { data: { user } } = await supabase.auth.getUser()
@@ -37,7 +46,7 @@ export default function MaintenancePage() {
 
   async function loadLogs() {
     const data = await fetch(`/api/maintenance?driver_id=${driver.id}`).then(r=>r.json())
-    setLogs((Array.isArray(data) ? data : []).filter(m => m.status === tab))
+    setAllLogs(Array.isArray(data) ? data : [])
   }
 
   function set(field, value) {
@@ -100,14 +109,14 @@ export default function MaintenancePage() {
             className={`flex-1 py-3 text-xs font-semibold capitalize border-b-2 transition-colors ${
               tab === t ? 'border-[#2D7A5F] text-[#2D7A5F]' : 'border-transparent text-gray-400'
             }`}>
-            {t.replace('_', ' ')}
+            {t.replace('_', ' ')} {counts[t] > 0 && <span className="text-xs">({counts[t]})</span>}
           </button>
         ))}
       </div>
 
       {/* List */}
       <div className="p-4 pb-24 space-y-3">
-        {logs.length === 0 ? (
+        {filteredLogs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-gray-400">
             <div className="text-5xl mb-4">🔧</div>
             <p className="text-lg font-medium">No issues reported</p>

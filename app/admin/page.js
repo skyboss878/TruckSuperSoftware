@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 export default function AdminDashboard() {
   const router = useRouter()
   const [tab, setTab] = useState('tickets')
+  const [panicAlert, setPanicAlert] = useState(null)
   const [tickets, setTickets] = useState([])
   const [drivers, setDrivers] = useState([])
   const [timesheets, setTimesheets] = useState([])
@@ -35,6 +36,22 @@ export default function AdminDashboard() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, () => loadAll())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'timesheets' }, () => loadAll())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'maintenance' }, () => loadAll())
+      .subscribe()
+    return () => supabase.removeChannel(channel)
+  }, [])
+
+  // Check for panic alerts on load
+  useEffect(() => {
+    const channel = supabase
+      .channel('panic-watch')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: 'content=ilike.%PANIC ALERT%'
+      }, (payload) => {
+        setPanicAlert(payload.new)
+      })
       .subscribe()
     return () => supabase.removeChannel(channel)
   }, [])
@@ -118,6 +135,18 @@ export default function AdminDashboard() {
           ))}
         </div>
       </div>
+
+      {/* Panic Alert Banner */}
+      {panicAlert && (
+        <div className="bg-red-600 px-4 py-3 flex items-center gap-3">
+          <span className="text-white text-2xl animate-bounce">🚨</span>
+          <div className="flex-1">
+            <p className="text-white font-bold text-sm">PANIC ALERT</p>
+            <p className="text-red-200 text-xs">{panicAlert.content?.substring(0, 100)}</p>
+          </div>
+          <button onClick={() => setPanicAlert(null)} className="text-white text-xl">✕</button>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="bg-white border-b flex overflow-x-auto">
