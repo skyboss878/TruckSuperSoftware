@@ -1,0 +1,241 @@
+[1m
+  ███████╗███╗   ███╗██╗████████╗██╗  ██╗███████╗
+  ██╔════╝████╗ ████║██║╚══██╔══╝██║  ██║██╔════╝
+  ███████╗██╔████╔██║██║   ██║   ███████║███████╗
+  ╚════██║██║╚██╔╝██║██║   ██║   ██╔══██║╚════██║
+  ███████║██║ ╚═╝ ██║██║   ██║   ██║  ██║███████║
+  ╚══════╝╚═╝     ╚═╝╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝
+  Trucking App · Full Analysis Report[0m
+  Tue Jun  2 10:51:41 PDT 2026
+
+
+[0;36m[1m══════════════════════════════════════[0m
+[0;36m[1m  1. PROJECT STRUCTURE[0m
+[0;36m[1m══════════════════════════════════════[0m
+[0;32m  ✓ /app exists[0m
+[0;31m  ✗ /app missing[0m
+[0;32m  ✓ /components exists[0m
+[0;32m  ✓ /lib exists[0m
+[0;32m  ✓ /public exists[0m
+
+  📄 Pages:      32
+  🔌 API routes: 17
+  🧩 Components: 4
+
+  [1mAll pages:[0m
+    → /
+    → /admin
+    → /admin/ai
+    → /admin/assistant
+    → /admin/compliance
+    → /admin/dispatch
+    → /admin/drivers/[id]
+    → /admin/drivers/new
+    → /admin/maintenance/[id]
+    → /admin/messages
+    → /admin/reports/earnings
+    → /admin/reports/ifta
+    → /admin/reports/maintenance
+    → /admin/reports/settlements
+    → /admin/reports/tickets
+    → /admin/reports/timesheets
+    → /admin/settings
+    → /admin/ticket/[id]
+    → /admin/tracking
+    → /driver
+    → /driver/assistant
+    → /driver/compliance
+    → /driver/fuel
+    → /driver/hos
+    → /driver/maintenance
+    → /driver/messages
+    → /driver/pretrip
+    → /driver/ticket/[id]
+    → /driver/ticket/new
+    → /driver/timesheet
+    → /driver/tracking
+    → /login
+
+  [1mAll API routes:[0m
+    → /api/ai
+    → /api/assistant
+    → /api/compliance
+    → /api/customers
+    → /api/dispatch
+    → /api/drivers
+    → /api/drivers/[id]
+    → /api/ifta
+    → /api/locations
+    → /api/maintenance
+    → /api/messages
+    → /api/pre-trip
+    → /api/tickets
+    → /api/tickets/[id]
+    → /api/timesheets
+    → /api/tracking
+    → /api/upload
+
+[0;36m[1m══════════════════════════════════════[0m
+[0;36m[1m  2. CRITICAL FILES[0m
+[0;36m[1m══════════════════════════════════════[0m
+[0;32m  ✓ package.json[0m
+[0;32m  ✓ next.config.js[0m
+[0;32m  ✓ .env.local[0m
+[0;32m  ✓ lib/supabase.js[0m
+[0;32m  ✓ lib/supabase-admin.js[0m
+[0;32m  ✓ app/layout.js[0m
+[0;32m  ✓ app/page.js[0m
+[0;32m  ✓ app/globals.css[0m
+
+[0;36m[1m══════════════════════════════════════[0m
+[0;36m[1m  3. ENVIRONMENT VARIABLES[0m
+[0;36m[1m══════════════════════════════════════[0m
+[0;32m  ✓ NEXT_PUBLIC_SUPABASE_URL set[0m
+[0;32m  ✓ NEXT_PUBLIC_SUPABASE_ANON_KEY set[0m
+[0;32m  ✓ SUPABASE_SERVICE_ROLE_KEY set[0m
+[1;33m  ⚠ NEXTAUTH_SECRET not in .env.local[0m
+[1;33m  ⚠ NEXTAUTH_URL not in .env.local[0m
+
+[0;36m[1m══════════════════════════════════════[0m
+[0;36m[1m  4. DEPENDENCIES[0m
+[0;36m[1m══════════════════════════════════════[0m
+[0;32m  ✓ next[0m
+[0;32m  ✓ react[0m
+[0;32m  ✓ react-dom[0m
+[0;32m  ✓ @supabase/supabase-js[0m
+[1;33m  ⚠ next-auth not installed (optional)[0m
+[1;33m  ⚠ leaflet not installed (optional)[0m
+[1;33m  ⚠ recharts not installed (optional)[0m
+[1;33m  ⚠ lucide-react not installed (optional)[0m
+[0;32m  ✓ node_modules exists[0m
+
+[0;36m[1m══════════════════════════════════════[0m
+[0;36m[1m  5. FEATURE COMPLETENESS[0m
+[0;36m[1m══════════════════════════════════════[0m
+  [1mCore Features:[0m
+[0;32m  ✓ Auth / Login[0m
+[0;32m  ✓ Admin Dashboard[0m
+[0;32m  ✓ Driver Dashboard[0m
+[0;31m  ✗ Customer Management — NOT BUILT[0m
+[0;32m  ✓ Driver Management[0m
+[0;31m  ✗ Ticket / Load Management — NOT BUILT[0m
+[0;32m  ✓ Live Tracking Map[0m
+[0;32m  ✓ Drive Session Tracker[0m
+[0;32m  ✓ Fuel Log[0m
+[0;32m  ✓ Timesheet / Hours[0m
+[0;32m  ✓ Driver Earnings Report[0m
+[0;32m  ✓ IFTA Fuel Tax Report[0m
+[0;32m  ✓ Ticket Report[0m
+[0;32m  ✓ AI Assistant[0m
+[0;32m  ✓ Driver Settlements[0m
+[0;31m  ✗ Notifications — NOT BUILT[0m
+[0;31m  ✗ PDF/Receipt Generation — NOT BUILT[0m
+
+  [1mAPI Routes:[0m
+[0;31m  ✗ /api/auth route missing[0m
+[0;32m  ✓ /api/drivers[0m
+[0;32m  ✓ /api/customers[0m
+[0;32m  ✓ /api/tickets[0m
+[0;32m  ✓ /api/tracking[0m
+[0;31m  ✗ /api/fuel route missing[0m
+[0;32m  ✓ /api/ifta[0m
+[0;31m  ✗ /api/reports route missing[0m
+[0;31m  ✗ /api/settlements route missing[0m
+[0;32m  ✓ /api/ai[0m
+
+[0;36m[1m══════════════════════════════════════[0m
+[0;36m[1m  6. RECOMMENDED FEATURES (not yet built)[0m
+[0;36m[1m══════════════════════════════════════[0m
+  [1;33m💡 Customer Portal[0m — Customers log in, view their deliveries & invoices
+  [1;33m💡 Invoice Generator[0m — Auto-generate PDF invoices from tickets
+  [1;33m💡 Load Board[0m — Assign and dispatch loads to drivers
+  [1;33m💡 Expense Tracker[0m — Log repairs, tolls, misc costs per truck
+  [1;33m💡 Push Notifications[0m — Alert drivers of new assignments via PWA
+  [1;33m💡 Trip Profitability[0m — Revenue vs fuel vs pay per trip
+  [1;33m💡 Multi-company support[0m — Run multiple trucking companies from one install
+  [1;33m💡 SMS Alerts[0m — Text drivers on new load assignments (Twilio)
+
+[0;36m[1m══════════════════════════════════════[0m
+[0;36m[1m  7. CODE QUALITY[0m
+[0;36m[1m══════════════════════════════════════[0m
+[0;32m  ✓ console.log count OK (1)[0m
+[0;32m  ✓ No hardcoded localhost[0m
+[0;32m  ✓ No TODO/FIXME comments[0m
+[0;32m  ✓ .env.local in .gitignore[0m
+
+  [1mLargest files (top 10):[0m
+  [1;33m  504 lines — app/driver/ticket/new/page.js (consider splitting)[0m
+    431 lines — app/admin/compliance/page.js
+    427 lines — app/driver/hos/page.js
+    368 lines — app/admin/page.js
+    352 lines — components/DriveTracker.js
+    345 lines — app/admin/reports/settlements/page.js
+    322 lines — app/driver/timesheet/page.js
+    311 lines — lib/translations.js
+    311 lines — app/admin/tracking/page.js
+    291 lines — app/admin/reports/earnings/page.js
+
+[0;36m[1m══════════════════════════════════════[0m
+[0;36m[1m  8. EXPECTED SUPABASE TABLES[0m
+[0;36m[1m══════════════════════════════════════[0m
+  Tables your app queries (from API routes):
+    📋 admins
+    📋 customers
+    📋 dot_compliance
+    📋 drive_sessions
+    📋 driver_locations
+    📋 driver_trips
+    📋 drivers
+    📋 fuel_logs
+    📋 locations
+    📋 maintenance
+    📋 messages
+    📋 pre_trip_inspections
+    📋 ticket-attachments
+    📋 ticket_photos
+    📋 tickets
+    📋 timesheets
+
+  [1mRecommended indexes to add in Supabase:[0m
+    • drivers(id), drivers(status)
+    • tickets(driver_id), tickets(customer_id), tickets(created_at)
+    • drive_sessions(driver_id), drive_sessions(status), drive_sessions(started_at)
+    • fuel_logs(driver_id), fuel_logs(date)
+    • driver_trips(driver_id), driver_trips(trip_id)
+
+[0;36m[1m══════════════════════════════════════[0m
+[0;36m[1m  9. SECURITY[0m
+[0;36m[1m══════════════════════════════════════[0m
+[1;33m  ⚠ Admin pages may not be auth-protected — check middleware[0m
+[1;33m  ⚠ No middleware.js — admin routes may be publicly accessible[0m
+[0;32m  ✓ API routes use supabaseAdmin (89 references)[0m
+
+[0;36m[1m══════════════════════════════════════[0m
+[0;36m[1m  10. BUILD & GIT STATUS[0m
+[0;36m[1m══════════════════════════════════════[0m
+[0;32m  ✓ Git repo on branch: main[0m
+    Last commit: 8a6edf8 feat: IFTA quarterly fuel tax report with state breakdown and CSV export
+[1;33m  ⚠ 2 uncommitted changes[0m
+[0;32m  ✓ .next build exists[0m
+
+[0;36m[1m══════════════════════════════════════[0m
+[0;36m[1m  11. FINAL SCORE[0m
+[0;36m[1m══════════════════════════════════════[0m
+  [0;32m✓ Passing:  46[0m
+  [1;33m⚠ Warnings: 9[0m
+  [0;31m✗ Failing:  9[0m
+
+  [0;31m[1m🔧 SCORE: 71/100 — Needs Work[0m
+
+  [1mNext steps to build the best trucking software:[0m
+  1. Fix all ✗ FAIL items first
+  2. Add Customer Portal (huge value for clients)
+  3. Add Invoice PDF generation
+  4. Add middleware.js for auth protection
+  5. Add PWA manifest for driver app install
+  6. Add offline GPS tracking (service worker)
+  7. Add DOT compliance / HOS logs
+  8. Add trip profitability report
+
+  Run: bash analyze.sh > report.txt  to save this report
+  ════════════════════════════════════════════════════

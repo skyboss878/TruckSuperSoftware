@@ -333,6 +333,7 @@ export default function AdminDashboard() {
         {tab === 'reports' && (
           <div className="space-y-3">
             {[
+              { label: 'Manage Customers & Locations', desc: 'Add, edit, activate or deactivate', icon: '⚙️', path: '/admin/manage' },
               { label: 'IFTA Fuel Tax', desc: 'Quarterly state miles and fuel tax report', icon: '⛽', path: '/admin/reports/ifta' },
               { label: 'Driver Earnings', desc: 'Weekly settlement sheet with CSV export', icon: '💰', path: '/admin/reports/earnings' },
               { label: 'AI Assistant', desc: 'Ask anything about your fleet in plain English', icon: '✨', path: '/admin/ai' },

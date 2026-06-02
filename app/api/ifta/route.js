@@ -87,51 +87,19 @@ export async function GET(request) {
     }
 
     // 5. Fleet average MPG
-    const avgMPG = totalGallons > 0 ? totalMiles / totalGallons : 0
-
-    // 6. Calculate IFTA per state
-    const allStates = new Set([...Object.keys(stateMiles), ...Object.keys(stateFuel)])
-    const stateReport = []
-    let totalTaxOwed = 0
-
-    for (const state of allStates) {
-      const miles = stateMiles[state] || 0
-      const fuelPurchased = stateFuel[state] || 0
-      const fuelConsumed = avgMPG > 0 ? miles / avgMPG : 0
-      const netGallons = fuelConsumed - fuelPurchased
-      const taxRate = IFTA_RATES[state] || 0
-      const taxOwed = netGallons * taxRate
-      totalTaxOwed += taxOwed
-
-      stateReport.push({
-        state,
-        miles: parseFloat(miles.toFixed(2)),
-        fuelPurchased: parseFloat(fuelPurchased.toFixed(3)),
-        fuelConsumed: parseFloat(fuelConsumed.toFixed(3)),
-        netGallons: parseFloat(netGallons.toFixed(3)),
-        taxRate,
-        taxOwed: parseFloat(taxOwed.toFixed(2)),
-      })
+    const fleet = {
+      totalMiles: parseFloat(totalMiles.toFixed(2)),
+      totalGallons: parseFloat(totalGallons.toFixed(3)),
+      totalFuelCost: parseFloat(totalFuelCost.toFixed(2)),
+      avgMPG: totalGallons > 0 ? parseFloat((totalMiles / totalGallons).toFixed(2)) : 0,
+      statesOperated: stateReport.length,
+      totalTaxOwed: parseFloat(totalTaxOwed.toFixed(2)),
+      sessions: sessions?.length || 0,
+      fuelStops: fuelLogs?.length || 0,
     }
 
-    // Sort by miles descending
-    stateReport.sort((a, b) => b.miles - a.miles)
-
     return NextResponse.json({
-      quarter,
-      year,
-      startDate,
-      endDate,
-      summary: {
-        totalMiles: parseFloat(totalMiles.toFixed(2)),
-        totalGallons: parseFloat(totalGallons.toFixed(3)),
-        totalFuelCost: parseFloat(totalFuelCost.toFixed(2)),
-        avgMPG: parseFloat(avgMPG.toFixed(2)),
-        statesOperated: stateReport.length,
-        totalTaxOwed: parseFloat(totalTaxOwed.toFixed(2)),
-        sessions: sessions?.length || 0,
-        fuelStops: fuelLogs?.length || 0,
-      },
+      fleet,
       states: stateReport,
     })
   } catch (err) {
