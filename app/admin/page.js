@@ -179,6 +179,7 @@ export default function AdminDashboard() {
             <input
               value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Search customer, driver, load ID..."
+              autoComplete="off"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#2D7A5F] bg-white"
             />
             <div className="flex gap-2 overflow-x-auto pb-1">
@@ -191,6 +192,13 @@ export default function AdminDashboard() {
                 </button>
               ))}
             </div>
+            {search.trim() && (
+              <p className="text-xs text-gray-400 px-1 pb-1">
+                {filteredTickets.length === 0
+                  ? 'No results for "' + search + '"'
+                  : filteredTickets.length + ' result' + (filteredTickets.length === 1 ? '' : 's') + ' for "' + search + '"'}
+              </p>
+            )}
             {filteredTickets.map(ticket => (
               <div key={ticket.id}
                 onClick={() => router.push(`/admin/ticket/${ticket.id}`)}
