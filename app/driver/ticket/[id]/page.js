@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import SignatureCanvas from '@/components/SignatureCanvas'
 
 export default function TicketDetail() {
   const router = useRouter()
@@ -10,6 +11,7 @@ export default function TicketDetail() {
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  const [showPOD, setShowPOD] = useState(false)
 
   useEffect(() => { loadTicket() }, [])
 
@@ -23,6 +25,21 @@ export default function TicketDetail() {
     setDeleting(true)
     await fetch(`/api/tickets/${id}`, { method: 'DELETE' })
     router.replace('/driver')
+  }
+
+  async function handlePOD({ signatureData, customerName }) {
+    await fetch(`/api/tickets/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        signature_data: signatureData,
+        signature_name: customerName,
+        delivered_at: new Date().toISOString(),
+        status: 'submitted',
+      }),
+    })
+    await loadTicket()
+    setShowPOD(false)
   }
 
   async function handleSubmit() {
@@ -55,6 +72,13 @@ export default function TicketDetail() {
   }
 
   return (
+    <>
+    {showPOD && (
+      <SignatureCanvas
+        onConfirm={handlePOD}
+        onCancel={() => setShowPOD(false)}
+      />
+    )}
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b px-4 py-4 flex items-center justify-between sticky top-0 z-10">
@@ -67,12 +91,34 @@ export default function TicketDetail() {
       </div>
 
       <div className="p-4 space-y-4 pb-10">
-        {/* Status badge */}
-        <div className="flex justify-end">
+        {/* Status + POD */}
+        <div className="flex justify-between items-center">
           <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${statusColor[ticket.status]}`}>
             {ticket.status}
           </span>
+          {ticket.signature_data ? (
+            <span className="text-xs bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full">✅ POD Captured</span>
+          ) : (
+            <button onClick={() => setShowPOD(true)}
+              className="text-xs bg-[#2D7A5F] text-white font-bold px-3 py-1.5 rounded-full active:opacity-70">
+              ✍️ Get Signature
+            </button>
+          )}
         </div>
+
+        {ticket.signature_data && (
+          <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
+            <p className="text-xs font-semibold text-green-700 mb-2">✅ POD — {ticket.signature_name}</p>
+            <img src={ticket.signature_data} alt="Signature"
+              className="w-full rounded-xl bg-white border border-green-100"
+              style={{maxHeight:'120px', objectFit:'contain'}} />
+            {ticket.delivered_at && (
+              <p className="text-xs text-green-600 mt-2">
+                Signed {new Date(ticket.delivered_at).toLocaleString('en-US', {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'})}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Loaded section */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
@@ -172,5 +218,6 @@ export default function TicketDetail() {
         </div>
       )}
     </div>
+    </>
   )
 }

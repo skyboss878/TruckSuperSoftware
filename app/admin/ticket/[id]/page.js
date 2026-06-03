@@ -67,10 +67,28 @@ export default function AdminTicketDetail() {
           <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${statusColor[ticket.status]}`}>
             {ticket.status}
           </span>
-          <span className="text-xs text-gray-400">
-            {new Date(ticket.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-          </span>
+          <div className="flex items-center gap-2">
+            {ticket.signature_data && (
+              <span className="text-xs bg-green-100 text-green-700 font-bold px-2 py-1 rounded-full">✅ POD</span>
+            )}
+            <span className="text-xs text-gray-400">
+              {new Date(ticket.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </span>
+          </div>
         </div>
+
+        {ticket.signature_data && (
+          <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
+            <p className="text-sm font-bold text-green-800 mb-1">✅ Proof of Delivery</p>
+            <p className="text-xs text-green-600 mb-3">
+              Signed by: <span className="font-semibold">{ticket.signature_name}</span>
+              {ticket.delivered_at && ` · ${new Date(ticket.delivered_at).toLocaleString('en-US', {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'})}`}
+            </p>
+            <img src={ticket.signature_data} alt="Customer signature"
+              className="w-full rounded-xl bg-white border border-green-200 p-2"
+              style={{maxHeight:'130px', objectFit:'contain'}} />
+          </div>
+        )}
 
         {/* Driver info */}
         {driver && (
