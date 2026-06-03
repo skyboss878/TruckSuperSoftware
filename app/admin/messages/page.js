@@ -15,13 +15,15 @@ export default function AdminMessages() {
   const bottomRef = useRef(null)
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setAdminId(data?.user?.id))
+    supabase.auth.getUser().then(({ data }) => {
+      setAdminId(data?.user?.id || 'admin')
+    })
     loadDrivers()
   }, [])
 
   useEffect(() => {
-    if (adminId) loadMessages()
-  }, [selected, adminId])
+    loadMessages()
+  }, [selected])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -75,7 +77,7 @@ export default function AdminMessages() {
   }
 
   async function sendMessage() {
-    if (!text.trim() || !adminId) return
+    if (!text.trim()) return
     setSending(true)
     await fetch('/api/messages', {
       method: 'POST',
