@@ -1,38 +1,37 @@
-const CACHE = 'smiths-v1'
+const CACHE = 'smiths-v2'
 
 self.addEventListener('install', e => { self.skipWaiting() })
 self.addEventListener('activate', e => { e.waitUntil(clients.claim()) })
 
-let watchId = null
-let tripId = null
-let driverId = null
-let apiBase = null
-
-self.addEventListener('message', async (event) => {
-  const { type, data } = event.data
-  if (type === 'START_TRACKING') {
-    tripId = data.tripId
-    driverId = data.driverId
-    apiBase = data.apiBase
+// Handle push notifications
+self.addEventListener('push', e => {
+  const data = e.data?.json() || {}
+  const title = data.title || "Smith's Freight Hub"
+  const options = {
+    body: data.body || 'You have a new notification',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    vibrate: [200, 100, 200],
+    data: { url: data.url || '/' },
+    actions: data.actions || [],
   }
-  if (type === 'STOP_TRACKING') {
-    tripId = null
-    driverId = null
-  }
+  e.waitUntil(self.registration.showNotification(title, options))
 })
 
-self.addEventListener('periodicsync', async (event) => {
-  if (event.tag === 'gps-update') {
-    event.waitUntil(sendPing())
-  }
-})
-
-async function sendPing() {
-  if (!tripId || !driverId || !apiBase) return
-  try {
-    const clients_list = await clients.matchAll()
-    clients_list.forEach(client => {
-      client.postMessage({ type: 'REQUEST_LOCATION' })
+// Handle notification click
+self.addEventListener('notificationclick', e => {
+  e.notification.close()
+  const url = e.notification.data?.url || '/'
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const client of list) {
+        if (client.url.includes(self.location.origin)) {
+          client.focus()
+          client.navigate(url)
+          return
+        }
+      }
+      return clients.openWindow(url)
     })
-  } catch (e) {}
-}
+  )
+})

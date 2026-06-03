@@ -22,6 +22,21 @@ export async function GET(request) {
 
     const { data, error } = await query
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    // Send push notification to recipient
+    if (data?.recipient_id) {
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://smiths-dnxx.vercel.app'}/api/push`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            driver_id: data.recipient_id,
+            title: "New Message",
+            body: body.content?.substring(0, 80) || 'You have a new message',
+            url: '/driver/messages',
+          }),
+        }).catch(() => {})
+      } catch {}
+    }
     return NextResponse.json(data)
   } catch (err) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
