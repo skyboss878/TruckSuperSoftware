@@ -13,12 +13,14 @@ export default function AdminMaintenanceDetail() {
   useEffect(() => { loadLog() }, [])
 
   async function loadLog() {
-    const { data } = await supabase
-      .from('maintenance')
-      .select('*, drivers(*)')
-      .eq('id', id)
-      .single()
-    setLog(data)
+    try {
+      const res = await fetch('/api/maintenance')
+      const data = await res.json()
+      const log = Array.isArray(data) ? data.find(m => m.id === id) : null
+      setLog(log || null)
+    } catch (e) {
+      console.error('loadLog error:', e)
+    }
     setLoading(false)
   }
 
