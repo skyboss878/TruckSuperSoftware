@@ -264,22 +264,62 @@ export default function AdminDashboard() {
               const miles = ts.state_miles?.reduce((s, m) => s + (parseInt(m.miles) || 0), 0) || 0
               return (
                 <div key={ts.id} className="bg-white rounded-2xl p-4 shadow-sm">
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start mb-2">
                     <div>
                       <p className="font-bold text-gray-800">{ts.drivers?.name}</p>
                       <p className="text-sm text-gray-400 capitalize">{ts.log_type?.replace('_', ' ')}</p>
                     </div>
                     <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
+                      ts.status === 'approved' ? 'bg-green-100 text-green-700' :
                       ts.status === 'submitted' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
-                    }`}>
-                      {ts.status}
-                    </span>
+                    }`}>{ts.status}</span>
                   </div>
-                  <div className="mt-2 space-y-1">
+                  <div className="space-y-1 mb-3">
                     <p className="text-sm text-gray-400">📅 {new Date(ts.date).toLocaleDateString()}</p>
-                    {ts.location && <p className="text-sm text-gray-400">📍 {ts.location}</p>}
                     <p className="text-sm text-gray-400">🕐 {ts.start_time} → {ts.end_time || 'ongoing'}</p>
                     {miles > 0 && <p className="text-sm text-[#2D7A5F] font-medium">🛣️ {miles} total miles</p>}
+                    {ts.state_miles?.length > 0 && (
+                      <div className="pl-5 space-y-0.5">
+                        {ts.state_miles.map((sm, i) => (
+                          <p key={i} className="text-xs text-gray-400">{sm.state}: {sm.miles} mi</p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    {ts.status !== 'approved' && (
+                      <button onClick={async () => {
+                        await fetch(`/api/timesheets`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ id: ts.id, status: 'approved' })
+                        })
+                        loadAll()
+                      }} className="flex-1 bg-[#2D7A5F] text-white py-2 rounded-xl text-xs font-semibold">
+                        ✓ Approve
+                      </button>
+                    )}
+                    {!ts.end_time && (
+                      <button onClick={async () => {
+                        const endTime = new Date().toTimeString().slice(0,5)
+                        await fetch(`/api/timesheets`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ id: ts.id, end_time: endTime, status: 'submitted' })
+                        })
+                        loadAll()
+                      }} className="flex-1 bg-orange-500 text-white py-2 rounded-xl text-xs font-semibold">
+                        ⏹ Close Out
+                      </button>
+                    )}
+                    <button onClick={async () => {
+                      if (confirm('Delete this timesheet?')) {
+                        await fetch(`/api/timesheets?id=${ts.id}`, { method: 'DELETE' })
+                        loadAll()
+                      }
+                    }} className="px-3 py-2 bg-red-50 text-red-500 rounded-xl text-xs font-semibold">
+                      🗑
+                    </button>
                   </div>
                 </div>
               )

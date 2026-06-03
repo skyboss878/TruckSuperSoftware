@@ -40,12 +40,26 @@ export async function POST(request) {
 
 export async function PATCH(request) {
   try {
-    const { id, ...updates } = await request.json()
+    const body = await request.json()
+    const { id, ...updates } = body
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
     const { data, error } = await supabaseAdmin
       .from('timesheets').update(updates).eq('id', id).select().single()
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json(data)
+  } catch (err) {
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
+}
+
+export async function DELETE(request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+    if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+    const { error } = await supabaseAdmin.from('timesheets').delete().eq('id', id)
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    return NextResponse.json({ success: true })
   } catch (err) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
