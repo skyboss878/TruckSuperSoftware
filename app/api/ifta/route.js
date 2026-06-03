@@ -1,7 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
 
-// 2024 IFTA diesel tax rates ($ per gallon)
 const IFTA_RATES = {
   AL:0.280, AZ:0.260, AR:0.285, CA:0.824, CO:0.205,
   CT:0.494, DE:0.220, FL:0.348, GA:0.326, ID:0.320,
@@ -13,7 +12,6 @@ const IFTA_RATES = {
   PA:0.741, RI:0.340, SC:0.220, SD:0.280, TN:0.270,
   TX:0.200, UT:0.319, VT:0.320, VA:0.278, WA:0.494,
   WV:0.357, WI:0.329, WY:0.240,
-  // Canadian provinces
   AB:0.130, BC:0.193, MB:0.140, ON:0.143, QC:0.202, SK:0.150,
 }
 
@@ -36,32 +34,26 @@ export async function GET(request) {
 
     const [startDate, endDate] = getQuarterRange(quarter, year)
 
-    // 1. Pull all drive_sessions in the quarter
     let sessionsQuery = supabaseAdmin
       .from('drive_sessions')
-      .select('driver_id, state_miles, total_miles, started_at, drivers(name, truck_number)')
+      .select('driver_id, state_miles, total_miles, started_at')
       .gte('started_at', startDate)
       .lte('started_at', endDate + 'T23:59:59')
       .eq('status', 'ended')
-
     if (driver_id) sessionsQuery = sessionsQuery.eq('driver_id', driver_id)
-
     const { data: sessions, error: sessErr } = await sessionsQuery
     if (sessErr) return NextResponse.json({ error: sessErr.message }, { status: 400 })
 
-    // 2. Pull all fuel logs in the quarter
     let fuelQuery = supabaseAdmin
       .from('fuel_logs')
-      .select('driver_id, date, state, gallons, total_cost, drivers(name)')
+      .select('driver_id, date, state, gallons, total_cost')
       .gte('date', startDate)
       .lte('date', endDate)
-
     if (driver_id) fuelQuery = fuelQuery.eq('driver_id', driver_id)
-
     const { data: fuelLogs, error: fuelErr } = await fuelQuery
     if (fuelErr) return NextResponse.json({ error: fuelErr.message }, { status: 400 })
 
-    // 3. Aggregate miles per state
+    // Aggregate miles per state
     const stateMiles = {}
     let totalMiles = 0
     for (const session of sessions || []) {
@@ -73,33 +65,62 @@ export async function GET(request) {
       }
     }
 
-    // 4. Aggregate fuel per state
+    // Aggregate fuel per state
     const stateFuel = {}
     let totalGallons = 0
     let totalFuelCost = 0
     for (const log of fuelLogs || []) {
       const s = log.state?.toUpperCase()
-      if (s) {
-        stateFuel[s] = (stateFuel[s] || 0) + (log.gallons || 0)
-      }
+      if (s) stateFuel[s] = (stateFuel[s] || 0) + (log.gallons || 0)
       totalGallons += log.gallons || 0
       totalFuelCost += log.total_cost || 0
     }
 
-    // 5. Fleet average MPG
-    const fleet = {
-      totalMiles: parseFloat(totalMiles.toFixed(2)),
-      totalGallons: parseFloat(totalGallons.toFixed(3)),
-      totalFuelCost: parseFloat(totalFuelCost.toFixed(2)),
-      avgMPG: totalGallons > 0 ? parseFloat((totalMiles / totalGallons).toFixed(2)) : 0,
-      statesOperated: stateReport.length,
-      totalTaxOwed: parseFloat(totalTaxOwed.toFixed(2)),
-      sessions: sessions?.length || 0,
-      fuelStops: fuelLogs?.length || 0,
+    // Fleet MPG
+    const avgMPG = totalGallons > 0 ? totalMiles / totalGallons : 0
+
+    // Calculate IFTA per state
+    const allStates = new Set([...Object.keys(stateMiles), ...Object.keys(stateFuel)])
+    const stateReport = []
+    let totalTaxOwed = 0
+
+    for (const state of allStates) {
+      const miles = stateMiles[state] || 0
+      const fuelPurchased = stateFuel[state] || 0
+      const fuelConsumed = avgMPG > 0 ? miles / avgMPG : 0
+      const netGallons = fuelConsumed - fuelPurchased
+      const taxRate = IFTA_RATES[state] || 0
+      const taxOwed = netGallons * taxRate
+      totalTaxOwed += taxOwed
+
+      stateReport.push({
+        state,
+        miles: parseFloat(miles.toFixed(2)),
+        fuelPurchased: parseFloat(fuelPurchased.toFixed(3)),
+        fuelConsumed: parseFloat(fuelConsumed.toFixed(3)),
+        netGallons: parseFloat(netGallons.toFixed(3)),
+        taxRate,
+        taxOwed: parseFloat(taxOwed.toFixed(2)),
+      })
     }
 
+    stateReport.sort((a, b) => b.miles - a.miles)
+
     return NextResponse.json({
-      fleet,
+      quarter,
+      year,
+      startDate,
+      endDate,
+      summary: {
+        totalMiles: parseFloat(totalMiles.toFixed(2)),
+        totalGallons: parseFloat(totalGallons.toFixed(3)),
+        totalFuelCost: parseFloat(totalFuelCost.toFixed(2)),
+        avgMPG: parseFloat(avgMPG.toFixed(2)),
+        statesOperated: stateReport.length,
+        totalTaxOwed: parseFloat(totalTaxOwed.toFixed(2)),
+        sessions: sessions?.length || 0,
+        fuelStops: fuelLogs?.length || 0,
+      },
       states: stateReport,
     })
   } catch (err) {
