@@ -2,11 +2,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
 import webpush from 'web-push'
 
-webpush.setVapidDetails(
-  'mailto:admin@smithsfreight.com',
-  process.env.VAPID_PUBLIC_KEY,
-  process.env.VAPID_PRIVATE_KEY
-)
+
 
 // Save push subscription for a driver
 export async function POST(request) {
@@ -28,6 +24,14 @@ export async function POST(request) {
 
 // Send push to a specific driver or all drivers
 export async function PUT(request) {
+  if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+    webpush.setVapidDetails(
+      'mailto:admin@smithsfreight.com',
+      process.env.VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY
+    )
+  }
+
   try {
     const { driver_id, title, body, url } = await request.json()
 
