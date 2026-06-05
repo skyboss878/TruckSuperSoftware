@@ -25,12 +25,16 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { auth_id, ...tsData } = body
-    const { data: driver } = await supabaseAdmin
-      .from('drivers').select('id').eq('auth_id', auth_id).single()
-    if (!driver) return NextResponse.json({ error: 'Driver not found' }, { status: 404 })
+    const { auth_id, driver_id: direct_driver_id, ...tsData } = body
+    let driverId = direct_driver_id
+    if (!driverId && auth_id) {
+      const { data: driver } = await supabaseAdmin
+        .from('drivers').select('id').eq('auth_id', auth_id).single()
+      driverId = driver?.id
+    }
+    if (!driverId) return NextResponse.json({ error: 'Driver not found' }, { status: 404 })
     const { data, error } = await supabaseAdmin
-      .from('timesheets').insert({ ...tsData, driver_id: driver.id }).select().single()
+      .from('timesheets').insert({ ...tsData, driver_id: driverId }).select().single()
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json(data)
   } catch (err) {
