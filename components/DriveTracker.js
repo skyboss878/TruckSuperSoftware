@@ -241,28 +241,27 @@ export default function DriveTracker({ driver, onSessionComplete }) {
       })
       .eq('id', sessionIdRef.current)
 
-    // Auto-create timesheet
+    // Auto-create timesheet via API
     const startedAt = session.started_at
     const startTime = new Date(startedAt).toTimeString().slice(0, 5)
     const endTime = new Date().toTimeString().slice(0, 5)
     const date = new Date(startedAt).toISOString().split('T')[0]
 
-    const { data: ts } = await supabase
-      .from('timesheets')
-      .insert({
+    const tsRes = await fetch('/api/timesheets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         driver_id: driver.id,
         log_type: 'working',
         date,
         start_time: startTime,
         end_time: endTime,
-        odometer_start: null,
-        odometer_end: null,
         state_miles: stateMilesArray,
         status: 'started',
         synced: true,
-      })
-      .select()
-      .single()
+      }),
+    })
+    const ts = await tsRes.json()
 
     setTracking(false)
     setSession(null)
