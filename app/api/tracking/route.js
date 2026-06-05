@@ -70,13 +70,26 @@ export async function POST(request) {
         .from('drivers').select('*').eq('id', driver_id).single()
 
       // Send urgent message to admin
+      const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`
       await supabaseAdmin.from('messages').insert({
-        content: `🚨 PANIC ALERT — ${driver?.name} needs immediate help!\nLocation: https://maps.google.com/?q=${lat},${lng}\nTime: ${new Date().toLocaleString()}`,
+        content: `🚨 PANIC ALERT — ${driver?.name} needs immediate help!\nLocation: ${mapsUrl}\nTime: ${new Date().toLocaleString()}`,
         sender_id: driver_id,
         sender_role: 'driver',
         recipient_id: null,
         is_read: false,
       })
+      // Push ALL devices
+      try {
+        const { data: subs } = await supabaseAdmin.from('push_subscriptions').select('*')
+        const webpush = await import('web-push')
+        if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+          webpush.default.setVapidDetails('mailto:admin@smithsfreight.com', process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY)
+          const payload = JSON.stringify({ title: '🚨 PANIC ALERT', body: `${driver?.name} needs help!`, url: '/admin/messages' })
+          for (const sub of subs || []) {
+            try { await webpush.default.sendNotification(sub.subscription, payload) } catch {}
+          }
+        }
+      } catch(e) { console.error('Panic push failed:', e) }
 
       // Update last location
       if (trip_id) {

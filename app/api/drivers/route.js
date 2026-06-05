@@ -57,7 +57,10 @@ export async function GET(request) {
       if (error) return NextResponse.json({ error: error.message }, { status: 400 })
       return NextResponse.json(data)
     }
-    const { data, error } = await supabaseAdmin.from('drivers').select('*').order('name')
+    const status_filter = searchParams.get('status')
+    let query = supabaseAdmin.from('drivers').select('*').order('name')
+    if (status_filter) query = query.eq('status', status_filter)
+    const { data, error } = await query
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json(data)
   } catch (err) {
