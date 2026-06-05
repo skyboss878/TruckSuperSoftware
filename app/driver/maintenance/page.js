@@ -78,11 +78,26 @@ export default function MaintenancePage() {
       return
     }
 
-    await fetch('/api/maintenance', {
+    const res = await fetch('/api/maintenance', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...payload, auth_id: driver.auth_id }),
     })
+    const saved = await res.json()
+
+    // Upload receipt if attached
+    if (receipt && saved?.id) {
+      setUploading(true)
+      try {
+        const fd = new FormData()
+        fd.append('file', receipt)
+        fd.append('maintenance_id', saved.id)
+        fd.append('type', 'receipt')
+        await fetch('/api/upload', { method: 'POST', body: fd })
+      } catch(e) { console.error('Receipt upload failed:', e) }
+      setUploading(false)
+    }
+
     setForm({ issue: '', severity: 'low', notes: '', maintenance_type: 'unscheduled', vehicle_type: 'truck' })
     setReceipt(null)
     setShowForm(false)

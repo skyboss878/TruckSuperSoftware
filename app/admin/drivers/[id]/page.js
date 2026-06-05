@@ -9,6 +9,7 @@ export default function DriverDetail() {
   const [driver, setDriver] = useState(null)
   const [tickets, setTickets] = useState([])
   const [timesheets, setTimesheets] = useState([])
+  const [sessionMiles, setSessionMiles] = useState(0)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -17,15 +18,20 @@ export default function DriverDetail() {
   useEffect(() => { loadDriver() }, [])
 
   async function loadDriver() {
-    const [driverRes, { data: t }, { data: ts }] = await Promise.all([
+    const [driverRes, { data: t }, { data: ts }, sessRes] = await Promise.all([
       fetch(`/api/drivers/${id}`).then(r => r.json()),
       fetch(`/api/tickets?driver_id=${id}`).then(r=>r.json()),
       fetch(`/api/timesheets?driver_id=${id}`).then(r=>r.json()),
+      fetch(`/api/tracking?driver_id=${id}`).then(r=>r.json()),
     ])
     setDriver(driverRes?.id ? driverRes : null)
     setForm(driverRes?.id ? driverRes : {})
     setTickets(Array.isArray(t) ? t : [])
     setTimesheets(Array.isArray(ts) ? ts : [])
+    const sessionMiles = Array.isArray(sessRes)
+      ? sessRes.reduce((s, trip) => s + (trip.total_miles || 0), 0)
+      : 0
+    setSessionMiles(parseFloat(sessionMiles.toFixed(1)))
     setLoading(false)
   }
 
@@ -67,8 +73,9 @@ export default function DriverDetail() {
     </div>
   )
 
-  const totalMiles = timesheets.reduce((sum, ts) =>
+  const timeSheetMiles = timesheets.reduce((sum, ts) =>
     sum + (ts.state_miles?.reduce((s, m) => s + (parseInt(m.miles) || 0), 0) || 0), 0)
+  const totalMiles = parseFloat((timeSheetMiles + sessionMiles).toFixed(1))
 
   const statusColor = {
     started: 'bg-yellow-100 text-yellow-700',
