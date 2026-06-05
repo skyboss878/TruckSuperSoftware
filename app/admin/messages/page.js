@@ -84,14 +84,14 @@ export default function AdminMessages() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         content: text.trim(),
-        sender_id: adminId,
+        sender_id: 'admin',
         sender_role: 'admin',
         recipient_id: selected?.id || null,
       }),
     })
     setText('')
     setSending(false)
-    loadMessages()
+    await loadMessages()
   }
 
   return (
