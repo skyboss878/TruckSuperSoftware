@@ -2,7 +2,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// resend initialized lazily inside handler
 
 export async function POST(request) {
   try {
@@ -13,6 +13,7 @@ export async function POST(request) {
     ])
     if (!invoice) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
     if (!invoice.customer_email) return NextResponse.json({ error: 'No customer email' }, { status: 400 })
+    const resend = new Resend(process.env.RESEND_API_KEY)
     const co = settings || {}
     const rows = (invoice.line_items || []).map(i => `
       <tr>
