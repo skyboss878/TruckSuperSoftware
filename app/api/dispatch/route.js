@@ -30,16 +30,15 @@ async function messageDriver(driver_id, content) {
 async function loadData() {
   const [
     { data: tickets }, { data: drivers }, { data: timesheets },
-    { data: maintenance }, { data: compliance }, { data: trips },
+    { data: maintenance }, { data: compliance },
   ] = await Promise.all([
     supabaseAdmin.from('tickets').select('*, drivers(name, id)').order('created_at', { ascending: false }).limit(200),
     supabaseAdmin.from('drivers').select('*').order('name'),
     supabaseAdmin.from('timesheets').select('*, drivers(name)').order('date', { ascending: false }).limit(100),
-    supabaseAdmin.from('maintenance').select('*, drivers(name)').eq('status', 'open'),
+    supabaseAdmin.from('maintenance').select('*, drivers(name, truck_number)').eq('status', 'open'),
     supabaseAdmin.from('dot_compliance').select('*, drivers(name)').order('expiry_date', { ascending: true }),
-    supabaseAdmin.from('driver_trips').select('*, drivers(name, truck_number)').eq('status', 'active'),
   ])
-  return { tickets, drivers, timesheets, maintenance, compliance, trips }
+  return { tickets, drivers, timesheets, maintenance, compliance, trips: [] }
 }
 
 async function autoReview() {
@@ -100,11 +99,15 @@ async function morningBriefing() {
   const today = new Date().toISOString().split('T')[0]
   const stats = {
     active_drivers: drivers?.filter(d => d.status === 'active').length || 0,
-    on_road: trips?.length || 0,
+    on_road: tickets?.filter(t => t.status === 'submitted').length || 0,
     pending_review: tickets?.filter(t => t.status === 'submitted').length || 0,
-    todays_tickets: tickets?.filter(t => t.date === today).length || 0,
+    todays_tickets: tickets?.filter(t => t.date?.startsWith(today)).length || 0,
     open_maintenance: maintenance?.length || 0,
-    expiring_compliance: compliance?.filter(c => c.expiry_date && Math.floor((new Date(c.expiry_date) - new Date()) / 86400000) <= 30).length || 0,
+    expiring_compliance: compliance?.filter(c => {
+      if (!c.expiry_date) return false
+      const days = Math.floor((new Date(c.expiry_date) - new Date()) / 86400000)
+      return days >= 0 && days <= 30
+    }).length || 0,
   }
   const submitted = tickets?.filter(t => t.status === 'submitted') || []
   const dataStr = `FLEET STATUS ${new Date().toLocaleDateString()}:
@@ -112,8 +115,8 @@ Active drivers: ${stats.active_drivers} | On road: ${stats.on_road} | Pending re
 Today tickets: ${stats.todays_tickets} | Open maintenance: ${stats.open_maintenance} | Expiring compliance: ${stats.expiring_compliance}
 Drivers on road: ${trips?.map(t => t.drivers?.name).join(', ') || 'none'}
 Pending: ${submitted.map(t => t.drivers?.name + ' Load ' + (t.load_id || 'N/A')).join(', ') || 'none'}
-Maintenance: ${maintenance?.map(m => m.drivers?.name + ': ' + m.issue).join(', ') || 'none'}
-Expiring: ${compliance?.filter(c => c.expiry_date && Math.floor((new Date(c.expiry_date) - new Date()) / 86400000) <= 30).map(c => c.drivers?.name + ' ' + c.record_type + ' ' + c.expiry_date).join(', ') || 'none'}`
+Maintenance: ${maintenance?.map(m => (m.drivers?.name || 'Unknown') + ': ' + (m.issue || m.description || m.notes || 'issue') + (m.truck_number ? ' Truck #' + m.truck_number : '') + ' [' + (m.severity || 'unknown') + ']').join(', ') || 'none'}
+Expiring: ${compliance?.filter(c => { if (!c.expiry_date) return false; const d = Math.floor((new Date(c.expiry_date) - new Date()) / 86400000); return d >= 0 && d <= 30 }).map(c => (c.drivers?.name || 'Unknown') + ' — ' + (c.record_type || 'record') + ' expires ' + c.expiry_date).join(', ') || 'none'}`
 
   const summary = await askAI(
     `You are an AI dispatch assistant for Smith's Freight Hub. Generate a clear morning operations briefing with emojis. Sections: Fleet Status, Action Required, Compliance Alerts, Priority of the day. Specific with numbers and names. Under 300 words.`,
