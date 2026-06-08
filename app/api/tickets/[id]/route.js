@@ -10,24 +10,6 @@ export async function GET(request, { params }) {
       .eq('id', id)
       .single()
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
-    // Notify driver when ticket approved or rejected
-    if (updates.status === 'approved' || updates.status === 'rejected') {
-      try {
-        const msg = updates.status === 'approved'
-          ? `✅ Your ticket has been approved!`
-          : `❌ Your ticket was rejected`
-        await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://smiths-dnxx.vercel.app'}/api/push`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            driver_id: data.driver_id,
-            title: "Ticket Update",
-            body: msg,
-            url: '/driver',
-          }),
-        }).catch(() => {})
-      } catch {}
-    }
     return NextResponse.json(data)
   } catch (err) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })

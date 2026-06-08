@@ -8,7 +8,7 @@ export async function POST(request) {
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
+        'anthropic-version': '2023-06-01', // model: claude-sonnet-4-6 (set by caller)
       },
       body: JSON.stringify(body),
     })
