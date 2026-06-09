@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import AdminPreTrip from '@/components/AdminPreTrip'
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -36,6 +37,7 @@ export default function AdminDashboard() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, () => loadAll())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'timesheets' }, () => loadAll())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'maintenance' }, () => loadAll())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pre_trip_inspections' }, () => loadAll())
       .subscribe()
     return () => supabase.removeChannel(channel)
   }, [])
@@ -160,6 +162,7 @@ export default function AdminDashboard() {
           { key: 'assistant', label: '🤖 AI' },
           { key: 'tracking', label: '📍 Live Map' },
           { key: 'dispatch', label: '⚡ Dispatch' },
+          { key: 'pretrip', label: '🚦 Pre-Trip' },
           { key: 'settings', label: '⚙️ Settings' },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
@@ -411,6 +414,7 @@ export default function AdminDashboard() {
         {tab === 'assistant' && (() => { setTimeout(() => router.push('/admin/assistant'), 0); return null })()}
         {tab === 'tracking' && (() => { setTimeout(() => router.push('/admin/tracking'), 0); return null })()}
         {tab === 'dispatch' && (() => { setTimeout(() => router.push('/admin/dispatch'), 0); return null })()}
+        {tab === 'pretrip' && <AdminPreTrip />}
         {tab === 'settings' && (() => { setTimeout(() => router.push('/admin/settings'), 0); return null })()}
       </div>
     </div>
