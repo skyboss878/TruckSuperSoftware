@@ -187,16 +187,13 @@ export default function NewTicket() {
               <h2 className="font-bold text-gray-700">Load Information</h2>
               <div>
                 <label className="text-xs text-gray-400 font-medium uppercase tracking-wide">Customer</label>
-                <input
-                  list="customers-list"
+                <select
                   value={form.customer_name}
                   onChange={e => set('customer_name', e.target.value)}
-                  placeholder="Select or type customer"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 mt-1 text-base outline-none focus:border-[#2D7A5F]"
-                />
-                <datalist id="customers-list">
-                  {customers.map(c => <option key={c.id} value={c.name} />)}
-                </datalist>
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 mt-1 text-base outline-none focus:border-[#2D7A5F] bg-white">
+                  <option value="">-- Select Customer --</option>
+                  {customers.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                </select>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -219,13 +216,13 @@ export default function NewTicket() {
               </div>
               <div>
                 <label className="text-xs text-gray-400 font-medium uppercase tracking-wide">Location Loaded</label>
-                <input value={form.location_loaded} onChange={e => set('location_loaded', e.target.value)}
-                  placeholder="e.g. Odessa TX"
-                  list="locations-list"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 mt-1 outline-none focus:border-[#2D7A5F]" />
-                <datalist id="locations-list">
-                  {locations.map(l => <option key={l.id} value={l.name} />)}
-                </datalist>
+                <select
+                  value={form.location_loaded}
+                  onChange={e => set('location_loaded', e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 mt-1 outline-none focus:border-[#2D7A5F] bg-white">
+                  <option value="">-- Select Location --</option>
+                  {locations.map(l => <option key={l.id} value={l.name}>{l.name}</option>)}
+                </select>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
