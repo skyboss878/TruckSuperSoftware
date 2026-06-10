@@ -69,7 +69,7 @@ export default function AdminNotificationBell() {
             </div>
           ) : (
             alerts.map((a, i) => (
-              <button key={i} onClick={() => { router.push('/admin'); setOpen(false) }}
+              <button key={i} onClick={() => { router.push(`/admin?tab=${a.tab}`); setOpen(false) }}
                 style={{ width: '100%', padding: '12px 16px', borderBottom: '1px solid #fafafa', display: 'flex', alignItems: 'center', gap: '10px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
                 <span style={{ fontSize: '18px' }}>{a.icon}</span>
                 <span style={{ fontSize: '13px', color: '#374151', fontWeight: '500' }}>{a.text}</span>

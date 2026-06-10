@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import AdminPreTrip from '@/components/AdminPreTrip'
 import AdminNotificationBell from '@/components/AdminNotificationBell'
@@ -8,7 +8,8 @@ import Toast, { showToast } from '@/components/Toast'
 
 export default function AdminDashboard() {
   const router = useRouter()
-  const [tab, setTab] = useState('tickets')
+  const searchParams = useSearchParams()
+  const [tab, setTab] = useState(searchParams.get('tab') || 'tickets')
   const [panicAlert, setPanicAlert] = useState(null)
   const [tickets, setTickets] = useState([])
   const [drivers, setDrivers] = useState([])
