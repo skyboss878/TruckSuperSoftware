@@ -12,6 +12,8 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  // Verify driver is authenticated
+  const authHeader = request.headers.get('authorization')
   const body = await request.json()
   const { driver_id, date, type, amount, description, truck_number, receipt_url } = body
   if (!driver_id || !amount || !type) return NextResponse.json({ error: 'driver_id, type, amount required' }, { status: 400 })

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import Toast, { showToast } from '@/components/Toast'
 
 const DOC_TYPES = [
   { key: 'cdl', label: "CDL License", icon: "🪪" },
@@ -59,6 +60,7 @@ export default function DocumentVault() {
     setForm({ doc_type: 'cdl', expiry_date: '', notes: '' })
     setFile(null); setShowForm(false); setSaving(false)
     loadDocs(driver.id)
+    showToast('Document saved')
   }
 
   async function handleDelete(id) {
@@ -76,6 +78,7 @@ export default function DocumentVault() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toast />
       <div className="bg-white border-b px-4 py-4 flex items-center justify-between sticky top-0 z-10">
         <button onClick={() => router.back()} className="text-[#2D7A5F] font-medium">← Back</button>
         <h1 className="text-lg font-bold text-gray-800">Document Vault</h1>

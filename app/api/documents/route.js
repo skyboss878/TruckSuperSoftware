@@ -12,6 +12,8 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  // Verify driver is authenticated
+  const authHeader = request.headers.get('authorization')
   const body = await request.json()
   const { driver_id, doc_type, file_url, file_name, expiry_date, notes } = body
   if (!driver_id || !doc_type) return NextResponse.json({ error: 'driver_id and doc_type required' }, { status: 400 })

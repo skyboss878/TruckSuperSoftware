@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import Toast, { showToast } from '@/components/Toast'
 
 const LOG_TYPES = [
   { value: 'working', label: 'Working', icon: '🚛' },
@@ -135,6 +136,7 @@ export default function TimesheetPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toast />
       {/* Header */}
       <div className="bg-white border-b px-4 py-4 flex items-center justify-between sticky top-0 z-10">
         <button onClick={() => router.back()} className="text-[#2D7A5F] font-medium">← Back</button>

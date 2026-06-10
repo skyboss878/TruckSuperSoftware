@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import Toast, { showToast } from '@/components/Toast'
 
 const EXPENSE_TYPES = [
   { key: 'fuel', label: 'Fuel', icon: '⛽', color: 'bg-blue-50 text-blue-700' },
@@ -47,6 +48,7 @@ export default function ExpensesPage() {
     setForm({ type: 'fuel', amount: '', date: new Date().toISOString().split('T')[0], description: '' })
     setShowForm(false); setSaving(false)
     loadExpenses(driver.id)
+    showToast('Expense logged')
   }
 
   const totalThisMonth = expenses
@@ -59,6 +61,7 @@ export default function ExpensesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toast />
       <div className="bg-white border-b px-4 py-4 flex items-center justify-between sticky top-0 z-10">
         <button onClick={() => router.back()} className="text-[#2D7A5F] font-medium">← Back</button>
         <h1 className="text-lg font-bold text-gray-800">Expense Tracker</h1>

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import Toast, { showToast } from '@/components/Toast'
 
 export default function FuelLog() {
   const router = useRouter()
@@ -66,6 +67,7 @@ export default function FuelLog() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toast />
       <div className="bg-white border-b px-4 py-4 flex items-center gap-4 sticky top-0 z-10">
         <button onClick={() => router.back()} className="text-[#2D7A5F] font-medium">← Back</button>
         <h1 className="text-lg font-bold text-gray-800 flex-1 text-center">Fuel Log</h1>

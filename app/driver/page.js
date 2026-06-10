@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import DriveTracker from '@/components/DriveTracker'
+import Toast, { showToast } from '@/components/Toast'
 import DriverStatsCard from '@/components/DriverStatsCard'
 import { useLang } from '@/lib/LanguageContext'
 
@@ -108,6 +109,7 @@ export default function DriverDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toast />
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between sticky top-0 z-10">
         <button onClick={() => setMenuOpen(true)} className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center">
@@ -212,7 +214,7 @@ export default function DriverDashboard() {
                 { label: 'Compliance', icon: '📋', path: '/driver/compliance' },
                 { label: 'AI Assistant', icon: '🤖', path: '/driver/assistant' },
                 { label: 'Trip Tracker', icon: '📍', path: '/driver/tracking' },
-                { label: 'HOS Logger', icon: '🕐', path: '/driver/hos' },
+                { label: 'HOS Logger', icon: '⏱️', path: '/driver/hos' },
                 { label: 'Fuel Log', icon: '⛽', path: '/driver/fuel' },
                 { label: 'My Documents', icon: '🗄️', path: '/driver/documents' },
                 { label: 'Expenses', icon: '💸', path: '/driver/expenses' },
