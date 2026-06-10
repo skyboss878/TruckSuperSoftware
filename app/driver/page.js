@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import DriveTracker from '@/components/DriveTracker'
+import DriverStatsCard from '@/components/DriverStatsCard'
 import { useLang } from '@/lib/LanguageContext'
 
 export default function DriverDashboard() {
@@ -141,6 +142,7 @@ export default function DriverDashboard() {
 
       {/* GPS Drive Tracker */}
       <div className="px-4 pt-4">
+        <DriverStatsCard driver={driver} />
         <DriveTracker driver={driver} onSessionComplete={() => loadTickets()} />
       </div>
 
@@ -212,6 +214,8 @@ export default function DriverDashboard() {
                 { label: 'Trip Tracker', icon: '📍', path: '/driver/tracking' },
                 { label: 'HOS Logger', icon: '🕐', path: '/driver/hos' },
                 { label: 'Fuel Log', icon: '⛽', path: '/driver/fuel' },
+                { label: 'My Documents', icon: '🗄️', path: '/driver/documents' },
+                { label: 'Expenses', icon: '💸', path: '/driver/expenses' },
               ].map(item => (
                 <button
                   key={item.path}

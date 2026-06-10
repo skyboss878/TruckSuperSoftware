@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import AdminPreTrip from '@/components/AdminPreTrip'
+import AdminNotificationBell from '@/components/AdminNotificationBell'
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -117,7 +118,10 @@ export default function AdminDashboard() {
             <p className="text-green-200 text-sm">Admin Dashboard</p>
           </div>
           
-          <button onClick={handleLogout} className="text-green-200 text-sm font-medium">Logout</button>
+          <div className="flex items-center gap-3">
+            <AdminNotificationBell />
+            <button onClick={handleLogout} className="text-green-200 text-sm font-medium">Logout</button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -394,6 +398,7 @@ export default function AdminDashboard() {
               { label: 'Ticket Report', desc: 'Export tickets by date range, driver, customer', icon: '📋', path: '/admin/reports/tickets' },
               { label: 'Timesheet Report', desc: 'Hours and miles by driver', icon: '🕐', path: '/admin/reports/timesheets' },
               { label: 'Maintenance Report', desc: 'All issues by truck and status', icon: '🔧', path: '/admin/reports/maintenance' },
+              { label: 'Expense Report', desc: 'Fleet expenses by driver and category', icon: '💸', path: '/admin/reports/expenses' },
             ].map(r => (
               <button key={r.path} onClick={() => router.push(r.path)}
                 className="w-full bg-white rounded-2xl p-4 shadow-sm text-left active:opacity-70">
