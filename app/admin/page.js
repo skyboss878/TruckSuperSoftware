@@ -164,6 +164,7 @@ export default function AdminDashboard() {
           { key: 'dispatch', label: '⚡ Dispatch' },
           { key: 'pretrip', label: '🚦 Pre-Trip' },
           { key: 'settings', label: '⚙️ Settings' },
+          { key: 'audit', label: '📋 Audit' },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`flex-shrink-0 px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${
@@ -415,6 +416,7 @@ export default function AdminDashboard() {
         {tab === 'tracking' && (() => { setTimeout(() => router.push('/admin/tracking'), 0); return null })()}
         {tab === 'dispatch' && (() => { setTimeout(() => router.push('/admin/dispatch'), 0); return null })()}
         {tab === 'pretrip' && <AdminPreTrip />}
+        {tab === 'audit' && (() => { setTimeout(() => router.push('/admin/audit'), 0); return null })()}
         {tab === 'settings' && (() => { setTimeout(() => router.push('/admin/settings'), 0); return null })()}
       </div>
     </div>

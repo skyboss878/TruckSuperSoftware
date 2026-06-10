@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
 import { SignJWT } from 'jose'
+import { logAdminAction, ACTIONS } from '@/lib/audit'
 
 function secret() {
   if (!process.env.ADMIN_JWT_SECRET) throw new Error('Missing ADMIN_JWT_SECRET')
@@ -65,6 +66,13 @@ export async function POST(request) {
       maxAge: 60 * 60 * 8,
     })
 
+    await logAdminAction({
+      admin_id: admin.id,
+      admin_name: admin.name,
+      action: ACTIONS.ADMIN_LOGIN,
+      ip: request.headers.get('x-forwarded-for') || 'unknown',
+      metadata: { role: admin.role },
+    }).catch(() => {})
     return res
   } catch (err) {
     console.error('Admin auth error:', err)

@@ -51,6 +51,12 @@ export default function DriverDashboard() {
 
     setDriver(data)
     setLoading(false)
+
+    // Heartbeat — mark driver online
+    supabase.from('drivers').update({
+      last_active_at: new Date().toISOString(),
+      is_online: true,
+    }).eq('id', data.id).then(() => {}).catch(() => {})
   }
 
   async function loadTickets() {
