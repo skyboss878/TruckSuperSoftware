@@ -46,8 +46,14 @@ export default function MaintenancePage() {
   }
 
   async function loadLogs() {
-    const data = await fetch(`/api/maintenance?driver_id=${driver.id}`).then(r=>r.json())
-    setAllLogs(Array.isArray(data) ? data : [])
+    try {
+      const res = await fetch(`/api/maintenance?driver_id=${driver.id}`)
+      const data = await res.json()
+      setAllLogs(Array.isArray(data) ? data : [])
+    } catch(e) {
+      showToast('Failed to load logs', 'error')
+      setAllLogs([])
+    }
   }
 
   function set(field, value) {

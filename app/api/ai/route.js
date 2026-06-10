@@ -10,7 +10,10 @@ export async function POST(request) {
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01', // model: claude-sonnet-4-6 (set by caller)
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        model: body.model || 'claude-sonnet-4-6',
+        ...body,
+      }),
     })
     const data = await response.json()
     return NextResponse.json(data)

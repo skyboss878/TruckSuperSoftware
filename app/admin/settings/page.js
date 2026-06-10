@@ -9,6 +9,7 @@ export default function AdminSettings() {
   const [locations, setLocations] = useState([])
   const [newName, setNewName] = useState('')
   const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState('')
 
   useEffect(() => { loadAll() }, [])
 
@@ -25,13 +26,20 @@ export default function AdminSettings() {
     if (!newName.trim()) return
     setSaving(true)
     const url = tab === 'customers' ? '/api/customers' : '/api/locations'
-    await fetch(url, {
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: newName.trim() }),
     })
     setNewName('')
     setSaving(false)
+    if (res.ok) {
+      setMsg(`✅ ${tab === 'customers' ? 'Customer' : 'Location'} added`)
+      setTimeout(() => setMsg(''), 2500)
+    } else {
+      setMsg('❌ Failed — check connection')
+      setTimeout(() => setMsg(''), 2500)
+    }
     loadAll()
   }
 
@@ -66,6 +74,7 @@ export default function AdminSettings() {
         ))}
       </div>
 
+      {msg && <div className="mx-4 mt-3 px-4 py-2 rounded-xl text-sm font-semibold" style={{background: msg.startsWith('✅') ? '#f0fdf4' : '#fef2f2', color: msg.startsWith('✅') ? '#16a34a' : '#dc2626'}}>{msg}</div>}
       <div className="p-4 space-y-3">
         {/* Add new */}
         <div className="bg-white rounded-2xl p-4 shadow-sm flex gap-2">
