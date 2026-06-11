@@ -1,5 +1,6 @@
 'use client'
 import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 
 const features = [
   { icon: '📍', title: 'Live Fleet Map', desc: 'Real-time GPS tracking with offline cache and auto-zoom' },
@@ -12,12 +13,7 @@ const features = [
   { icon: '🔔', title: 'Push Alerts', desc: 'Drivers notified instantly on messages and approvals' },
 ]
 
-const stats = [
-  { value: '15', label: 'Live APIs' },
-  { value: '33', label: 'Pages' },
-  { value: '100%', label: 'Uptime' },
-  { value: 'Real-Time', label: 'Data' },
-]
+// stats loaded dynamically
 
 export default function LandingPage() {
   const router = useRouter()
@@ -128,7 +124,7 @@ export default function LandingPage() {
             display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px',
             backdropFilter: 'blur(10px)',
           }}>
-            {stats.map(s => (
+            {liveStats.map(s => (
               <div key={s.label} style={{ textAlign: 'center' }}>
                 <div style={{ color: '#2D7A5F', fontSize: '22px', fontWeight: '900', lineHeight: 1 }}>{s.value}</div>
                 <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}>{s.label}</div>
