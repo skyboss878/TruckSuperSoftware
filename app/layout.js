@@ -27,30 +27,6 @@ function DynamicHtml({ children }) {
 }
 
 import ErrorBoundary from '@/components/ErrorBoundary'
-'use client'
-import { useEffect } from 'react'
-
-function ServiceWorkerManager() {
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => {
-          // Check for new version every 2 minutes
-          const check = () => {
-            if (reg.active) reg.active.postMessage('CHECK_VERSION')
-          }
-          check()
-          setInterval(check, 2 * 60 * 1000)
-        })
-      // Listen for reload signal from SW
-      navigator.serviceWorker.addEventListener('message', e => {
-        if (e.data === 'RELOAD') window.location.reload()
-      })
-    }
-  }, [])
-  return null
-}
-
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
