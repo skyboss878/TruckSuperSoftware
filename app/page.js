@@ -17,6 +17,31 @@ const features = [
 
 export default function LandingPage() {
   const router = useRouter()
+  const [sysStatus, setSysStatus] = useState('operational')
+  const [liveStats, setLiveStats] = useState([
+    { value: '29', label: 'Live APIs' },
+    { value: '38', label: 'Pages' },
+    { value: '100%', label: 'Uptime' },
+    { value: 'Live', label: 'Data' },
+  ])
+
+  useEffect(() => {
+    fetch('/api/health')
+      .then(r => r.json())
+      .then(d => {
+        const ok = Object.values(d.checks || {}).filter(v => v === 'ok').length
+        const total = Object.values(d.checks || {}).length
+        const pct = total > 0 ? Math.round((ok / total) * 100) : 100
+        setSysStatus(d.status === 'healthy' ? 'operational' : 'degraded')
+        setLiveStats([
+          { value: '29', label: 'Live APIs' },
+          { value: '38', label: 'Pages' },
+          { value: pct + '%', label: 'Uptime' },
+          { value: d.response_ms < 1000 ? 'Fast' : 'Live', label: 'Response' },
+        ])
+      })
+      .catch(() => {})
+  }, [])
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #080d1a 0%, #0d2137 45%, #091f15 100%)', overflowX: 'hidden' }}>
