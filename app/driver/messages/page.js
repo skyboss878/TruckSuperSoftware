@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Toast, { showToast } from '@/components/Toast'
+import TerrySpeedDial from '@/components/TerrySpeedDial'
 
 export default function DriverMessages() {
   const router = useRouter()

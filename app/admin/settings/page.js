@@ -13,6 +13,8 @@ export default function AdminSettings() {
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
   const [me, setMe] = useState(null)
+  const [dispatchPhone, setDispatchPhone] = useState('')
+  const [phoneSaving, setPhoneSaving] = useState(false)
   const [confirmDeactivate, setConfirmDeactivate] = useState(null)
   const [pinTarget, setPinTarget] = useState(null)
   const [currentPin, setCurrentPin] = useState('')
@@ -25,7 +27,28 @@ export default function AdminSettings() {
     loadMe()
     loadAll()
     loadAdmins()
+    loadPhone()
   }, [])
+
+  async function loadPhone() {
+    try {
+      const res = await fetch('/api/settings')
+      const d = await res.json()
+      if (d?.dispatch_phone) setDispatchPhone(d.dispatch_phone)
+    } catch {}
+  }
+
+  async function savePhone() {
+    setPhoneSaving(true)
+    await fetch('/api/settings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dispatch_phone: dispatchPhone }),
+    })
+    setPhoneSaving(false)
+    setMsg('✅ Phone number saved')
+    setTimeout(() => setMsg(''), 2500)
+  }
 
   async function loadMe() {
     try {
@@ -127,7 +150,7 @@ export default function AdminSettings() {
       </div>
 
       <div className="bg-white border-b flex overflow-x-auto">
-        {[['admins','🔐 Admins'],['customers','👥 Customers'],['locations','📍 Locations']].map(([key, label]) => (
+        {[['admins','🔐 Admins'],['customers','👥 Customers'],['locations','📍 Locations'],['system','⚡ System']].map(([key, label]) => (
           <button key={key} onClick={() => { setTab(key); setSearch('') }}
             className={`flex-1 py-3 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap px-3 ${
               tab === key ? 'border-[#2D7A5F] text-[#2D7A5F]' : 'border-transparent text-gray-400'
@@ -243,6 +266,23 @@ export default function AdminSettings() {
           </>
         )}
       </div>
+
+      {/* ── SYSTEM TAB ── */}
+      {tab === 'system' && (
+        <div className="space-y-3">
+          <div className="bg-white rounded-2xl p-4 shadow-sm">
+            <p className="font-bold text-gray-800 mb-1">📞 Dispatch Phone</p>
+            <p className="text-xs text-gray-400 mb-3">Drivers see a floating call button on their app</p>
+            <input value={dispatchPhone} onChange={e => setDispatchPhone(e.target.value)}
+              placeholder="+1 (555) 000-0000" type="tel"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#2D7A5F] text-sm mb-3" />
+            <button onClick={savePhone} disabled={phoneSaving}
+              className="w-full py-3 bg-[#2D7A5F] text-white rounded-xl font-semibold text-sm disabled:opacity-40">
+              {phoneSaving ? 'Saving...' : 'Save Phone Number'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── DEACTIVATE CONFIRM ── */}
       {confirmDeactivate && (

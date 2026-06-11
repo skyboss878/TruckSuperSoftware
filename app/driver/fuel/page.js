@@ -1,24 +1,25 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Toast, { showToast } from '@/components/Toast'
 
+const US_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY']
+
 export default function FuelLog() {
   const router = useRouter()
+  const fileRef = useRef(null)
   const [driver, setDriver] = useState(null)
   const [logs, setLogs] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [scanning, setScanning] = useState(false)
+  const [scanPreview, setScanPreview] = useState(null)
   const [form, setForm] = useState({
     date: new Date().toISOString().split('T')[0],
-    state: '',
-    city: '',
-    gallons: '',
-    price_per_gallon: '',
-    odometer: '',
-    notes: '',
+    state: '', city: '', gallons: '',
+    price_per_gallon: '', odometer: '', notes: '',
   })
 
   useEffect(() => { init() }, [])
@@ -28,151 +29,151 @@ export default function FuelLog() {
     if (!user) { router.replace('/login'); return }
     const d = await fetch(`/api/drivers?auth_id=${user.id}`).then(r => r.json())
     setDriver(d)
-    const { data } = await supabase
-      .from('fuel_logs')
-      .select('*')
-      .eq('driver_id', d.id)
-      .order('date', { ascending: false })
-      .limit(50)
-    setLogs(data || [])
+    if (d?.id) {
+      const { data } = await supabase.from('fuel_logs').select('*').eq('driver_id', d.id).order('date', { ascending: false }).limit(30)
+      setLogs(data || [])
+    }
     setLoading(false)
   }
 
-  async function save() {
-    if (!form.date || !form.gallons || !form.price_per_gallon) return
+  async function scanReceipt(file) {
+    if (!file) return
+    setScanning(true)
+    setScanPreview(URL.createObjectURL(file))
+    try {
+      const base64 = await new Promise((res, rej) => {
+        const reader = new FileReader()
+        reader.onload = () => res(reader.result.split(',')[1])
+        reader.onerror = rej
+        reader.readAsDataURL(file)
+      })
+      const mediaType = file.type || 'image/jpeg'
+      const response = await fetch('/api/fuel-scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64, media_type: mediaType }),
+      })
+      const result = await response.json()
+      if (!result.success) throw new Error(result.error)
+      const d = result.data
+      setForm(prev => ({
+        ...prev,
+        gallons: d.gallons?.toString() || prev.gallons,
+        price_per_gallon: d.price_per_gallon?.toString() || prev.price_per_gallon,
+        state: d.state || prev.state,
+        city: d.city || prev.city,
+        date: d.date || prev.date,
+        notes: d.station_name ? `${d.station_name}${d.fuel_type ? ` · ${d.fuel_type}` : ''}` : prev.notes,
+        odometer: d.odometer?.toString() || prev.odometer,
+      }))
+      showToast('✅ Receipt scanned — review and confirm')
+      setShowForm(true)
+    } catch(e) {
+      showToast('Could not read receipt — fill in manually', 'error')
+      setShowForm(true)
+    }
+    setScanning(false)
+  }
+
+  async function handleSave() {
+    if (!form.gallons || !form.price_per_gallon) return
     setSaving(true)
     const total_cost = parseFloat(form.gallons) * parseFloat(form.price_per_gallon)
-    await supabase.from('fuel_logs').insert({
-      driver_id: driver.id,
-      date: form.date,
-      state: form.state,
-      city: form.city,
-      gallons: parseFloat(form.gallons),
-      price_per_gallon: parseFloat(form.price_per_gallon),
-      total_cost: parseFloat(total_cost.toFixed(2)),
-      odometer: form.odometer ? parseInt(form.odometer) : null,
-      notes: form.notes || null,
+    await fetch('/api/fuel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        auth_id: driver.auth_id,
+        date: form.date, state: form.state, city: form.city,
+        gallons: parseFloat(form.gallons),
+        price_per_gallon: parseFloat(form.price_per_gallon),
+        total_cost,
+        odometer: form.odometer ? parseInt(form.odometer) : null,
+        notes: form.notes || null,
+      }),
     })
     setForm({ date: new Date().toISOString().split('T')[0], state: '', city: '', gallons: '', price_per_gallon: '', odometer: '', notes: '' })
+    setScanPreview(null)
     setShowForm(false)
     setSaving(false)
-    await init()
+    showToast('Fuel log saved!')
+    const { data } = await supabase.from('fuel_logs').select('*').eq('driver_id', driver.id).order('date', { ascending: false }).limit(30)
+    setLogs(data || [])
   }
 
   const totalGallons = logs.reduce((s, l) => s + (l.gallons || 0), 0)
   const totalCost = logs.reduce((s, l) => s + (l.total_cost || 0), 0)
-  const avgPPG = logs.length ? totalCost / totalGallons : 0
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><p className="text-gray-400">Loading...</p></div>
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><p className="text-gray-400 animate-pulse">Loading...</p></div>
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Toast />
-      <div className="bg-white border-b px-4 py-4 flex items-center gap-4 sticky top-0 z-10">
+      <div className="bg-white border-b px-4 py-4 flex items-center justify-between sticky top-0 z-10">
         <button onClick={() => router.back()} className="text-[#2D7A5F] font-medium">← Back</button>
-        <h1 className="text-lg font-bold text-gray-800 flex-1 text-center">Fuel Log</h1>
-        <button onClick={() => setShowForm(true)} className="text-[#2D7A5F] font-medium text-sm">+ Add</button>
+        <h1 className="text-lg font-bold text-gray-800">Fuel Log</h1>
+        <div className="w-12" />
       </div>
 
       <div className="p-4 space-y-4 pb-10">
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { label: 'Total Gallons', value: totalGallons.toFixed(1), icon: '⛽' },
-            { label: 'Total Cost', value: '$' + totalCost.toFixed(2), icon: '💵' },
-            { label: 'Avg $/Gal', value: '$' + avgPPG.toFixed(3), icon: '📊' },
-          ].map(s => (
-            <div key={s.label} className="bg-white rounded-2xl p-3 shadow-sm text-center">
-              <p className="text-xl mb-1">{s.icon}</p>
-              <p className="text-base font-bold text-gray-800">{s.value}</p>
-              <p className="text-xs text-gray-400">{s.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {logs.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
-            <p className="text-4xl mb-3">⛽</p>
-            <p className="font-medium text-gray-700">No fuel logs yet</p>
-            <p className="text-sm text-gray-400 mt-1">Tap + Add to log a fuel stop</p>
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-[#2D7A5F] rounded-2xl p-4 text-white text-center">
+            <p className="text-2xl font-black">{totalGallons.toFixed(0)}</p>
+            <p className="text-green-200 text-xs mt-1">Total Gallons</p>
           </div>
-        ) : (
-          <div className="bg-white rounded-2xl shadow-sm divide-y divide-gray-50">
-            {logs.map(l => (
-              <div key={l.id} className="p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-bold text-gray-800">{l.gallons} gal · ${l.price_per_gallon}/gal</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{l.date}{l.city ? ` · ${l.city}` : ''}{l.state ? `, ${l.state}` : ''}</p>
-                    {l.odometer && <p className="text-xs text-gray-400">Odometer: {l.odometer.toLocaleString()}</p>}
-                  </div>
-                  <p className="font-bold text-[#2D7A5F]">${l.total_cost?.toFixed(2)}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-end">
-          <div className="bg-black/30 absolute inset-0" onClick={() => setShowForm(false)} />
-          <div className="bg-white rounded-t-3xl w-full p-6 z-10 space-y-4 max-h-[90vh] overflow-y-auto">
-            <h2 className="font-bold text-gray-800 text-lg">Log Fuel Stop</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-gray-400 font-medium uppercase">Date</label>
-                <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-3 mt-1 outline-none focus:border-[#2D7A5F]" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-400 font-medium uppercase">State</label>
-                <input value={form.state} onChange={e => setForm({...form, state: e.target.value})}
-                  placeholder="TX" className="w-full border border-gray-200 rounded-xl px-3 py-3 mt-1 outline-none focus:border-[#2D7A5F]" />
-              </div>
-            </div>
-            <div>
-              <label className="text-xs text-gray-400 font-medium uppercase">City / Station</label>
-              <input value={form.city} onChange={e => setForm({...form, city: e.target.value})}
-                placeholder="e.g. Loves Travel Stop, Odessa"
-                className="w-full border border-gray-200 rounded-xl px-3 py-3 mt-1 outline-none focus:border-[#2D7A5F]" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-gray-400 font-medium uppercase">Gallons</label>
-                <input type="number" value={form.gallons} onChange={e => setForm({...form, gallons: e.target.value})}
-                  placeholder="150.0" step="0.1"
-                  className="w-full border border-gray-200 rounded-xl px-3 py-3 mt-1 outline-none focus:border-[#2D7A5F]" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-400 font-medium uppercase">$/Gallon</label>
-                <input type="number" value={form.price_per_gallon} onChange={e => setForm({...form, price_per_gallon: e.target.value})}
-                  placeholder="3.89" step="0.001"
-                  className="w-full border border-gray-200 rounded-xl px-3 py-3 mt-1 outline-none focus:border-[#2D7A5F]" />
-              </div>
-            </div>
-            {form.gallons && form.price_per_gallon && (
-              <div className="bg-[#E8F5F0] rounded-xl p-3 text-center">
-                <p className="text-[#2D7A5F] font-bold text-lg">
-                  Total: ${(parseFloat(form.gallons) * parseFloat(form.price_per_gallon)).toFixed(2)}
-                </p>
-              </div>
-            )}
-            <div>
-              <label className="text-xs text-gray-400 font-medium uppercase">Odometer (optional)</label>
-              <input type="number" value={form.odometer} onChange={e => setForm({...form, odometer: e.target.value})}
-                placeholder="125000"
-                className="w-full border border-gray-200 rounded-xl px-3 py-3 mt-1 outline-none focus:border-[#2D7A5F]" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <button onClick={() => setShowForm(false)} className="py-4 border-2 border-gray-200 rounded-2xl font-semibold text-gray-500">Cancel</button>
-              <button onClick={save} disabled={saving || !form.gallons || !form.price_per_gallon}
-                className="py-4 bg-[#2D7A5F] text-white rounded-2xl font-semibold disabled:opacity-40">
-                {saving ? 'Saving...' : 'Save'}
-              </button>
-            </div>
+          <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
+            <p className="text-2xl font-black text-gray-800">${totalCost.toFixed(0)}</p>
+            <p className="text-gray-400 text-xs mt-1">Total Spent</p>
           </div>
         </div>
-      )}
-    </div>
+
+        {/* AI Scan CTA */}
+        {!showForm && (
+          <div className="bg-gradient-to-br from-[#1a3a2a] to-[#0d2419] rounded-2xl p-5 text-white border border-[#2D7A5F]/30">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-3xl">🤖</span>
+              <div>
+                <p className="font-bold text-base">AI Receipt Scanner</p>
+                <p className="text-green-300 text-xs">Snap your receipt — AI fills in everything</p>
+              </div>
+            </div>
+            <input ref={fileRef} type="file" accept="image/*" className="hidden"
+              onChange={e => e.target.files[0] && scanReceipt(e.target.files[0])} />
+            <div className="grid grid-cols-2 gap-3">
+# ── 3. TERRY SPEED DIAL — add to company settings + driver dashboard ──
+# First add phone to company_settings table
+# Add quick-call component
+cat > components/TerrySpeedDial.js << 'EOF'
+'use client'
+import { useState, useEffect } from 'react'
+
+export default function TerrySpeedDial() {
+  const [phone, setPhone] = useState(null)
+  const [name, setName] = useState('Terry')
+
+  useEffect(() => {
+    fetch('/api/settings').then(r => r.json()).then(d => {
+      if (d?.dispatch_phone) setPhone(d.dispatch_phone)
+      if (d?.dispatch_name) setName(d.dispatch_name)
+    }).catch(() => {})
+  }, [])
+
+  if (!phone) return null
+
+  return (
+    <a href={`tel:${phone}`}
+      style={{
+        position: 'fixed', bottom: '80px', right: '16px', zIndex: 50,
+        width: '56px', height: '56px', borderRadius: '50%',
+        background: 'linear-gradient(135deg, #2D7A5F, #1a5c44)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: '24px', boxShadow: '0 4px 20px rgba(45,122,95,0.5)',
+        textDecoration: 'none',
+        animation: 'pulse-btn 2s ease-in-out infinite',
+      }}>
+      📞
+      <style>{`@keyframes pulse-btn{0%,100%{box-shadow:0 4px 20px rgba(45,122,95,0.5)}50%{box-shadow:0 4px 30px rgba(45,122,95,0.8)}}`}</style>
+    </a>
   )
 }

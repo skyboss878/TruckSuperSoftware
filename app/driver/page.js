@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import DriveTracker from '@/components/DriveTracker'
 import Toast, { showToast } from '@/components/Toast'
+import TerrySpeedDial from '@/components/TerrySpeedDial'
 import DriverStatsCard from '@/components/DriverStatsCard'
 import { useLang } from '@/lib/LanguageContext'
 
@@ -110,6 +111,7 @@ export default function DriverDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Toast />
+      <TerrySpeedDial />
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between sticky top-0 z-10">
         <button onClick={() => setMenuOpen(true)} className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center">

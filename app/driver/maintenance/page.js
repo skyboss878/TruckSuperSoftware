@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Toast, { showToast } from '@/components/Toast'
+import TerrySpeedDial from '@/components/TerrySpeedDial'
 
 const SEVERITY = [
   { value: 'low', label: 'Low', color: 'bg-green-100 text-green-700' },
@@ -119,6 +120,7 @@ export default function MaintenancePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Toast />
+      <TerrySpeedDial />
       {/* Header */}
       <div className="bg-white border-b px-4 py-4 flex items-center justify-between sticky top-0 z-10">
         <button onClick={() => router.back()} className="text-[#2D7A5F] font-medium">← Back</button>
