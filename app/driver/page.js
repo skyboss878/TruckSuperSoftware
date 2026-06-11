@@ -4,12 +4,14 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import DriveTracker from '@/components/DriveTracker'
 import Toast, { showToast } from '@/components/Toast'
+import { useDriverSessionGuard } from '@/lib/useSessionGuard'
 import TerrySpeedDial from '@/components/TerrySpeedDial'
 import DriverStatsCard from '@/components/DriverStatsCard'
 import { useLang } from '@/lib/LanguageContext'
 
 export default function DriverDashboard() {
   const router = useRouter()
+  useDriverSessionGuard()
   const [driver, setDriver] = useState(null)
   const [tickets, setTickets] = useState([])
   const [tab, setTab] = useState('started')

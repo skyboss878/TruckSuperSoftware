@@ -26,6 +26,7 @@ function DynamicHtml({ children }) {
   return children
 }
 
+import ErrorBoundary from '@/components/ErrorBoundary'
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -33,7 +34,7 @@ export default function RootLayout({ children }) {
         <LanguageProvider>
         <PWAManager />
           <DynamicHtml>
-            {children}
+            <ErrorBoundary>{children}</ErrorBoundary>
           </DynamicHtml>
         </LanguageProvider>
       </body>

@@ -1,13 +1,16 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAdminSessionGuard } from '@/lib/useSessionGuard'
 import { supabase } from '@/lib/supabase'
 import AdminPreTrip from '@/components/AdminPreTrip'
 import AdminNotificationBell from '@/components/AdminNotificationBell'
+import SystemHealth from '@/components/SystemHealth'
 import Toast, { showToast } from '@/components/Toast'
 
 export default function AdminDashboard() {
   const router = useRouter()
+  useAdminSessionGuard()
   const [tab, setTab] = useState('tickets')
   const [panicAlert, setPanicAlert] = useState(null)
   const [tickets, setTickets] = useState([])
@@ -144,6 +147,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      <SystemHealth />
       {/* Panic Alert Banner */}
       {panicAlert && (
         <div className="bg-red-600 px-4 py-3 flex items-center gap-3">
