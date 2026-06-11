@@ -14,10 +14,9 @@ export default function AdminMaintenanceDetail() {
 
   async function loadLog() {
     try {
-      const res = await fetch('/api/maintenance')
+      const res = await fetch(`/api/maintenance?id=${id}`)
       const data = await res.json()
-      const log = Array.isArray(data) ? data.find(m => m.id === id) : null
-      setLog(log || null)
+      setLog(Array.isArray(data) ? data[0] : data?.id ? data : null)
     } catch (e) {
       console.error('loadLog error:', e)
     }

@@ -5,10 +5,12 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
     const driver_id = searchParams.get('driver_id')
+    const id = searchParams.get('id')
     let query = supabaseAdmin
       .from('maintenance')
       .select('*, drivers(name)')
       .order('created_at', { ascending: false })
+    if (id) query = query.eq('id', id)
     if (driver_id) query = query.eq('driver_id', driver_id)
     const { data, error } = await query
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })

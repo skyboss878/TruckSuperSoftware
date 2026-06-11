@@ -19,6 +19,9 @@ export default function DriverDashboard() {
   const [loading, setLoading] = useState(true)
   const { lang, setLang, tr } = useLang()
   const [syncing, setSyncing] = useState(false)
+  const [showTruckVerify, setShowTruckVerify] = useState(false)
+  const [truckInput, setTruckInput] = useState('')
+  const [truckSaving, setTruckSaving] = useState(false)
 
   useEffect(() => {
     loadDriver()
@@ -56,6 +59,11 @@ export default function DriverDashboard() {
 
     setDriver(data)
     setLoading(false)
+
+    // Verify truck number on every login
+    if (!data.truck_number) {
+      setShowTruckVerify(true)
+    }
 
     // Heartbeat — mark driver online
     supabase.from('drivers').update({
@@ -103,6 +111,20 @@ export default function DriverDashboard() {
     acc[date].push(ticket)
     return acc
   }, {})
+
+  async function saveTruck() {
+    if (!truckInput.trim()) return
+    setTruckSaving(true)
+    await fetch(`/api/drivers/${driver.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ truck_number: truckInput.trim().toUpperCase() }),
+    })
+    setDriver(d => ({ ...d, truck_number: truckInput.trim().toUpperCase() }))
+    setShowTruckVerify(false)
+    setTruckSaving(false)
+    showToast('Truck number saved')
+  }
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -197,6 +219,31 @@ export default function DriverDashboard() {
       </button>
 
       {/* Side Menu */}
+      {/* Truck Verify Modal */}
+      {showTruckVerify && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ background: 'white', width: '100%', borderRadius: '24px 24px 0 0', padding: '28px 20px 40px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <div style={{ fontSize: '48px', marginBottom: '8px' }}>🚛</div>
+              <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#111', margin: '0 0 6px' }}>Verify Your Truck</h2>
+              <p style={{ fontSize: '13px', color: '#6b7280', margin: 0 }}>Enter your truck number to continue</p>
+            </div>
+            <input
+              value={truckInput}
+              onChange={e => setTruckInput(e.target.value.toUpperCase())}
+              placeholder="e.g. T-101"
+              style={{ width: '100%', border: '2px solid #e5e7eb', borderRadius: '14px', padding: '14px 16px', fontSize: '18px', fontWeight: '700', textAlign: 'center', outline: 'none', letterSpacing: '2px', boxSizing: 'border-box', marginBottom: '12px' }}
+              onFocus={e => e.target.style.borderColor = '#2D7A5F'}
+              onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+            />
+            <button onClick={saveTruck} disabled={truckSaving || !truckInput.trim()}
+              style={{ width: '100%', padding: '15px', background: '#2D7A5F', border: 'none', borderRadius: '14px', color: 'white', fontSize: '16px', fontWeight: '800', cursor: 'pointer', opacity: (truckSaving || !truckInput.trim()) ? 0.4 : 1 }}>
+              {truckSaving ? 'Saving...' : 'Confirm Truck'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {menuOpen && (
         <div className="fixed inset-0 z-50 flex">
           <div className="bg-white w-72 h-full shadow-xl p-6 flex flex-col">
@@ -222,10 +269,11 @@ export default function DriverDashboard() {
                 { label: 'Fuel Log', icon: '⛽', path: '/driver/fuel' },
                 { label: 'My Documents', icon: '🗄️', path: '/driver/documents' },
                 { label: 'Expenses', icon: '💸', path: '/driver/expenses' },
+                { label: 'Change Truck', icon: '🚛', action: 'truck' },
               ].map(item => (
                 <button
                   key={item.path}
-                  onClick={() => { setMenuOpen(false); router.push(item.path) }}
+                  onClick={() => { setMenuOpen(false); if (item.action === 'truck') { setShowTruckVerify(true); setTruckInput(driver?.truck_number || ''); setMenuOpen(false) } else { router.push(item.path) } }}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-700 font-medium"
                 >
                   <span>{item.icon}</span>
