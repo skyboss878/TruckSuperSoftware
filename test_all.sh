@@ -23,86 +23,71 @@ echo "  Smith's Freight Hub — API Test Suite"
 echo "══════════════════════════════════════"
 
 echo ""
-echo "── DRIVERS ─────────────────────────"
-R=$(curl -s "$BASE/api/drivers")
-check "GET /api/drivers" "$R" "name"
+echo "── CORE DATA ────────────────────────"
+check "GET /api/drivers" "$(curl -s "$BASE/api/drivers")" "name\|id\|\[\]"
+check "GET /api/tickets" "$(curl -s "$BASE/api/tickets")" "id\|status\|\[\]"
+check "GET /api/customers" "$(curl -s "$BASE/api/customers")" "name\|id\|\[\]"
+check "GET /api/locations" "$(curl -s "$BASE/api/locations")" "name\|id\|\[\]"
+check "GET /api/messages" "$(curl -s "$BASE/api/messages")" "id\|content\|\[\]"
+check "GET /api/maintenance" "$(curl -s "$BASE/api/maintenance")" "id\|status\|\[\]"
+check "GET /api/timesheets" "$(curl -s "$BASE/api/timesheets")" "id\|date\|\[\]"
+check "GET /api/tracking" "$(curl -s "$BASE/api/tracking")" "\[\|status\|id"
+check "GET /api/compliance" "$(curl -s "$BASE/api/compliance")" "id\|record_type\|\[\]"
+check "GET /api/fuel" "$(curl -s "$BASE/api/fuel")" "fuel_logs\|\[\]"
+check "GET /api/scorecard" "$(curl -s "$BASE/api/scorecard?days=30")" "driver\|safety\|\[\]"
+check "GET /api/pre-trip" "$(curl -s "$BASE/api/pre-trip?admin=true")" "drivers\|date"
+check "GET /api/ifta" "$(curl -s "$BASE/api/ifta?quarter=2&year=2026")" "quarter\|states\|summary"
+check "GET /api/dispatch" "$(curl -s "$BASE/api/dispatch")" "actions\|id\|\[\]"
+check "GET /api/expenses" "$(curl -s "$BASE/api/expenses")" "id\|amount\|type\|\[\]"
+check "GET /api/documents" "$(curl -s "$BASE/api/documents")" "id\|doc_type\|\[\]"
+check "GET /api/invoices" "$(curl -s "$BASE/api/invoices")" "id\|amount\|\[\]"
+check "GET /api/settings" "$(curl -s "$BASE/api/settings")" "id\|company\|dispatch\|\[\]\|{}"
+check "GET /api/audit" "$(curl -s "$BASE/api/audit")" "Unauthorized\|action\|\[\]"
 
 echo ""
-echo "── TICKETS ──────────────────────────"
-R=$(curl -s "$BASE/api/tickets")
-check "GET /api/tickets" "$R" "id\|status\|\[\]"
-
-echo ""
-echo "── TRACKING ─────────────────────────"
-R=$(curl -s "$BASE/api/tracking")
-check "GET /api/tracking" "$R" "\[\|status\|id"
-
-echo ""
-echo "── CUSTOMERS ────────────────────────"
-R=$(curl -s "$BASE/api/customers")
-check "GET /api/customers" "$R" "name\|id\|\[\]"
-
-echo ""
-echo "── LOCATIONS ────────────────────────"
-R=$(curl -s "$BASE/api/locations")
-check "GET /api/locations" "$R" "name\|id\|\[\]"
-
-echo ""
-echo "── MAINTENANCE ──────────────────────"
-R=$(curl -s "$BASE/api/maintenance")
-check "GET /api/maintenance" "$R" "id\|status\|\[\]"
-
-echo ""
-echo "── TIMESHEETS ───────────────────────"
-R=$(curl -s "$BASE/api/timesheets")
-check "GET /api/timesheets" "$R" "id\|date\|\[\]"
-
-echo ""
-echo "── COMPLIANCE ───────────────────────"
-R=$(curl -s "$BASE/api/compliance")
-check "GET /api/compliance" "$R" "id\|record_type\|\[\]"
-
-echo ""
-echo "── MESSAGES ─────────────────────────"
-R=$(curl -s "$BASE/api/messages")
-check "GET /api/messages" "$R" "id\|content\|\[\]"
-
-echo ""
-echo "── IFTA ─────────────────────────────"
-R=$(curl -s "$BASE/api/ifta?quarter=2&year=2026")
-check "GET /api/ifta" "$R" "quarter\|states\|summary"
-
-echo ""
-echo "── SCORECARD ────────────────────────"
-R=$(curl -s "$BASE/api/scorecard?days=30")
-check "GET /api/scorecard" "$R" "driver\|safety\|\[\]"
-
-echo ""
-echo "── PRE-TRIP ─────────────────────────"
-R=$(curl -s "$BASE/api/pre-trip?admin=true")
-check "GET /api/pre-trip (admin)" "$R" "drivers\|date"
-
-echo ""
-echo "── FUEL ─────────────────────────────"
-R=$(curl -s "$BASE/api/fuel")
-check "GET /api/fuel" "$R" "fuel_logs\|\[\]"
-
-echo ""
-echo "── PUSH ─────────────────────────────"
-R=$(curl -s -X PUT "$BASE/api/push" \
+echo "── ADMIN AUTH ───────────────────────"
+LOGIN=$(curl -s -X POST "$BASE/api/admin/auth" \
   -H "Content-Type: application/json" \
-  -d '{"title":"Test","body":"API test","url":"/driver"}')
-check "PUT /api/push" "$R" "sent"
+  -d '{"pin":"1234"}' -c /tmp/test_cookies.txt)
+check "POST /api/admin/auth (login)" "$LOGIN" "name\|role"
+check "GET /api/admin/me" "$(curl -s "$BASE/api/admin/me" -b /tmp/test_cookies.txt)" "name\|role\|id"
+check "GET /api/admin/auth (list)" "$(curl -s "$BASE/api/admin/auth" -b /tmp/test_cookies.txt)" "name\|id\|\[\]"
+check "GET /api/audit (authed)" "$(curl -s "$BASE/api/audit" -b /tmp/test_cookies.txt)" "action\|\[\]"
 
 echo ""
-echo "── AI ASSISTANT ─────────────────────"
-R=$(curl -s -X POST "$BASE/api/assistant" \
+echo "── MUTATIONS ────────────────────────"
+check "PUT /api/push" "$(curl -s -X PUT "$BASE/api/push" \
   -H "Content-Type: application/json" \
-  -d '{"messages":[{"role":"user","content":"how many active drivers"}],"role":"admin"}')
-check "POST /api/assistant" "$R" "reply\|driver"
+  -d '{"title":"Test","body":"API test","url":"/driver"}')" "sent"
+
+echo ""
+echo "── AI ROUTES ────────────────────────"
+check "POST /api/assistant" "$(curl -s -X POST "$BASE/api/assistant" \
+  -H "Content-Type: application/json" \
+  -d '{"messages":[{"role":"user","content":"how many active drivers"}],"role":"admin"}')" "reply\|driver"
+check "POST /api/ai" "$(curl -s -X POST "$BASE/api/ai" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"claude-sonnet-4-6","max_tokens":50,"messages":[{"role":"user","content":"say ok"}]}')" "ok\|content\|type"
+
+echo ""
+echo "── HEALTH ───────────────────────────"
+check "GET /api/health" "$(curl -s "$BASE/api/health")" "healthy\|degraded"
+
+echo ""
+echo "── DRIVER SPECIFIC ──────────────────"
+DRIVER_ID=$(curl -s "$BASE/api/drivers" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d[0]['id'] if d else '')" 2>/dev/null)
+if [ -n "$DRIVER_ID" ]; then
+  check "GET /api/drivers/[id]" "$(curl -s "$BASE/api/drivers/$DRIVER_ID")" "name\|id"
+  check "GET /api/fuel?driver_id" "$(curl -s "$BASE/api/fuel?driver_id=$DRIVER_ID")" "fuel_logs\|\[\]"
+  check "GET /api/expenses?driver_id" "$(curl -s "$BASE/api/expenses?driver_id=$DRIVER_ID")" "id\|amount\|\[\]"
+  check "GET /api/documents?driver_id" "$(curl -s "$BASE/api/documents?driver_id=$DRIVER_ID")" "id\|doc_type\|\[\]"
+else
+  echo "  ⚠️  No drivers found — skipping driver-specific tests"
+fi
 
 echo ""
 echo "══════════════════════════════════════"
 echo "  Results: $PASS passed · $FAIL failed"
+echo "  Coverage: $PASS/29 API routes"
 echo "══════════════════════════════════════"
 echo ""

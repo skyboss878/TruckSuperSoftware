@@ -1,6 +1,14 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
 
+export async function GET() {
+  return NextResponse.json({
+    actions: ['auto_review','paperwork_scan','morning_briefing','broadcast','full_auto'],
+    status: 'ready',
+    model: 'claude-sonnet-4-6',
+  })
+}
+
 async function askAI(system, user, maxTokens = 1500) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
