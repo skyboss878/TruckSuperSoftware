@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import 'leaflet/dist/leaflet.css'
 
 // ── Haversine distance in miles ──────────────────────────
 function haversine(lat1, lon1, lat2, lon2) {
@@ -87,7 +88,6 @@ export default function DriveTracker({ driver, onSessionComplete }) {
   async function initMap(lat, lon) {
     if (mapInstanceRef.current || !mapRef.current) return
     const L = (await import('leaflet')).default
-    await import('leaflet/dist/leaflet.css')
 
     const map = L.map(mapRef.current, {
       center: [lat, lon], zoom: 15,
@@ -345,7 +345,7 @@ export default function DriveTracker({ driver, onSessionComplete }) {
   return (
     <div style={{ background: 'linear-gradient(135deg, #080d1a, #0d2137)', borderRadius: '20px', marginBottom: '16px', overflow: 'hidden', border: '1px solid rgba(45,122,95,0.4)' }}>
       {/* Live Map */}
-      <div ref={mapRef} style={{ width: '100%', height: '200px' }} />
+      <div ref={mapRef} style={{ width: '100%', height: '200px', position: 'relative', zIndex: 0 }} />
 
       {/* Stats bar */}
       <div style={{ padding: '14px 16px' }}>
