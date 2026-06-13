@@ -266,6 +266,7 @@ export default function DriverDashboard() {
                 { label: 'AI Assistant', icon: '🤖', path: '/driver/assistant' },
                 { label: 'Trip Tracker', icon: '📍', path: '/driver/tracking' },
                 { label: 'HOS Logger', icon: '⏱️', path: '/driver/hos' },
+                { label: '📷 Scan Docs', icon: '📷', path: '/driver/scan' },
                 { label: 'Fuel Log', icon: '⛽', path: '/driver/fuel' },
                 { label: 'My Documents', icon: '🗄️', path: '/driver/documents' },
                 { label: 'Expenses', icon: '💸', path: '/driver/expenses' },
