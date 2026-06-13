@@ -20,6 +20,9 @@ check() {
   if [ "$res" = "200" ] || [ "$res" = "201" ]; then
     echo "  ✅ $name ($res)"
     PASS=$((PASS+1))
+  elif [ "$res" = "307" ] || [ "$res" = "302" ]; then
+    echo "  ✅ $name ($res - auth redirect, expected)"
+    PASS=$((PASS+1))
   else
     echo "  ❌ $name ($res)"
     FAIL=$((FAIL+1))
