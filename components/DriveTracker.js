@@ -95,8 +95,13 @@ export default function DriveTracker({ driver, onSessionComplete }) {
     })
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19
+      maxZoom: 19,
+      subdomains: 'abcd',
     }).addTo(map)
+
+    // Ensure map renders correctly after container is fully sized
+    setTimeout(() => map.invalidateSize(), 100)
+    setTimeout(() => map.invalidateSize(), 500)
 
     // Truck marker
     const truckIcon = L.divIcon({
@@ -165,8 +170,9 @@ export default function DriveTracker({ driver, onSessionComplete }) {
       startTimeRef.current = Date.now()
       stateMilesRef.current = {}
 
-      await initMap(lat, lon)
       setStatus('active')
+      // Wait for the map container to mount in the DOM
+      setTimeout(() => initMap(lat, lon), 100)
 
       // Elapsed timer
       timerRef.current = setInterval(() => {
