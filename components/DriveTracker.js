@@ -97,7 +97,7 @@ export default function DriveTracker({ driver, onSessionComplete }) {
       zoomControl: false, attributionControl: false,
     })
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
       subdomains: 'abcd',
     }).addTo(map)
@@ -358,7 +358,7 @@ export default function DriveTracker({ driver, onSessionComplete }) {
   return (
     <div style={{ background: 'linear-gradient(135deg, #080d1a, #0d2137)', borderRadius: '20px', marginBottom: '16px', overflow: 'hidden', border: '1px solid rgba(45,122,95,0.4)' }}>
       {/* Live Map */}
-      <div ref={mapRef} style={{ width: '100%', height: '200px', position: 'relative', zIndex: 0 }} />
+      <div ref={mapRef} style={{ width: '100%', height: '280px', position: 'relative', zIndex: 0 }} />
       {mapError && (
         <div style={{ background: '#fee2e2', color: '#991b1b', padding: '8px 12px', fontSize: '11px', wordBreak: 'break-word' }}>
           Map error: {mapError}
