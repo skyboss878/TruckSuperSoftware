@@ -330,6 +330,26 @@ export default function DriveTracker({ driver, onSessionComplete }) {
       }).eq('id', tripIdRef.current)
     }
 
+    // Auto-create timesheet entry for payroll (Settlements/Earnings reports read from timesheets.state_miles)
+    if (stateMilesArray.length > 0) {
+      const startDate = new Date(startTimeRef.current)
+      const endDate = new Date()
+      const fmtTime = (d) => `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+
+      await supabase.from('timesheets').insert({
+        driver_id: driver.id,
+        log_type: 'working',
+        location: stateMilesArray.map(s => s.state).join(', '),
+        date: startDate.toISOString().split('T')[0],
+        start_time: fmtTime(startDate),
+        end_time: fmtTime(endDate),
+        odometer_start: null,
+        odometer_end: null,
+        state_miles: stateMilesArray,
+        source: 'gps_auto',
+      })
+    }
+
     setStatus('done')
     onSessionComplete?.()
   }
