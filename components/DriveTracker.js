@@ -1,7 +1,6 @@
 'use client'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
-import 'leaflet/dist/leaflet.css'
 
 // ── Haversine distance in miles ──────────────────────────
 function haversine(lat1, lon1, lat2, lon2) {
@@ -46,6 +45,23 @@ async function getState(lat, lon) {
   } catch { return 'Unknown' }
 }
 
+// ── Map tile math ─────────────────────────────────────────
+const TILE_ZOOM = 16
+function tilePosition(lat, lon, z = TILE_ZOOM) {
+  const n = Math.pow(2, z)
+  const xTile = (lon + 180) / 360 * n
+  const latRad = lat * Math.PI / 180
+  const yTile = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n
+  const x = Math.floor(xTile)
+  const y = Math.floor(yTile)
+  return { x, y, z, fx: xTile - x, fy: yTile - y }
+}
+function tileUrl(x, y, z) {
+  const subdomains = ['a', 'b', 'c', 'd']
+  const s = subdomains[(x + y) % subdomains.length]
+  return `https://${s}.basemaps.cartocdn.com/rastertiles/voyager/${z}/${x}/${y}.png`
+}
+
 export default function DriveTracker({ driver, onSessionComplete }) {
   const [status, setStatus] = useState('idle') // idle | starting | active | paused | done
   const [miles, setMiles] = useState(0)
@@ -56,8 +72,8 @@ export default function DriveTracker({ driver, onSessionComplete }) {
   const [error, setError] = useState('')
   const [elapsed, setElapsed] = useState(0)
   const [stateMiles, setStateMiles] = useState({})
-  const [signal, setSignal] = useState('good') // good | weak | lost
-  const [mapError, setMapError] = useState(null)
+  const [signal, setSignal] = useState('good') // good | ok | weak | lost
+  const [tilePos, setTilePos] = useState(null)
 
   const watchIdRef = useRef(null)
   const sessionIdRef = useRef(null)
@@ -67,15 +83,9 @@ export default function DriveTracker({ driver, onSessionComplete }) {
   const startTimeRef = useRef(null)
   const timerRef = useRef(null)
   const wakeLockRef = useRef(null)
-  const lastUpdateRef = useRef(null)
   const speedBufferRef = useRef([])
   const kalmanLat = useRef(new KalmanFilter())
   const kalmanLon = useRef(new KalmanFilter())
-  const mapRef = useRef(null)
-  const mapInstanceRef = useRef(null)
-  const markerRef = useRef(null)
-  const polylineRef = useRef(null)
-  const latlngsRef = useRef([])
 
   // ── Wake Lock — keep screen on ──────────────────────────
   async function requestWakeLock() {
@@ -84,63 +94,6 @@ export default function DriveTracker({ driver, onSessionComplete }) {
         wakeLockRef.current = await navigator.wakeLock.request('screen')
       }
     } catch {}
-  }
-
-  // ── Initialize Leaflet map ───────────────────────────────
-  async function initMap(lat, lon) {
-    try {
-    if (mapInstanceRef.current) return
-    if (!mapRef.current) { setMapError('Map container not ready (mapRef is null)'); return }
-    const L = (await import('leaflet')).default
-
-    const map = L.map(mapRef.current, {
-      center: [lat, lon], zoom: 15,
-      zoomControl: false, attributionControl: false,
-    })
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      subdomains: 'abcd',
-    }).addTo(map)
-
-    // Ensure map renders correctly after container is fully sized
-    setTimeout(() => map.invalidateSize(), 100)
-    setTimeout(() => map.invalidateSize(), 500)
-
-    // Truck marker
-    const truckIcon = L.divIcon({
-      className: '',
-      html: `<div id="truck-marker" style="width:36px;height:36px;background:#2D7A5F;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 12px rgba(45,122,95,0.8);border:2px solid white;transition:transform 0.3s ease">🚛</div>`,
-      iconSize: [36, 36],
-      iconAnchor: [18, 18],
-    })
-
-    const marker = L.marker([lat, lon], { icon: truckIcon }).addTo(map)
-    const polyline = L.polyline([], { color: '#2D7A5F', weight: 4, opacity: 0.8 }).addTo(map)
-
-    mapInstanceRef.current = map
-    markerRef.current = marker
-    polylineRef.current = polyline
-    latlngsRef.current = [[lat, lon]]
-    } catch (err) {
-      setMapError('initMap error: ' + (err?.message || String(err)))
-      console.error('initMap error:', err)
-    }
-  }
-
-  // ── Update map position smoothly ────────────────────────
-  function updateMap(lat, lon, hdg) {
-    if (!mapInstanceRef.current) return
-    const latlng = [lat, lon]
-    markerRef.current?.setLatLng(latlng)
-    // Rotate truck icon
-    const el = document.getElementById('truck-marker')
-    if (el) el.style.transform = `rotate(${hdg}deg)`
-    // Update trail
-    latlngsRef.current.push(latlng)
-    polylineRef.current?.setLatLngs(latlngsRef.current)
-    // Pan map to follow driver
-    mapInstanceRef.current.panTo(latlng, { animate: true, duration: 0.5 })
   }
 
   // ── Start session ────────────────────────────────────────
@@ -155,13 +108,23 @@ export default function DriveTracker({ driver, onSessionComplete }) {
       return
     }
 
-    navigator.geolocation.getCurrentPosition(async (pos) => {
+    function gotPosition(pos) {
       const lat = kalmanLat.current.filter(pos.coords.latitude)
       const lon = kalmanLon.current.filter(pos.coords.longitude)
+      handleInitialPosition(lat, lon)
+    }
 
+    function handleHighAccuracyError() {
+      navigator.geolocation.getCurrentPosition(gotPosition, (err2) => {
+        setError('Could not get location: ' + err2.message + ' (try going outdoors or enabling GPS)')
+        setStatus('idle')
+      }, { enableHighAccuracy: false, timeout: 30000, maximumAge: 60000 })
+    }
+
+    async function handleInitialPosition(lat, lon) {
       const state = await getState(lat, lon)
       setCurrentState(state)
-      lastUpdateRef.current = Date.now()
+      setTilePos(tilePosition(lat, lon))
 
       const { data } = await supabase.from('drive_sessions').insert({
         driver_id: driver.id,
@@ -191,37 +154,33 @@ export default function DriveTracker({ driver, onSessionComplete }) {
       stateMilesRef.current = {}
 
       setStatus('active')
-      // Wait for the map container to mount in the DOM
-      setTimeout(() => initMap(lat, lon), 100)
 
-      // Elapsed timer
       timerRef.current = setInterval(() => {
         setElapsed(Math.floor((Date.now() - startTimeRef.current) / 1000))
       }, 1000)
 
       startGPS()
-    }, (err) => {
-      setError('Could not get location: ' + err.message)
-      setStatus('idle')
-    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 })
+    }
+
+    navigator.geolocation.getCurrentPosition(gotPosition, handleHighAccuracyError, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 })
   }
 
-  // ── GPS Watch — Uber/Lyft level ──────────────────────────
+  // ── GPS Watch ─────────────────────────────────────────────
   function startGPS() {
     watchIdRef.current = navigator.geolocation.watchPosition(
       async (pos) => {
         const rawLat = pos.coords.latitude
         const rawLon = pos.coords.longitude
         const acc = pos.coords.accuracy
-        const rawSpeed = pos.coords.speed // m/s from device
+        const rawSpeed = pos.coords.speed
 
-        // Signal quality
         setAccuracy(Math.round(acc))
         setSignal(acc < 20 ? 'good' : acc < 50 ? 'ok' : 'weak')
 
-        // Kalman-filtered position
         const lat = kalmanLat.current.filter(rawLat)
         const lon = kalmanLon.current.filter(rawLon)
+
+        setTilePos(tilePosition(lat, lon))
 
         const points = pointsRef.current
         const last = points[points.length - 1]
@@ -231,30 +190,23 @@ export default function DriveTracker({ driver, onSessionComplete }) {
         const hdg = dist > 0.001 ? bearing(last.lat, last.lon, lat, lon) : heading
         setHeading(hdg)
 
-        // Speed: prefer device GPS speed, fallback to calculated
         let spd = 0
         if (rawSpeed !== null && rawSpeed >= 0) {
-          spd = rawSpeed * 2.237 // m/s → mph
+          spd = rawSpeed * 2.237
         } else {
-          const dt = (Date.now() - (last.timestamp || Date.now())) / 3600000 // hours
+          const dt = (Date.now() - (last.timestamp || Date.now())) / 3600000
           spd = dt > 0 ? dist / dt : 0
         }
 
-        // Rolling average speed (last 5 readings)
         speedBufferRef.current.push(spd)
         if (speedBufferRef.current.length > 5) speedBufferRef.current.shift()
         const avgSpeed = speedBufferRef.current.reduce((a, b) => a + b, 0) / speedBufferRef.current.length
         setSpeed(Math.round(avgSpeed))
 
-        // Only record if moved meaningfully (> 0.005 miles = ~26 feet)
-        if (dist < 0.005) {
-          updateMap(lat, lon, hdg)
-          return
-        }
+        if (dist < 0.005) return
 
         const state = await getState(lat, lon)
         setCurrentState(state)
-        lastUpdateRef.current = Date.now()
 
         const newPoint = { lat, lon, timestamp: Date.now(), state, dist, speed: Math.round(avgSpeed), accuracy: Math.round(acc) }
         pointsRef.current = [...points, newPoint]
@@ -264,9 +216,6 @@ export default function DriveTracker({ driver, onSessionComplete }) {
         setMiles(totalMiles)
         setStateMiles({ ...stateMilesRef.current })
 
-        updateMap(lat, lon, hdg)
-
-        // Sync to Supabase every 3 points
         if (pointsRef.current.length % 3 === 0) {
           const stateMilesArray = Object.entries(stateMilesRef.current).map(([s, m]) => ({ state: s, miles: parseFloat(m.toFixed(2)) }))
           await supabase.from('drive_sessions').update({
@@ -277,7 +226,6 @@ export default function DriveTracker({ driver, onSessionComplete }) {
             current_speed: Math.round(avgSpeed),
           }).eq('id', sessionIdRef.current)
 
-          // Also update driver_locations for admin map
           await supabase.from('driver_locations').upsert({
             driver_id: driver.id,
             latitude: lat, longitude: lon,
@@ -286,18 +234,24 @@ export default function DriveTracker({ driver, onSessionComplete }) {
             accuracy: Math.round(acc),
             updated_at: new Date().toISOString(),
           }, { onConflict: 'driver_id' })
+
+          if (tripIdRef.current) {
+            await supabase.from('driver_trips').update({
+              last_lat: lat,
+              last_lng: lon,
+              last_seen: new Date().toISOString(),
+              total_miles: parseFloat(totalMiles.toFixed(2)),
+              state,
+              state_miles: stateMilesArray,
+            }).eq('id', tripIdRef.current)
+          }
         }
       },
       (err) => {
         setSignal('lost')
         console.error('GPS error:', err)
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 1000,      // Accept 1-second-old positions
-        distanceFilter: 0,     // Get ALL updates
-      }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 1000, distanceFilter: 0 }
     )
   }
 
@@ -321,7 +275,6 @@ export default function DriveTracker({ driver, onSessionComplete }) {
       gps_points: pointsRef.current,
     }).eq('id', sessionIdRef.current)
 
-    // End driver_trips record too
     if (tripIdRef.current) {
       await supabase.from('driver_trips').update({
         status: 'ended',
@@ -330,7 +283,6 @@ export default function DriveTracker({ driver, onSessionComplete }) {
       }).eq('id', tripIdRef.current)
     }
 
-    // Auto-create timesheet entry for payroll (Settlements/Earnings reports read from timesheets.state_miles)
     if (stateMilesArray.length > 0) {
       const startDate = new Date(startTimeRef.current)
       const endDate = new Date()
@@ -354,7 +306,6 @@ export default function DriveTracker({ driver, onSessionComplete }) {
     onSessionComplete?.()
   }
 
-  // ── Format elapsed time ──────────────────────────────────
   function formatTime(s) {
     const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60
     return h > 0 ? `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}` : `${m}:${String(sec).padStart(2,'0')}`
@@ -389,7 +340,7 @@ export default function DriveTracker({ driver, onSessionComplete }) {
         <p style={{ color: 'white', fontWeight: '800', fontSize: '18px', margin: '0 0 4px' }}>Trip Complete</p>
         <p style={{ color: '#4ade80', fontSize: '24px', fontWeight: '900', margin: '0 0 4px' }}>{miles.toFixed(1)} mi</p>
         <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', margin: '0 0 16px' }}>{formatTime(elapsed)} · {Object.keys(stateMiles).length} state{Object.keys(stateMiles).length !== 1 ? 's' : ''}</p>
-        <button onClick={() => { setStatus('idle'); setMiles(0); setElapsed(0); setStateMiles({}) }}
+        <button onClick={() => { setStatus('idle'); setMiles(0); setElapsed(0); setStateMiles({}); setTilePos(null) }}
           style={{ padding: '12px 24px', background: '#2D7A5F', border: 'none', borderRadius: '12px', color: 'white', fontWeight: '700', cursor: 'pointer' }}>
           New Trip
         </button>
@@ -399,13 +350,30 @@ export default function DriveTracker({ driver, onSessionComplete }) {
 
   return (
     <div style={{ background: 'linear-gradient(135deg, #080d1a, #0d2137)', borderRadius: '20px', marginBottom: '16px', overflow: 'hidden', border: '1px solid rgba(45,122,95,0.4)' }}>
-      {/* Live Map */}
-      <div ref={mapRef} style={{ width: '100%', height: '280px', position: 'relative', zIndex: 0 }} />
-      {mapError && (
-        <div style={{ background: '#fee2e2', color: '#991b1b', padding: '8px 12px', fontSize: '11px', wordBreak: 'break-word' }}>
-          Map error: {mapError}
-        </div>
-      )}
+      {/* Map tile with truck overlay */}
+      <div style={{ position: 'relative', width: '100%', paddingBottom: '70%', overflow: 'hidden', background: '#ddd' }}>
+        {tilePos && (
+          <img
+            key={`${tilePos.x}-${tilePos.y}`}
+            src={tileUrl(tilePos.x, tilePos.y, tilePos.z)}
+            alt="Map"
+            style={{ position: 'absolute', top: '50%', left: '50%', width: '200%', height: '200%', transform: 'translate(-50%, -50%)', objectFit: 'cover' }}
+          />
+        )}
+        {tilePos && (
+          <div style={{
+            position: 'absolute',
+            left: `${tilePos.fx * 100}%`,
+            top: `${tilePos.fy * 100}%`,
+            transform: `translate(-50%, -50%) rotate(${heading}deg)`,
+            width: '36px', height: '36px', background: '#2D7A5F', borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px',
+            boxShadow: '0 0 12px rgba(45,122,95,0.8)', border: '2px solid white', transition: 'left 0.5s linear, top 0.5s linear',
+          }}>
+            🚛
+          </div>
+        )}
+      </div>
 
       {/* Stats bar */}
       <div style={{ padding: '14px 16px' }}>
@@ -424,7 +392,6 @@ export default function DriveTracker({ driver, onSessionComplete }) {
           ))}
         </div>
 
-        {/* Signal + State miles */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: signalColor, animation: 'pulse 1.5s infinite' }} />
@@ -436,7 +403,6 @@ export default function DriveTracker({ driver, onSessionComplete }) {
           </span>
         </div>
 
-        {/* Stop button */}
         <button onClick={stopSession}
           style={{ width: '100%', padding: '13px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '14px', color: '#ef4444', fontSize: '15px', fontWeight: '800', cursor: 'pointer' }}>
           ⏹ End Trip
