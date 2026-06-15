@@ -57,6 +57,7 @@ export default function DriveTracker({ driver, onSessionComplete }) {
   const [elapsed, setElapsed] = useState(0)
   const [stateMiles, setStateMiles] = useState({})
   const [signal, setSignal] = useState('good') // good | weak | lost
+  const [mapError, setMapError] = useState(null)
 
   const watchIdRef = useRef(null)
   const sessionIdRef = useRef(null)
@@ -86,7 +87,9 @@ export default function DriveTracker({ driver, onSessionComplete }) {
 
   // ── Initialize Leaflet map ───────────────────────────────
   async function initMap(lat, lon) {
-    if (mapInstanceRef.current || !mapRef.current) return
+    try {
+    if (mapInstanceRef.current) return
+    if (!mapRef.current) { setMapError('Map container not ready (mapRef is null)'); return }
     const L = (await import('leaflet')).default
 
     const map = L.map(mapRef.current, {
@@ -118,6 +121,10 @@ export default function DriveTracker({ driver, onSessionComplete }) {
     markerRef.current = marker
     polylineRef.current = polyline
     latlngsRef.current = [[lat, lon]]
+    } catch (err) {
+      setMapError('initMap error: ' + (err?.message || String(err)))
+      console.error('initMap error:', err)
+    }
   }
 
   // ── Update map position smoothly ────────────────────────
@@ -352,6 +359,11 @@ export default function DriveTracker({ driver, onSessionComplete }) {
     <div style={{ background: 'linear-gradient(135deg, #080d1a, #0d2137)', borderRadius: '20px', marginBottom: '16px', overflow: 'hidden', border: '1px solid rgba(45,122,95,0.4)' }}>
       {/* Live Map */}
       <div ref={mapRef} style={{ width: '100%', height: '200px', position: 'relative', zIndex: 0 }} />
+      {mapError && (
+        <div style={{ background: '#fee2e2', color: '#991b1b', padding: '8px 12px', fontSize: '11px', wordBreak: 'break-word' }}>
+          Map error: {mapError}
+        </div>
+      )}
 
       {/* Stats bar */}
       <div style={{ padding: '14px 16px' }}>
