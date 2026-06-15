@@ -61,6 +61,7 @@ export default function DriveTracker({ driver, onSessionComplete }) {
 
   const watchIdRef = useRef(null)
   const sessionIdRef = useRef(null)
+  const tripIdRef = useRef(null)
   const pointsRef = useRef([])
   const stateMilesRef = useRef({})
   const startTimeRef = useRef(null)
@@ -173,6 +174,18 @@ export default function DriveTracker({ driver, onSessionComplete }) {
       }).select().single()
 
       sessionIdRef.current = data?.id
+
+      // Also create driver_trips record for admin Live Fleet Map
+      const { data: tripData } = await supabase.from('driver_trips').insert({
+        driver_id: driver.id,
+        status: 'active',
+        last_lat: lat,
+        last_lng: lon,
+        last_seen: new Date().toISOString(),
+        total_miles: 0,
+      }).select().single()
+      tripIdRef.current = tripData?.id
+
       pointsRef.current = [{ lat, lon, timestamp: Date.now(), state }]
       startTimeRef.current = Date.now()
       stateMilesRef.current = {}
@@ -307,6 +320,15 @@ export default function DriveTracker({ driver, onSessionComplete }) {
       state_miles: stateMilesArray,
       gps_points: pointsRef.current,
     }).eq('id', sessionIdRef.current)
+
+    // End driver_trips record too
+    if (tripIdRef.current) {
+      await supabase.from('driver_trips').update({
+        status: 'ended',
+        end_time: new Date().toISOString(),
+        total_miles: totalMiles,
+      }).eq('id', tripIdRef.current)
+    }
 
     setStatus('done')
     onSessionComplete?.()
