@@ -1,0 +1,64 @@
+name: TWS Fleet Command — Production Gate
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build validation
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Required files check
+        run: |
+          test -f app/api/health/route.js        || (echo "❌ Missing health route" && exit 1)
+          test -f app/api/admin/auth/route.js    || (echo "❌ Missing admin auth" && exit 1)
+          test -f lib/supabase-admin.js          || (echo "❌ Missing supabase admin" && exit 1)
+          test -f lib/rate-limit.js              || (echo "❌ Missing rate limiter" && exit 1)
+          echo "✅ All required files present"
+
+      - name: Secret leak scan
+        run: |
+          # Check JS/TS source files only — not .env files
+          if grep -rn "service_role_key\s*=\s*['\"]ey" app/ lib/ --include="*.js" --include="*.ts" 2>/dev/null; then
+            echo "❌ Hardcoded service role key detected in source!"
+            exit 1
+          fi
+          echo "✅ No hardcoded secrets in source files"
+
+      - name: Production health check
+        run: |
+          HEALTH=$(curl -sf https://smiths-dnxx.vercel.app/api/health)
+          echo "Health response: $HEALTH"
+          echo "$HEALTH" | grep -q "healthy" || (echo "❌ Production health check failed" && exit 1)
+          echo "✅ Production API healthy"
+
+      - name: Production gate passed
+        run: |
+          echo "🚀 TWS Fleet Command production gate PASSED"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Time:   $(date -u)"
