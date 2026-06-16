@@ -18,6 +18,7 @@ export default function AdminDashboard() {
   const [timesheets, setTimesheets] = useState([])
   const [maintenance, setMaintenance] = useState([])
   const [loading, setLoading] = useState(true)
+  const [sessionWarning, setSessionWarning] = useState(false)
   const [ticketFilter, setTicketFilter] = useState('all')
   const [search, setSearch] = useState('')
 
@@ -154,6 +155,18 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Toast />
+      {/* Session timeout warning */}
+      {sessionWarning && (
+        <div style={{ position: 'fixed', bottom: 24, left: 16, right: 16, zIndex: 9999, background: '#7c3aed', borderRadius: 16, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
+          <div>
+            <p style={{ color: 'white', fontWeight: 700, fontSize: 13, margin: 0 }}>⏱ Session expiring in 5 minutes</p>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, margin: '2px 0 0' }}>Move your mouse or tap to stay logged in</p>
+          </div>
+          <button onClick={() => setSessionWarning(false)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 8, color: 'white', padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+            Dismiss
+          </button>
+        </div>
+      )}
       {/* Header */}
       <div className="bg-[#2D7A5F] px-4 py-5">
         <div className="flex justify-between items-start mb-5">

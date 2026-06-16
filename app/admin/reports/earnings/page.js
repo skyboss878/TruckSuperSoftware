@@ -95,7 +95,7 @@ export default function EarningsDashboard() {
   function downloadCSV() {
     if (!report) return
     const rows = [
-      ['DRIVER SETTLEMENT SHEET'],
+      ['TWS FLEET COMMAND - EARNINGS REPORT'],
       ['Driver:', report.driver?.name],
       ['Period:', report.period],
       ['Truck #:', report.driver?.truck_number || 'N/A'],
