@@ -107,8 +107,47 @@ export default function AdminDashboard() {
   }
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <p className="text-gray-400">Loading...</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Skeleton Header */}
+      <div className="bg-[#2D7A5F] px-4 py-5">
+        <div className="flex justify-between items-start mb-5">
+          <div>
+            <div className="h-6 w-44 bg-green-600 rounded animate-pulse mb-1" />
+            <div className="h-4 w-28 bg-green-700 rounded animate-pulse" />
+          </div>
+          <div className="h-9 w-9 bg-green-600 rounded-full animate-pulse" />
+        </div>
+        {/* Skeleton stat cards */}
+        <div className="grid grid-cols-3 gap-3">
+          {[1,2,3].map(i => (
+            <div key={i} className="bg-green-700 rounded-2xl p-3 animate-pulse">
+              <div className="h-7 w-10 bg-green-600 rounded mb-1 mx-auto" />
+              <div className="h-3 w-16 bg-green-600 rounded mx-auto" />
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Skeleton tabs */}
+      <div className="bg-white border-b border-gray-200 flex px-2">
+        {[1,2,3,4].map(i => (
+          <div key={i} className="flex-1 py-3 flex justify-center">
+            <div className="h-4 w-12 bg-gray-200 rounded animate-pulse" />
+          </div>
+        ))}
+      </div>
+      {/* Skeleton cards */}
+      <div className="p-4 space-y-3">
+        {[1,2,3,4].map(i => (
+          <div key={i} className="bg-white rounded-2xl p-4 shadow-sm animate-pulse">
+            <div className="flex justify-between mb-3">
+              <div className="h-5 w-32 bg-gray-200 rounded" />
+              <div className="h-5 w-16 bg-gray-100 rounded-full" />
+            </div>
+            <div className="h-4 w-48 bg-gray-100 rounded mb-2" />
+            <div className="h-4 w-36 bg-gray-100 rounded" />
+          </div>
+        ))}
+      </div>
     </div>
   )
 
