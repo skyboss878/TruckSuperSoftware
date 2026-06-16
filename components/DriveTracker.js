@@ -299,6 +299,7 @@ export default function DriveTracker({ driver, onSessionComplete }) {
         odometer_end: null,
         state_miles: stateMilesArray,
         source: 'gps_auto',
+        status: 'submitted',
       })
     }
 
