@@ -1,12 +1,11 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export default function LoginPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const timedOut = searchParams?.get('reason') === 'timeout'
+  const timedOut = typeof window !== 'undefined' && window.location.search.includes('reason=timeout')
   const canvasRef = useRef(null)
   const [mode, setMode] = useState(null)
   const [email, setEmail] = useState('')
