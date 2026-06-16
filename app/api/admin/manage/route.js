@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { verifyAdmin } from '@/lib/auth'
+import { verifyAdmin } from '@/lib/admin-auth'
 import { NextResponse } from 'next/server'
 
 export async function POST(request) {
