@@ -126,7 +126,7 @@ export default function AdminCompliance() {
     }).join('\n')
 
     const prompt =
-`You are a DOT compliance officer for Smith's Freight Hub, a trucking company. Generate a professional DOT compliance status report.
+`You are a DOT compliance officer for TWS Fleet Command, a trucking company. Generate a professional DOT compliance status report.
 
 FLEET OVERVIEW:
 - Active drivers: ${summary.length}

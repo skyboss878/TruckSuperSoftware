@@ -164,8 +164,8 @@ export default function LoginPage() {
             <div className="truck" style={{ display: 'inline-block', marginBottom: '22px' }}>
               <div className="truckbox" style={{ width: '96px', height: '96px', borderRadius: '30px', background: 'linear-gradient(145deg, #1a5c44, #0d3d2c)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '52px', margin: '0 auto', border: '1px solid rgba(45,122,95,0.3)' }}>🚛</div>
             </div>
-            <h1 style={{ fontSize: '34px', fontWeight: '900', color: '#fff', letterSpacing: '-1.5px', margin: '0 0 6px', textShadow: '0 0 40px rgba(45,122,95,0.3)' }}>Smith's Freight Hub</h1>
-            <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', letterSpacing: '4px', textTransform: 'uppercase', margin: 0 }}>Fleet Management Platform</p>
+            <h1 style={{ fontSize: '34px', fontWeight: '900', color: '#fff', letterSpacing: '-1.5px', margin: '0 0 6px', textShadow: '0 0 40px rgba(45,122,95,0.3)' }}>TWS Fleet Command</h1>
+            <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', letterSpacing: '4px', textTransform: 'uppercase', margin: 0 }}>TWS Fleet Command · Trucking Operations</p>
           </div>
 
           {/* Live dot */}

@@ -158,7 +158,7 @@ export default function AdminDashboard() {
       <div className="bg-[#2D7A5F] px-4 py-5">
         <div className="flex justify-between items-start mb-5">
           <div>
-            <h1 className="text-white text-xl font-bold">Smith's Freight Hub</h1>
+            <h1 className="text-white text-xl font-bold">TWS Fleet Command</h1>
             <p className="text-green-200 text-sm">Admin Dashboard</p>
           </div>
           

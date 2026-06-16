@@ -5,8 +5,8 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 import ServiceWorkerManager from '@/components/ServiceWorkerManager'
 
 export const metadata = {
-  title: "Smith's Freight Hub",
-  description: 'Fleet Management Platform',
+  title: "TWS Fleet Command",
+  description: 'TWS Fleet Command · Trucking Operations',
 }
 
 export default function RootLayout({ children }) {

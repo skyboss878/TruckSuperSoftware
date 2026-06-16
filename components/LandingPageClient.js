@@ -114,7 +114,7 @@ export default function LandingPageClient({ apiCount, pageCount }) {
       <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: scrollY > 40 ? 'rgba(5,12,20,0.95)' : 'transparent', backdropFilter: scrollY > 40 ? 'blur(20px)' : 'none', borderBottom: scrollY > 40 ? '1px solid rgba(45,122,95,0.15)' : 'none', transition: 'all 0.3s' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #2D7A5F, #1a4d3a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, animation: 'glow 3s ease-in-out infinite' }}>🚛</div>
-          <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.3px' }}>Smith's Freight Hub</span>
+          <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.3px' }}>TWS Fleet Command</span>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => router.push('/login')} className="btn-primary" style={{ padding: '10px 20px', borderRadius: 12, background: 'rgba(45,122,95,0.15)', border: '1px solid rgba(45,122,95,0.3)', color: 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Sign In</button>
@@ -235,7 +235,7 @@ export default function LandingPageClient({ apiCount, pageCount }) {
       {/* Footer */}
       <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '0 24px 32px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
         <p style={{ color: 'rgba(255,255,255,0.12)', fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', margin: '24px 0 0' }}>
-          Smith's Freight Hub · Built for the road · v2.0
+          TWS Fleet Command · TWS Fleet Command · v2.0
         </p>
       </div>
     </div>
