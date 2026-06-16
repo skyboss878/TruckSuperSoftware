@@ -22,6 +22,11 @@ export default function AdminSettings() {
   const [confirmPin, setConfirmPin] = useState('')
   const [pinSaving, setPinSaving] = useState(false)
   const [pinMsg, setPinMsg] = useState(null)
+  const [showNewAdmin, setShowNewAdmin] = useState(false)
+  const [newAdminName, setNewAdminName] = useState('')
+  const [newAdminPin, setNewAdminPin] = useState('')
+  const [newAdminSaving, setNewAdminSaving] = useState(false)
+  const [newAdminMsg, setNewAdminMsg] = useState(null)
 
   useEffect(() => {
     loadMe()
@@ -127,6 +132,43 @@ export default function AdminSettings() {
     setPinSaving(false)
   }
 
+  async function createAdmin() {
+    if (!newAdminName.trim() || !newAdminPin.trim()) {
+      setNewAdminMsg({ type: 'error', text: 'Name and PIN are required' })
+      return
+    }
+    if (newAdminPin.length < 4) {
+      setNewAdminMsg({ type: 'error', text: 'PIN must be at least 4 digits' })
+      return
+    }
+    setNewAdminSaving(true)
+    setNewAdminMsg(null)
+    try {
+      const res = await fetch('/api/admin/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newAdminName.trim(), pin: newAdminPin, role: 'admin' }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed')
+      setNewAdminMsg({ type: 'success', text: `✅ ${newAdminName} added as Dispatcher` })
+      setNewAdminName('')
+      setNewAdminPin('')
+      setShowNewAdmin(false)
+      loadAdmins()
+    } catch (e) {
+      setNewAdminMsg({ type: 'error', text: e.message })
+    } finally {
+      setNewAdminSaving(false)
+    }
+  }
+
+  async function deleteAdmin(id, name) {
+    if (!confirm(`Remove ${name} from TWS Fleet Command?`)) return
+    const res = await fetch(`/api/admin/manage?id=${id}`, { method: 'DELETE' })
+    if (res.ok) loadAdmins()
+  }
+
   // Server-side role — NOT localStorage
   const isSuperAdmin = me?.role === 'super_admin'
 
@@ -181,14 +223,60 @@ export default function AdminSettings() {
                     {a.role?.replace('_', ' ')}
                   </span>
                 </div>
-                {(isSuperAdmin || a.id === me?.id) && (
-                  <button onClick={() => { setPinTarget(a); setCurrentPin(''); setNewPin(''); setConfirmPin(''); setPinMsg(null) }}
-                    className="text-xs bg-[#E8F5F0] text-[#2D7A5F] font-semibold px-3 py-1.5 rounded-full shrink-0">
-                    Change PIN
-                  </button>
-                )}
+                <div className="flex gap-2 shrink-0">
+                  {(isSuperAdmin || a.id === me?.id) && (
+                    <button onClick={() => { setPinTarget(a); setCurrentPin(''); setNewPin(''); setConfirmPin(''); setPinMsg(null) }}
+                      className="text-xs bg-[#E8F5F0] text-[#2D7A5F] font-semibold px-3 py-1.5 rounded-full">
+                      Change PIN
+                    </button>
+                  )}
+                  {isSuperAdmin && a.role !== 'super_admin' && (
+                    <button onClick={() => deleteAdmin(a.id, a.name)}
+                      className="text-xs bg-red-50 text-red-500 font-semibold px-3 py-1.5 rounded-full">
+                      Remove
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
+
+            {/* Add Dispatcher — super admin only */}
+            {isSuperAdmin && (
+              <div className="bg-white rounded-2xl p-4 shadow-sm">
+                {!showNewAdmin ? (
+                  <button onClick={() => setShowNewAdmin(true)}
+                    className="w-full py-3 border-2 border-dashed border-[#2D7A5F] text-[#2D7A5F] rounded-xl font-semibold text-sm">
+                    + Add Dispatcher
+                  </button>
+                ) : (
+                  <div className="space-y-3">
+                    <p className="font-bold text-gray-800 text-sm">New Dispatcher</p>
+                    {newAdminMsg && (
+                      <p className={`text-xs font-semibold ${newAdminMsg.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
+                        {newAdminMsg.text}
+                      </p>
+                    )}
+                    <input value={newAdminName} onChange={e => setNewAdminName(e.target.value)}
+                      placeholder="Full name..."
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#2D7A5F]" />
+                    <input value={newAdminPin} onChange={e => setNewAdminPin(e.target.value.replace(/\D/g, ''))}
+                      placeholder="PIN (4+ digits)..."
+                      type="password" inputMode="numeric" maxLength={8}
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#2D7A5F]" />
+                    <div className="flex gap-2">
+                      <button onClick={createAdmin} disabled={newAdminSaving}
+                        className="flex-1 bg-[#2D7A5F] text-white py-3 rounded-xl font-semibold text-sm disabled:opacity-40">
+                        {newAdminSaving ? 'Adding...' : 'Add Dispatcher'}
+                      </button>
+                      <button onClick={() => { setShowNewAdmin(false); setNewAdminMsg(null) }}
+                        className="px-4 py-3 border border-gray-200 rounded-xl text-sm text-gray-500">
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
 
