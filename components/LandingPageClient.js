@@ -20,8 +20,8 @@ export default function LandingPage() {
   const router = useRouter()
   const [sysStatus, setSysStatus] = useState('operational')
   const [liveStats, setLiveStats] = useState([
-    { value: '29', label: 'Live APIs' },
-    { value: '38', label: 'Pages' },
+    { value: String(apiCount || 29), label: 'Live APIs' },
+    { value: String(pageCount || 38), label: 'Pages' },
     { value: '100%', label: 'Uptime' },
     { value: 'Live', label: 'Data' },
   ])
@@ -35,8 +35,8 @@ export default function LandingPage() {
         const pct = total > 0 ? Math.round((ok / total) * 100) : 100
         setSysStatus(d.status === 'healthy' ? 'operational' : 'degraded')
         setLiveStats([
-          { value: '29', label: 'Live APIs' },
-          { value: '38', label: 'Pages' },
+          { value: String(apiCount || 29), label: 'Live APIs' },
+          { value: String(pageCount || 38), label: 'Pages' },
           { value: pct + '%', label: 'Uptime' },
           { value: d.response_ms < 1000 ? 'Fast' : 'Live', label: 'Response' },
         ])
