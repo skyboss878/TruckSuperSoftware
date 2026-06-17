@@ -173,7 +173,9 @@ export default function DriverDashboard() {
           <span className="text-sm font-bold text-gray-600">{driver?.name?.[0]}</span>
         </button>
         <h1 className="text-lg font-bold text-gray-800">Tickets</h1>
-        <div className="w-9" />
+        <button onClick={handleLogout} className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-lg">
+          ⏏
+        </button>
       </div>
 
       {/* Tabs */}
