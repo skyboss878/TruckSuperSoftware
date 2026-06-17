@@ -26,7 +26,7 @@ export async function POST(request) {
 <div style="max-width:640px;margin:32px auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
   <div style="background:#2D7A5F;padding:36px 40px;">
     ${co.logo_url?`<img src="${co.logo_url}" height="52" style="margin-bottom:16px;border-radius:6px;display:block;" alt="logo">`:''}
-    <div style="color:white;font-size:26px;font-weight:900;letter-spacing:-0.5px;">${co.company_name||"TWS Fleet Command"}</div>
+    <div style="color:white;font-size:26px;font-weight:900;letter-spacing:-0.5px;">${co.company_name||"TruckSuperSoftware"}</div>
     <div style="color:rgba(255,255,255,0.75);font-size:13px;margin-top:4px;">${[co.address,co.city,co.state,co.zip].filter(Boolean).join(', ')}</div>
   </div>
   <div style="padding:40px;">
@@ -75,12 +75,12 @@ export async function POST(request) {
     <div style="margin-top:28px;font-size:12px;color:#aaa;text-align:center;">Payment Terms: ${invoice.payment_terms} · Questions? ${co.email||co.phone||'Contact us'}</div>
   </div>
   <div style="background:#f8f9fa;padding:20px 40px;border-top:1px solid #eee;font-size:12px;color:#aaa;">
-    Thank you for your business — ${co.company_name||"TWS Fleet Command"}
+    Thank you for your business — ${co.company_name||"TruckSuperSoftware"}
   </div>
 </div></body></html>`
 
     const { error: emailError } = await resend.emails.send({
-      from: `${co.company_name||"TWS Fleet Command"} <dispatch@twsfleetcommand.com>`,
+      from: `${co.company_name||"TruckSuperSoftware"} <dispatch@twsfleetcommand.com>`,
       to: invoice.customer_email,
       subject: `Invoice ${invoice.invoice_number} · $${Number(invoice.total).toFixed(2)} due ${new Date(invoice.due_date).toLocaleDateString()}`,
       html,

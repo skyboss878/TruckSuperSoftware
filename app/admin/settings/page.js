@@ -164,7 +164,7 @@ export default function AdminSettings() {
   }
 
   async function deleteAdmin(id, name) {
-    if (!confirm(`Remove ${name} from TWS Fleet Command?`)) return
+    if (!confirm(`Remove ${name} from TruckSuperSoftware?`)) return
     const res = await fetch(`/api/admin/manage?id=${id}`, { method: 'DELETE' })
     if (res.ok) loadAdmins()
   }

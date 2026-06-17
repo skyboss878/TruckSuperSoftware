@@ -49,7 +49,7 @@ export default function AIAssistant() {
     setInput('')
     setLoading(true)
 
-    const systemPrompt = `You are an AI assistant for TWS Fleet Command, a trucking company management system. You have access to real-time data from the database. Answer questions clearly and concisely. When showing numbers, be specific. Format data in a readable way.
+    const systemPrompt = `You are an AI assistant for TruckSuperSoftware, a trucking company management system. You have access to real-time data from the database. Answer questions clearly and concisely. When showing numbers, be specific. Format data in a readable way.
 
 CURRENT DATABASE DATA:
 

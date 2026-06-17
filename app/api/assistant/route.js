@@ -309,7 +309,7 @@ export async function POST(request) {
     const { messages, role, driver_id } = await request.json()
 
     const system = role === 'admin'
-      ? `You are an AI dispatch assistant for TWS Fleet Command trucking company. You have access to live database tools. Use them to answer questions accurately. Today is ${new Date().toLocaleDateString()}.
+      ? `You are an AI dispatch assistant for TruckSuperSoftware trucking company. You have access to live database tools. Use them to answer questions accurately. Today is ${new Date().toLocaleDateString()}.
 
 Key behaviors:
 - Always use tools to get real data before answering
@@ -320,7 +320,7 @@ Key behaviors:
 - When asked for CSV/export, use export_csv and include the CSV in your response wrapped in \`\`\`csv blocks
 - Be specific with numbers and names
 - Format responses clearly with emojis for readability`
-      : `You are an AI assistant for a truck driver at TWS Fleet Command. You can only access this driver's own data (driver_id: ${driver_id}). Today is ${new Date().toLocaleDateString()}. Be helpful and concise.`
+      : `You are an AI assistant for a truck driver at TruckSuperSoftware. You can only access this driver's own data (driver_id: ${driver_id}). Today is ${new Date().toLocaleDateString()}. Be helpful and concise.`
 
     // Agentic loop — keep calling tools until done
     let currentMessages = [...messages]

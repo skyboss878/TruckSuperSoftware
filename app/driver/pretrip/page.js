@@ -108,7 +108,7 @@ export default function PreTripPage() {
       {/* Header */}
       <div className="bg-[#2D7A5F] px-4 py-5 text-white sticky top-0 z-10 shadow-md">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-sm opacity-80">TWS Fleet Command</span>
+          <span className="text-sm opacity-80">TruckSuperSoftware</span>
           <span className="text-xs bg-white/20 rounded-full px-3 py-1">
             {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
           </span>

@@ -127,7 +127,7 @@ Maintenance: ${maintenance?.map(m => (m.drivers?.name || 'Unknown') + ': ' + (m.
 Expiring: ${compliance?.filter(c => { if (!c.expiry_date) return false; const d = Math.floor((new Date(c.expiry_date) - new Date()) / 86400000); return d >= 0 && d <= 30 }).map(c => (c.drivers?.name || 'Unknown') + ' — ' + (c.record_type || 'record') + ' expires ' + c.expiry_date).join(', ') || 'none'}`
 
   const summary = await askAI(
-    `You are an AI dispatch assistant for TWS Fleet Command. Generate a clear morning operations briefing with emojis. Sections: Fleet Status, Action Required, Compliance Alerts, Priority of the day. Specific with numbers and names. Under 300 words.`,
+    `You are an AI dispatch assistant for TruckSuperSoftware. Generate a clear morning operations briefing with emojis. Sections: Fleet Status, Action Required, Compliance Alerts, Priority of the day. Specific with numbers and names. Under 300 words.`,
     dataStr, 800
   )
   return { action: 'morning_briefing', summary, stats }
