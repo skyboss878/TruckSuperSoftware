@@ -100,6 +100,7 @@ export default function DriverDashboard() {
   }
 
   const filtered = tickets.filter(t =>
+    tab === 'assigned' ? t.status === 'assigned' :
     tab === 'started' ? t.status === 'started' :
     tab === 'submitted' ? t.status === 'submitted' :
     t.status === 'approved'
@@ -177,7 +178,7 @@ export default function DriverDashboard() {
 
       {/* Tabs */}
       <div className="bg-white border-b border-gray-200 flex">
-        {['started', 'submitted', 'approved'].map(t => (
+        {['assigned', 'started', 'submitted', 'approved'].map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -216,23 +217,62 @@ export default function DriverDashboard() {
             <div key={date}>
               <p className="text-xs text-gray-400 font-medium mb-2">{date}</p>
               {items.map(ticket => (
-                <div
-                  key={ticket.id}
-                  onClick={() => router.push(`/driver/ticket/${ticket.id}`)}
-                  className="bg-white rounded-2xl p-4 mb-2 shadow-sm active:opacity-70"
-                >
-                  <div className="flex justify-between items-start">
-                    <p className="font-bold text-gray-800">{ticket.customer_name || 'Unknown Customer'}</p>
-                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">{ticket.load_id}</span>
+                <div key={ticket.id} className="bg-white rounded-2xl p-4 mb-2 shadow-sm">
+                  {/* Dispatch assigned badge */}
+                  {ticket.source === 'dispatch' && ticket.status === 'assigned' && (
+                    <div className="flex items-center gap-2 mb-3 bg-blue-50 rounded-xl px-3 py-2">
+                      <span className="text-blue-600 text-sm">📋</span>
+                      <span className="text-blue-700 text-xs font-bold">Load assigned by Dispatch</span>
+                    </div>
+                  )}
+                  <div onClick={() => ticket.status !== 'assigned' && router.push(`/driver/ticket/${ticket.id}`)}
+                    className={ticket.status !== 'assigned' ? 'cursor-pointer active:opacity-70' : ''}>
+                    <div className="flex justify-between items-start">
+                      <p className="font-bold text-gray-800">{ticket.customer_name || 'Unknown Customer'}</p>
+                      <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">{ticket.load_id}</span>
+                    </div>
+                    <div className="flex items-center gap-1 mt-1 text-gray-400 text-sm">
+                      <span>📅</span>
+                      <span>{new Date(ticket.date).toLocaleDateString()}</span>
+                    </div>
+                    {ticket.location_loaded && (
+                      <div className="flex items-center gap-1 mt-1 text-gray-400 text-sm">
+                        <span>📍</span>
+                        <span>{ticket.location_loaded}</span>
+                        {ticket.location_delivered && <><span>→</span><span>{ticket.location_delivered}</span></>}
+                      </div>
+                    )}
+                    {ticket.notes && (
+                      <p className="text-xs text-gray-400 mt-1 italic">{ticket.notes}</p>
+                    )}
                   </div>
-                  <div className="flex items-center gap-1 mt-1 text-gray-400 text-sm">
-                    <span>📅</span>
-                    <span>{new Date(ticket.date).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-1 mt-1 text-gray-400 text-sm">
-                    <span>📍</span>
-                    <span>{ticket.location_loaded || 'No location'}</span>
-                  </div>
+                  {/* Accept button for dispatch-assigned loads */}
+                  {ticket.status === 'assigned' && (
+                    <div className="flex gap-2 mt-3">
+                      <button onClick={async () => {
+                        await fetch('/api/tickets', {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ id: ticket.id, status: 'started' })
+                        })
+                        loadTickets()
+                        router.push(`/driver/ticket/${ticket.id}`)
+                      }} className="flex-1 bg-[#2D7A5F] text-white py-2.5 rounded-xl text-sm font-bold">
+                        ✅ Accept Load
+                      </button>
+                      <button onClick={async () => {
+                        if (!confirm('Decline this load?')) return
+                        await fetch('/api/tickets', {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ id: ticket.id, status: 'declined' })
+                        })
+                        loadTickets()
+                      }} className="px-4 py-2.5 border border-red-200 text-red-500 rounded-xl text-sm font-semibold">
+                        Decline
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

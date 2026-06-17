@@ -20,6 +20,9 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [sessionWarning, setSessionWarning] = useState(false)
   const [ticketFilter, setTicketFilter] = useState('all')
+  const [showAssign, setShowAssign] = useState(false)
+  const [assignForm, setAssignForm] = useState({ driver_id:'', customer_name:'', load_id:'', bol_number:'', location_loaded:'', location_delivered:'', date: new Date().toISOString().split('T')[0], notes:'' })
+  const [assignSaving, setAssignSaving] = useState(false)
   const [search, setSearch] = useState('')
 
   useEffect(() => {
@@ -105,6 +108,23 @@ export default function AdminDashboard() {
     submitted: 'bg-blue-100 text-blue-700',
     approved: 'bg-green-100 text-green-700',
     rejected: 'bg-red-100 text-red-700',
+  }
+
+  async function assignLoad() {
+    if (!assignForm.driver_id || !assignForm.customer_name) return
+    setAssignSaving(true)
+    try {
+      await fetch('/api/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...assignForm, source: 'dispatch' })
+      })
+      setShowAssign(false)
+      setAssignForm({ driver_id:'', customer_name:'', load_id:'', bol_number:'', location_loaded:'', location_delivered:'', date: new Date().toISOString().split('T')[0], notes:'' })
+      loadAll()
+    } finally {
+      setAssignSaving(false)
+    }
   }
 
   if (loading) return (

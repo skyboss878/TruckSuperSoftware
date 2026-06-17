@@ -12,10 +12,12 @@ export async function GET(request) {
       .select('*, drivers(name)')
       .order('created_at', { ascending: false })
 
+    const source = searchParams.get('source')
     const start  = searchParams.get('start')
     const end    = searchParams.get('end')
     if (driver_id) query = query.eq('driver_id', driver_id)
     if (status)    query = query.eq('status', status)
+    if (source)    query = query.eq('source', source)
     if (start)     query = query.gte('date', start)
     if (end)       query = query.lte('date', end)
 
@@ -30,25 +32,41 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { auth_id, ...ticketData } = body
+    const { auth_id, driver_id: directDriverId, source = 'driver', ...ticketData } = body
 
-    if (!auth_id) return NextResponse.json({ error: 'auth_id required' }, { status: 400 })
+    let driverId = directDriverId
 
-    // Look up driver by auth_id
-    const { data: driver, error: driverError } = await supabaseAdmin
-      .from('drivers').select('*').eq('auth_id', auth_id).single()
-
-    if (driverError || !driver) {
-      return NextResponse.json({ error: 'Driver not found' }, { status: 404 })
+    // If dispatch-assigned, driver_id comes directly
+    if (!driverId) {
+      if (!auth_id) return NextResponse.json({ error: 'auth_id or driver_id required' }, { status: 400 })
+      const { data: driver, error: driverError } = await supabaseAdmin
+        .from('drivers').select('*').eq('auth_id', auth_id).single()
+      if (driverError || !driver) return NextResponse.json({ error: 'Driver not found' }, { status: 404 })
+      driverId = driver.id
     }
+
+    const status = source === 'dispatch' ? 'assigned' : (ticketData.status || 'started')
 
     const { data, error } = await supabaseAdmin
       .from('tickets')
-      .insert({ ...ticketData, driver_id: driver.id })
+      .insert({ ...ticketData, driver_id: driverId, source, status })
       .select()
       .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+    // Notify driver via message when dispatch assigns a load
+    if (source === 'dispatch') {
+      const { data: driver } = await supabaseAdmin.from('drivers').select('name').eq('id', driverId).single()
+      await supabaseAdmin.from('messages').insert({
+        content: `📋 New load assigned to you: ${ticketData.customer_name || 'Load'} — ${ticketData.location_loaded || ''} → ${ticketData.location_delivered || ''}. Check your Tickets tab.`,
+        sender_id: driverId,
+        sender_role: 'admin',
+        recipient_id: driverId,
+        is_read: false,
+      })
+    }
+
     return NextResponse.json(data)
   } catch (err) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
