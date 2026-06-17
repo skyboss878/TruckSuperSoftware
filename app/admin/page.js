@@ -268,7 +268,14 @@ export default function AdminDashboard() {
               autoComplete="off"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#2D7A5F] bg-white"
             />
-            <div className="flex gap-2 overflow-x-auto pb-1 items-center">
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-sm font-bold text-gray-700">Tickets</p>
+              <button onClick={() => setShowAssign(true)}
+                className="px-4 py-2 bg-[#2D7A5F] text-white rounded-xl text-xs font-bold">
+                📋 Assign Load
+              </button>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1">
               {['all', 'assigned', 'started', 'submitted', 'approved'].map(f => (
                 <button key={f} onClick={() => setTicketFilter(f)}
                   className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-colors ${
@@ -277,10 +284,6 @@ export default function AdminDashboard() {
                   {f}
                 </button>
               ))}
-              <button onClick={() => setShowAssign(true)}
-                className="flex-shrink-0 ml-auto px-4 py-1.5 bg-[#2D7A5F] text-white rounded-full text-xs font-bold whitespace-nowrap">
-                📋 Assign Load
-              </button>
             </div>
 
             {showAssign && (
