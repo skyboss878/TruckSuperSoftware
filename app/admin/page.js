@@ -268,8 +268,8 @@ export default function AdminDashboard() {
               autoComplete="off"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#2D7A5F] bg-white"
             />
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {['all', 'started', 'submitted', 'approved', 'rejected'].map(f => (
+            <div className="flex gap-2 overflow-x-auto pb-1 items-center">
+              {['all', 'assigned', 'started', 'submitted', 'approved'].map(f => (
                 <button key={f} onClick={() => setTicketFilter(f)}
                   className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-colors ${
                     ticketFilter === f ? 'bg-[#2D7A5F] text-white' : 'bg-gray-100 text-gray-500'
@@ -277,7 +277,55 @@ export default function AdminDashboard() {
                   {f}
                 </button>
               ))}
+              <button onClick={() => setShowAssign(true)}
+                className="flex-shrink-0 ml-auto px-4 py-1.5 bg-[#2D7A5F] text-white rounded-full text-xs font-bold whitespace-nowrap">
+                📋 Assign Load
+              </button>
             </div>
+
+            {showAssign && (
+              <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60" onClick={() => setShowAssign(false)}>
+                <div className="bg-white rounded-t-2xl w-full max-w-lg p-6 space-y-3 pb-10" onClick={e => e.stopPropagation()}>
+                  <div className="flex justify-between items-center mb-1">
+                    <h3 className="font-bold text-gray-800 text-lg">📋 Assign Load to Driver</h3>
+                    <button onClick={() => setShowAssign(false)} className="text-gray-400 text-xl font-light">✕</button>
+                  </div>
+                  <select value={assignForm.driver_id} onChange={e => setAssignForm(f=>({...f,driver_id:e.target.value}))}
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#2D7A5F]">
+                    <option value="">Select Driver *</option>
+                    {drivers.filter(d=>d.status==='active').map(d=>(
+                      <option key={d.id} value={d.id}>{d.name} — Truck #{d.truck_number}</option>
+                    ))}
+                  </select>
+                  <input value={assignForm.customer_name} onChange={e=>setAssignForm(f=>({...f,customer_name:e.target.value}))}
+                    placeholder="Customer name *"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#2D7A5F]" />
+                  <div className="grid grid-cols-2 gap-2">
+                    <input value={assignForm.load_id} onChange={e=>setAssignForm(f=>({...f,load_id:e.target.value}))}
+                      placeholder="Load ID"
+                      className="border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#2D7A5F]" />
+                    <input value={assignForm.bol_number} onChange={e=>setAssignForm(f=>({...f,bol_number:e.target.value}))}
+                      placeholder="BOL #"
+                      className="border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#2D7A5F]" />
+                  </div>
+                  <input value={assignForm.location_loaded} onChange={e=>setAssignForm(f=>({...f,location_loaded:e.target.value}))}
+                    placeholder="Pickup location"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#2D7A5F]" />
+                  <input value={assignForm.location_delivered} onChange={e=>setAssignForm(f=>({...f,location_delivered:e.target.value}))}
+                    placeholder="Delivery location"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#2D7A5F]" />
+                  <input type="date" value={assignForm.date} onChange={e=>setAssignForm(f=>({...f,date:e.target.value}))}
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#2D7A5F]" />
+                  <textarea value={assignForm.notes} onChange={e=>setAssignForm(f=>({...f,notes:e.target.value}))}
+                    placeholder="Notes for driver (optional)" rows={2}
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#2D7A5F] resize-none" />
+                  <button onClick={assignLoad} disabled={assignSaving || !assignForm.driver_id || !assignForm.customer_name}
+                    className="w-full bg-[#2D7A5F] text-white py-3 rounded-xl font-bold text-sm disabled:opacity-40">
+                    {assignSaving ? 'Assigning...' : '📋 Assign Load to Driver'}
+                  </button>
+                </div>
+              </div>
+            )}
             {search.trim() && (
               <p className="text-xs text-gray-400 px-1 pb-1">
                 {filteredTickets.length === 0
