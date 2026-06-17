@@ -300,6 +300,7 @@ export default function DriveTracker({ driver, onSessionComplete }) {
         state_miles: stateMilesArray,
         source: 'gps_auto',
         status: 'submitted',
+        status: 'submitted',
       })
     }
 

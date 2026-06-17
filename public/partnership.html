@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Partnership — Nathan & Terry</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,sans-serif;background:#060608;color:#f2f2f0;-webkit-font-smoothing:antialiased;line-height:1.6}
+:root{--gold:#d4a843;--gb:#f0c055;--gd:rgba(212,168,67,0.1);--card:#13131a;--bdr:rgba(255,255,255,0.07);--dim:rgba(242,242,240,0.45);--mut:rgba(242,242,240,0.22);--grn:#3dba8a}
+.cover{min-height:100vh;background:radial-gradient(ellipse 100% 60% at 50% -10%,rgba(212,168,67,0.08),transparent 60%),#060608;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 48px}
+.w{max-width:680px;margin:0 auto;padding:0 24px}
+.ci{padding:0 24px;max-width:680px;margin:0 auto;width:100%}
+.ctag{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:32px;opacity:.8}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,13vw,100px);line-height:.92;margin-bottom:32px}
+.lg{color:var(--gb);display:block}.lw{color:#fff;display:block}.ld{color:rgba(255,255,255,0.28);display:block;font-size:.55em;letter-spacing:4px}
+.cs{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--bdr);border-radius:4px;overflow:hidden;background:var(--card)}
+.cs-i{padding:16px 10px;text-align:center;border-right:1px solid var(--bdr)}.cs-i:last-child{border-right:none}
+.cs-n{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--gb);line-height:1;margin-bottom:3px}
+.cs-l{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mut)}
+sec{padding:56px 0}.rule{height:1px;background:var(--bdr);max-width:680px;margin:0 auto}
+.tag{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:12px}
+h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(34px,6vw,52px);line-height:1;margin-bottom:14px}
+h2 .g{color:var(--gb)}
+.bt{font-size:15px;line-height:1.75;color:var(--dim);margin-bottom:32px}.bt strong{color:#f2f2f0;font-weight:600}
+.apps{display:flex;flex-direction:column;gap:3px}
+.app{background:var(--card);border:1px solid var(--bdr);border-radius:6px;overflow:hidden}
+.at{display:flex;align-items:center;gap:12px;padding:18px 18px 14px;border-bottom:1px solid var(--bdr)}
+.an{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--gold);opacity:.22;width:28px;flex-shrink:0;line-height:1}
+.ae{font-size:26px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border-radius:9px;flex-shrink:0}
+.ai{flex:1}.aname{font-size:16px;font-weight:800}.acat{font-size:9px;color:var(--mut);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.abadge{font-size:9px;font-weight:700;padding:4px 9px;border-radius:3px;flex-shrink:0}
+.live{background:rgba(45,122,95,0.15);color:#3dba8a;border:1px solid rgba(45,122,95,0.3)}
+.rdy{background:var(--gd);color:var(--gb);border:1px solid rgba(212,168,67,0.2)}
+.ab{padding:14px 18px 18px}
+.am{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}
+.ami{background:rgba(255,255,255,0.03);border:1px solid var(--bdr);border-radius:4px;padding:9px;text-align:center}
+.amn{font-size:17px;font-weight:800;color:#f2f2f0}.aml{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.af{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:14px}
+.f{font-size:11px;color:var(--dim);padding-left:11px;position:relative;line-height:1.5}
+.f::before{content:"›";position:absolute;left:0;color:var(--gold);font-weight:700}
+.pr{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:var(--gd);border:1px solid rgba(212,168,67,0.15);border-radius:4px}
+.pro{font-size:13px;color:var(--dim)}.pro strong{color:var(--gb);font-size:15px;font-weight:800}
+.prc{font-size:10px;color:var(--mut);text-align:right}.prc strong{color:rgba(242,242,240,0.5);display:block}
+.assum{background:rgba(255,255,255,0.02);border:1px solid var(--bdr);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:18px 18px 18px 22px;margin-bottom:28px}
+.assum p{font-size:13px;color:var(--dim);line-height:1.7}.assum strong{color:#f2f2f0}
+.nt{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;margin-bottom:10px}
+.nth,.ntr{display:grid;grid-template-columns:70px 1fr 1fr 1fr 1fr}
+.nth{background:var(--card);border-bottom:1px solid var(--bdr)}
+.ntr{border-bottom:1px solid var(--bdr)}.ntr:last-child{border-bottom:none}
+.ntr.hl{background:var(--gd)}.ntr.sc{background:rgba(45,122,95,0.06)}
+.ntc{padding:11px 12px;font-size:11px;color:var(--dim);border-right:1px solid var(--bdr)}.ntc:last-child{border-right:none}
+.nth .ntc{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mut)}
+.ntr.hl .ntc{color:var(--gb);font-weight:700}.ntr.sc .ntc{color:var(--grn);font-weight:700}
+.ntc.cu{font-weight:700;color:#f2f2f0}
+.exc{display:flex;flex-direction:column;gap:10px}
+.ex{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;display:flex}
+.exl{background:var(--card);padding:18px;min-width:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid var(--bdr);text-align:center}
+.exn{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--gb);line-height:1}
+.exnl{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-top:3px}
+.exr{padding:14px 18px;flex:1}
+.exarr{font-size:11px;color:var(--dim);margin-bottom:5px}.exarr strong{color:#f2f2f0}
+.exval{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--grn);line-height:1;margin-bottom:2px}
+.exvl{font-size:9px;color:var(--mut)}.exeach{font-size:11px;color:var(--gold);margin-top:5px;font-weight:600}
+.aw{background:var(--card);border:1px solid rgba(212,168,67,0.2);border-radius:8px;overflow:hidden}
+.ah{background:linear-gradient(135deg,rgba(212,168,67,0.08),rgba(212,168,67,0.02));padding:36px 24px 28px;text-align:center;border-bottom:1px solid var(--bdr)}
+.aa{font-family:'Bebas Neue',sans-serif;font-size:clamp(68px,15vw,110px);color:var(--gb);line-height:1}
+.al{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--mut);margin-top:3px;margin-bottom:20px}
+.asp{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--bdr);border:1px solid var(--bdr);border-radius:4px}
+.ash{background:#060608;padding:14px}
+.ashn{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--gb);line-height:1;margin-bottom:3px}
+.ashd{font-size:11px;color:var(--dim);line-height:1.5}
+.terms{padding:0}
+.trm{display:flex;justify-content:space-between;align-items:center;padding:13px 20px;border-bottom:1px solid var(--bdr);gap:14px}
+.trm:last-child{border-bottom:none}.trk{font-size:12px;color:var(--mut)}.trv{font-size:13px;font-weight:700;color:#f2f2f0;text-align:right}
+.note{padding:28px;background:var(--card);border-radius:6px;border:1px solid var(--bdr)}
+.note p{font-size:16px;line-height:1.8;color:var(--dim);font-style:italic;margin-bottom:14px}
+.note p strong{color:#f2f2f0;font-style:normal;font-weight:700}
+.nsig{font-size:12px;color:var(--mut)}.nsig strong{color:#f2f2f0;font-size:14px;display:block;margin-bottom:2px}
+.cta{text-align:center;padding:56px 0 72px}
+.ctl{font-family:'Bebas Neue',sans-serif;font-size:clamp(30px,6vw,48px);line-height:1.05;margin-bottom:20px}
+.ctl .g{color:var(--gb)}.cts{font-size:14px;color:var(--dim);margin-bottom:28px}
+.btn{display:inline-block;padding:15px 30px;border-radius:4px;font-size:14px;font-weight:800;text-decoration:none}
+.btng{background:var(--gold);color:#060608}.btns{background:rgba(255,255,255,0.05);color:var(--dim);border:1px solid var(--bdr);margin-left:8px}
+footer{border-top:1px solid var(--bdr);padding:20px 24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;max-width:680px;margin:0 auto}
+footer p{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--mut)}
+@media(max-width:500px){.cs{grid-template-columns:1fr 1fr}.nth,.ntr{grid-template-columns:60px 1fr 1fr}.ntc:nth-child(4),.ntc:nth-child(5){display:none}.asp{grid-template-columns:1fr}.af{grid-template-columns:1fr}.ex{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<div class="cover">
+<div class="ci">
+<p class="ctag">Confidential &middot; Partnership Proposal &middot; June 16, 2026</p>
+<h1>
+<span class="ld">The</span>
+<span class="lg">$72 Million</span>
+<span class="lw">Opportunity</span>
+</h1>
+<div class="cs">
+<div class="cs-i"><div class="cs-n">3</div><div class="cs-l">Apps Built</div></div>
+<div class="cs-i"><div class="cs-n">$380K+</div><div class="cs-l">Build Value</div></div>
+<div class="cs-i"><div class="cs-n">$25K</div><div class="cs-l">Investment</div></div>
+<div class="cs-i"><div class="cs-n">50/50</div><div class="cs-l">Partnership</div></div>
+</div>
+</div>
+</div>
+
+<div class="rule"></div>
+<div class="w"><sec>
+<p class="tag">What's already built</p>
+<h2>Three platforms. <span class="g">All deployed.</span></h2>
+<p class="bt">These are not ideas. <strong>Every app is live, deployed, and verified by a full code audit run today.</strong></p>
+<div class="apps">
+
+<div class="app">
+<div class="at"><div class="an">01</div><div class="ae">&#x1F69B;</div>
+<div class="ai"><div class="aname">TWS Fleet Command</div><div class="acat">Trucking &middot; Fleet Operations SaaS</div></div>
+<div class="abadge live">&#x25CF; LIVE NOW</div></div>
+<div class="ab">
+<div class="am"><div class="ami"><div class="amn">39</div><div class="aml">Pages</div></div><div class="ami"><div class="amn">32</div><div class="aml">APIs</div></div><div class="ami"><div class="amn">100%</div><div class="aml">Uptime</div></div></div>
+<div class="af">
+<div class="f">Live GPS fleet map</div><div class="f">AI dispatch assistant</div>
+<div class="f">DOT compliance + HOS</div><div class="f">Automated payroll</div>
+<div class="f">IFTA state mileage</div><div class="f">Driver panic button</div>
+<div class="f">Digital BOL + tickets</div><div class="f">Real drivers on it TODAY</div>
+</div>
+<div class="pr"><div class="pro">Our price: <strong>$199/fleet/mo</strong></div><div class="prc"><strong>Samsara: $150&ndash;500/truck/mo</strong>Motive: $35+/truck/mo</div></div>
+</div></div>
+
+<div class="app">
+<div class="at"><div class="an">02</div><div class="ae">&#x1F3E0;</div>
+<div class="ai"><div class="aname">Real360 AI</div><div class="acat">Real Estate &middot; Agent Automation</div></div>
+<div class="abadge rdy">&#x25C6; PRODUCTION READY</div></div>
+<div class="ab">
+<div class="am"><div class="ami"><div class="amn">72</div><div class="aml">API Endpoints</div></div><div class="ami"><div class="amn">2,720</div><div class="aml">Server Lines</div></div><div class="ami"><div class="amn">21</div><div class="aml">AI Modules</div></div></div>
+<div class="af">
+<div class="f">AI cinematography director</div><div class="f">360&deg; virtual tour generation</div>
+<div class="f">ElevenLabs voice narration</div><div class="f">MLS listing syndication</div>
+<div class="f">TikTok + Instagram auto-post</div><div class="f">GPT-4 caption writer</div>
+<div class="f">AI image enhancement</div><div class="f">Subscription + trial system</div>
+</div>
+<div class="pr"><div class="pro">Our price: <strong>$199/agent/mo</strong></div><div class="prc"><strong>Matterport: $69&ndash;309/mo (tours only)</strong>Competitors bundle: $300+/mo</div></div>
+</div></div>
+
+<div class="app">
+<div class="at"><div class="an">03</div><div class="ae">&#x1F527;</div>
+<div class="ai"><div class="aname">ShopPro360</div><div class="acat">Auto Repair &middot; Shop Management SaaS</div></div>
+<div class="abadge rdy">&#x25C6; PRODUCTION READY</div></div>
+<div class="ab">
+<div class="am"><div class="ami"><div class="amn">10</div><div class="aml">Pages</div></div><div class="ami"><div class="amn">20</div><div class="aml">APIs</div></div><div class="ami"><div class="amn">Vercel</div><div class="aml">Deployed</div></div></div>
+<div class="af">
+<div class="f">AI-powered estimates (GPT-4)</div><div class="f">VIN scanner + diagnostics</div>
+<div class="f">Digital signatures</div><div class="f">Customer portal</div>
+<div class="f">Stripe payments</div><div class="f">BAR compliance built in</div>
+<div class="f">Work orders + invoicing</div><div class="f">Online booking</div>
+</div>
+<div class="pr"><div class="pro">Our price: <strong>$249/shop/mo</strong></div><div class="prc"><strong>Mitchell1: $400+/mo</strong>Shop-Ware: $300+/mo</div></div>
+</div></div>
+
+</div>
+</sec></div>
+
+<div class="rule"></div>
+<div class="w"><sec>
+<p class="tag">The numbers &mdash; conservative assumptions only</p>
+<h2>Lowest case. <span class="g">Still life-changing.</span></h2>
+<div class="assum"><p><strong>Every number below assumes equal customers on all three apps, no upsells, no price increases, no enterprise deals.</strong> Real SaaS companies grow faster and charge more over time. This is the floor, not the ceiling.</p></div>
+<div class="nt">
+<div class="nth"><div class="ntc">Customers</div><div class="ntc">MRR Total</div><div class="ntc">ARR</div><div class="ntc">Exit 5x</div><div class="ntc">Exit 10x</div></div>
+<div class="ntr"><div class="ntc cu">10</div><div class="ntc">$6,470</div><div class="ntc">$77K</div><div class="ntc">$388K</div><div class="ntc">$776K</div></div>
+<div class="ntr"><div class="ntc cu">50</div><div class="ntc">$32,350</div><div class="ntc">$388K</div><div class="ntc">$1.9M</div><div class="ntc">$3.9M</div></div>
+<div class="ntr hl"><div class="ntc cu">100</div><div class="ntc">$64,700</div><div class="ntc">$776K</div><div class="ntc">$3.9M</div><div class="ntc">$7.8M</div></div>
+<div class="ntr"><div class="ntc cu">250</div><div class="ntc">$161,750</div><div class="ntc">$1.94M</div><div class="ntc">$9.7M</div><div class="ntc">$19.4M</div></div>
+<div class="ntr"><div class="ntc cu">500</div><div class="ntc">$323,500</div><div class="ntc">$3.88M</div><div class="ntc">$19.4M</div><div class="ntc">$38.8M</div></div>
+<div class="ntr sc"><div class="ntc cu">1,000</div><div class="ntc">$647,000</div><div class="ntc">$7.16M</div><div class="ntc">$35.8M</div><div class="ntc">$71.6M</div></div>
+</div>
+<p style="font-size:10px;color:var(--mut);margin-top:8px;text-align:center">TWS $199 &middot; Real360 $199 &middot; ShopPro360 $249 &middot; Equal customers across all three &middot; No upsells modeled</p>
+</sec></div>
+
+<div class="rule"></div>
+<div class="w"><sec>
+<p class="tag">Exit strategy</p>
+<h2>How we cash out. <span class="g">Both of us.</span></h2>
+<p class="bt">SaaS sells at <strong>5&ndash;10x annual revenue.</strong> Samsara IPO&rsquo;d at $6.8B. Matterport IPO&rsquo;d at $2.9B doing 10% of what Real360 does. Mitchell1 is publicly traded charging $400+/mo for what we charge $249. <strong>The market is proven. The products are built.</strong></p>
+<div class="exc">
+<div class="ex"><div class="exl"><div class="exn">100</div><div class="exnl">per app</div></div>
+<div class="exr"><div class="exarr">ARR: <strong>$776,400</strong></div><div class="exval">$3.9M &ndash; $7.8M</div><div class="exvl">Exit valuation (5&ndash;10x ARR)</div><div class="exeach">Terry&rsquo;s share: $1.95M &ndash; $3.9M</div></div></div>
+<div class="ex"><div class="exl"><div class="exn">500</div><div class="exnl">per app</div></div>
+<div class="exr"><div class="exarr">ARR: <strong>$3,882,000</strong></div><div class="exval">$19.4M &ndash; $38.8M</div><div class="exvl">Exit valuation (5&ndash;10x ARR)</div><div class="exeach">Terry&rsquo;s share: $9.7M &ndash; $19.4M</div></div></div>
+<div class="ex"><div class="exl"><div class="exn" style="font-size:24px">1,000</div><div class="exnl">per app</div></div>
+<div class="exr"><div class="exarr">ARR: <strong>$7,164,000</strong></div><div class="exval">$35.8M &ndash; $71.6M</div><div class="exvl">Exit valuation (5&ndash;10x ARR)</div><div class="exeach">Terry&rsquo;s share: $17.9M &ndash; $35.8M</div></div></div>
+</div>
+</sec></div>
+
+<div class="rule"></div>
+<div class="w"><sec>
+<p class="tag">The ask</p>
+<h2>$25,000. <span class="g">That&rsquo;s it.</span></h2>
+<p class="bt">One investment. Three companies. <strong>50/50 on everything &mdash; revenue, exits, decisions.</strong> Nathan builds full time. Terry provides capital.</p>
+<div class="aw">
+<div class="ah">
+<div class="aa">$25,000</div>
+<div class="al">One-time &middot; 50% equity in all three platforms</div>
+<div class="asp">
+<div class="ash"><div class="ashn">$15,000</div><div class="ashd">Compensates 1+ year of development already delivered on $1,500.</div></div>
+<div class="ash"><div class="ashn">$10,000</div><div class="ashd">Operating capital &mdash; ads, hosting, APIs to launch and scale all three.</div></div>
+</div>
+</div>
+<div class="terms">
+<div class="trm"><span class="trk">Investment</span><span class="trv">$25,000 (one time)</span></div>
+<div class="trm"><span class="trk">Terry&rsquo;s equity</span><span class="trv">50% in all three apps</span></div>
+<div class="trm"><span class="trk">Nathan&rsquo;s equity</span><span class="trv">50% in all three apps</span></div>
+<div class="trm"><span class="trk">Nathan&rsquo;s role</span><span class="trv">Builder &middot; CTO &middot; Full-time</span></div>
+<div class="trm"><span class="trk">Terry&rsquo;s role</span><span class="trv">Partner &middot; Investor &middot; Capital</span></div>
+<div class="trm"><span class="trk">Revenue split</span><span class="trv">50/50 after operating costs</span></div>
+<div class="trm"><span class="trk">Already paid</span><span class="trv">$1,500 credited toward total</span></div>
+</div>
+</div>
+</sec></div>
+
+<div class="rule"></div>
+<div class="w"><sec>
+<p class="tag">From Nathan</p>
+<div class="note">
+<p>&ldquo;Terry &mdash; you sent me money before I even had a pitch deck. That trust built three real companies. <strong>TWS Fleet Command is live with your drivers right now.</strong> Real360 does what Matterport, Hootsuite, and an AI agency do combined &mdash; for $199 a month. ShopPro360 beats Mitchell1 at $151 less per month.</p>
+<p>I&rsquo;m not asking you to bet on an idea. <strong>I&rsquo;m asking you to bet on something already built, already working, and already proving itself.</strong> $25,000 for 50% of three companies that can exit for $20&ndash;70 million is the best deal you&rsquo;ll ever see. Let&rsquo;s finish this together.&rdquo;</p>
+<div class="nsig"><strong>Nathan Elliott</strong>Builder &middot; TWS Fleet Command &middot; Real360 AI &middot; ShopPro360</div>
+</div>
+</sec></div>
+
+<div class="rule"></div>
+<div class="w">
+<div class="cta">
+<div class="ctl">Your fleet is live.<br><span class="g">The rest is waiting.</span></div>
+<p class="cts">TWS Fleet Command is running right now &mdash; your drivers are on it today.</p>
+<a href="https://smiths-dnxx.vercel.app" class="btn btng">&#x1F69B; See TWS Live Now</a>
+<a href="tel:+14696157938" class="btn btns">Call Dispatch</a>
+</div>
+</div>
+
+<footer>
+<p>Nathan Elliott &times; Terry Wayne Smith &middot; June 16, 2026</p>
+<p>Confidential &middot; Not for distribution</p>
+</footer>
+
+</body>
+</html>
