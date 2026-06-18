@@ -242,6 +242,7 @@ export default function AdminDashboard() {
           { key: 'reports', label: '📊 Reports' },
           { key: 'cpm', label: '💰 CPM' },
           { key: 'finance', label: '💵 Finance' },
+          { key: 'superadmin', label: '⚡ Platform' },
           { key: 'messages', label: '💬 Messages' },
           { key: 'assistant', label: '🤖 AI' },
           { key: 'tracking', label: '📍 Live Map' },
@@ -519,6 +520,7 @@ export default function AdminDashboard() {
         {/* REPORTS TAB */}
         {tab === 'cpm' && (() => { setTimeout(() => router.push('/admin/cpm'), 0); return null })()}
         {tab === 'finance' && (() => { setTimeout(() => router.push('/admin/finance'), 0); return null })()}
+        {tab === 'superadmin' && (() => { setTimeout(() => router.push('/superadmin'), 0); return null })()}
         {tab === 'reports' && (
           <div className="space-y-3">
             {[

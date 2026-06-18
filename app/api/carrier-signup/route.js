@@ -17,31 +17,54 @@ export async function POST(request) {
       return NextResponse.json({ error: 'company_name and email required' }, { status: 400 })
     }
 
-    // Save carrier signup
-    const { data, error } = await supabaseAdmin
-      .from('carrier_signups')
+    // Create slug from company name
+    const slug = company_name.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+
+    // Create company record
+    const { data: company, error: companyError } = await supabaseAdmin
+      .from('companies')
       .insert({
-        company_name, contact_name, phone, email,
+        name: company_name,
+        slug: `${slug}-${Date.now()}`,
+        contact_name, phone, email,
         address, city, state, zip,
         dot_number, mc_number,
         num_trucks: parseInt(num_trucks) || 1,
-        equipment_types,
-        avg_miles_month: parseInt(avg_miles_month) || 0,
+        equipment_types: equipment_types || [],
         primary_lanes, commodities,
-        plan, fuel_card, factoring,
-        status: 'pending_review',
-        signed_up_at: new Date().toISOString()
+        plan: plan || 'pro',
+        plan_status: 'trial',
+        rts_fuel_card: fuel_card || false,
+        rts_factoring: factoring || false,
+        onboarded: false,
       })
-      .select().single()
+      .select()
+      .single()
 
-    if (error) {
-      // Table might not exist yet — still return success
-      console.error('Signup save error:', error)
-    }
+    if (companyError) console.error('Company create error:', companyError)
 
-    return NextResponse.json({ success: true, data })
+    // Also save to carrier_signups
+    await supabaseAdmin.from('carrier_signups').insert({
+      company_name, contact_name, phone, email,
+      address, city, state, zip,
+      dot_number, mc_number,
+      num_trucks: parseInt(num_trucks) || 1,
+      equipment_types: equipment_types || [],
+      avg_miles_month: parseInt(avg_miles_month) || 0,
+      primary_lanes, commodities,
+      plan: plan || 'pro',
+      fuel_card: fuel_card || false,
+      factoring: factoring || false,
+      status: 'pending_review',
+      company_id: company?.id || null,
+      signed_up_at: new Date().toISOString()
+    })
+
+    return NextResponse.json({ success: true, company_id: company?.id })
   } catch (err) {
     console.error('Carrier signup error:', err)
-    return NextResponse.json({ success: true }) // Always succeed for UX
+    return NextResponse.json({ success: true })
   }
 }
