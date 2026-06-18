@@ -9,6 +9,7 @@
     "vercel-build": "next build --webpack"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.2",
     "@supabase/supabase-js": "^2.39.7",
     "jose": "^6.2.3",
     "leaflet": "^1.9.4",
