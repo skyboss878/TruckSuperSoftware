@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTS Financial × TruckSuperSoftware — Partnership Proposal</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:#060608;color:#f2f2f0;-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden}
+:root{
+  --rts:#e63946;--rts-dark:#c1121f;--rts-dim:rgba(230,57,70,0.1);
+  --tss:#2D7A5F;--tss-bright:#3dba8a;
+  --gold:#f0c055;--card:#0f0f12;--border:rgba(255,255,255,0.07);
+  --dim:rgba(242,242,240,0.45);--muted:rgba(242,242,240,0.22);
+}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:rgba(6,6,8,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logos{display:flex;align-items:center;gap:12px}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px}
+.nav-logo.rts{color:var(--rts)}
+.nav-logo.tss{color:var(--tss-bright)}
+.nav-x{color:var(--muted);font-size:14px;margin:0 4px}
+.nav-tag{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
+
+.cover{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 24px 64px;position:relative;overflow:hidden;background:#060608}
+.cover-grid{position:absolute;inset:0;background:linear-gradient(rgba(230,57,70,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(230,57,70,0.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
+.cover-glow{position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(230,57,70,0.08) 0%,transparent 70%);pointer-events:none}
+.cover-inner{position:relative;z-index:1;max-width:720px;margin:0 auto;width:100%}
+.cover-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:4px;background:var(--rts-dim);border:1px solid rgba(230,57,70,0.25);font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--rts);margin-bottom:32px}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--rts);animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.cover h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,12vw,96px);line-height:0.92;letter-spacing:1px;margin-bottom:28px}
+.cover h1 .r{color:var(--rts);display:block}
+.cover h1 .w{color:white;display:block}
+.cover h1 .d{color:rgba(255,255,255,0.25);display:block;font-size:0.55em;letter-spacing:4px}
+.cover-sub{font-size:16px;line-height:1.75;color:var(--dim);max-width:520px;margin-bottom:40px}
+.cover-sub strong{color:#f2f2f0;font-weight:700}
+.cover-stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--card)}
+.cs{padding:20px 12px;text-align:center;border-right:1px solid var(--border)}
+.cs:last-child{border-right:none}
+.cs-n{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);line-height:1;margin-bottom:4px}
+.cs-l{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+
+.wrap{max-width:720px;margin:0 auto;padding:0 24px}
+section{padding:72px 0}
+.rule{height:1px;background:var(--border)}
+.tag{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--rts);opacity:.7;margin-bottom:12px}
+.tag.green{color:var(--tss-bright)}
+h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,7vw,56px);letter-spacing:1px;line-height:1;margin-bottom:16px}
+h2 .r{color:var(--rts)}
+h2 .g{color:var(--tss-bright)}
+h2 .gold{color:var(--gold)}
+.body{font-size:16px;line-height:1.75;color:var(--dim);margin-bottom:32px}
+.body strong{color:#f2f2f0;font-weight:600}
+
+/* PLATFORM SHOWCASE */
+.platform-cards{display:flex;flex-direction:column;gap:3px}
+.pc{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.pc-top{display:flex;align-items:center;gap:14px;padding:20px;border-bottom:1px solid var(--border)}
+.pc-icon{font-size:28px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border-radius:10px;flex-shrink:0}
+.pc-info{flex:1}
+.pc-name{font-size:16px;font-weight:800}
+.pc-cat{font-size:9px;color:var(--muted);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.pc-badge{font-size:9px;font-weight:700;padding:4px 10px;border-radius:3px;flex-shrink:0}
+.badge-live{background:rgba(45,122,95,0.15);color:#3dba8a;border:1px solid rgba(45,122,95,0.3)}
+.badge-ready{background:rgba(240,192,85,0.1);color:var(--gold);border:1px solid rgba(240,192,85,0.2)}
+.pc-body{padding:16px 20px}
+.pc-features{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:14px}
+.feat{font-size:11px;color:var(--dim);padding-left:12px;position:relative;line-height:1.5}
+.feat::before{content:'›';position:absolute;left:0;color:var(--rts);font-weight:700}
+.feat.green::before{color:var(--tss-bright)}
+.pc-stat{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--rts-dim);border:1px solid rgba(230,57,70,0.15);border-radius:4px;font-size:12px;color:var(--dim)}
+.pc-stat strong{color:var(--rts);font-size:15px;font-weight:800}
+
+/* FLOW DIAGRAM */
+.flow{display:flex;flex-direction:column;gap:3px}
+.flow-step{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:20px;display:flex;align-items:flex-start;gap:16px}
+.flow-num{font-family:'Bebas Neue',sans-serif;font-size:42px;color:rgba(230,57,70,0.15);line-height:1;flex-shrink:0;width:44px}
+.flow-icon{font-size:24px;flex-shrink:0;margin-top:4px}
+.flow-content{}
+.flow-title{font-size:15px;font-weight:800;margin-bottom:4px}
+.flow-desc{font-size:13px;color:var(--dim);line-height:1.6}
+.flow-rts{font-size:10px;font-weight:700;color:var(--rts);margin-top:6px;text-transform:uppercase;letter-spacing:1px}
+.flow-arrow{text-align:center;padding:4px;color:var(--muted);font-size:18px}
+
+/* REVENUE MODEL */
+.rev-table{border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.rev-h{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--card);border-bottom:1px solid var(--border)}
+.rev-r{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border)}
+.rev-r:last-child{border-bottom:none}
+.rev-r.hl{background:rgba(230,57,70,0.06)}
+.rev-r.gold{background:rgba(240,192,85,0.06)}
+.rev-c{padding:14px 16px;font-size:12px;color:var(--dim);border-right:1px solid var(--border)}
+.rev-c:last-child{border-right:none}
+.rev-h .rev-c{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.rev-r.hl .rev-c{color:var(--rts);font-weight:700}
+.rev-r.gold .rev-c{color:var(--gold);font-weight:800;font-size:14px}
+
+/* INTEGRATION */
+.int-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin-bottom:24px}
+.int-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;text-align:center}
+.int-logo{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;margin-bottom:8px}
+.int-logo.rts{color:var(--rts)}
+.int-logo.tss{color:var(--tss-bright)}
+.int-desc{font-size:11px;color:var(--muted);line-height:1.6}
+.int-arrow{text-align:center;font-size:24px;color:var(--muted)}
+.int-features{display:flex;flex-direction:column;gap:8px}
+.int-feature{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.int-feature-icon{font-size:18px;flex-shrink:0}
+.int-feature-text{font-size:12px;color:var(--dim);line-height:1.5}
+.int-feature-text strong{color:#f2f2f0;display:block;font-size:13px;margin-bottom:2px}
+
+/* ASK */
+.ask-wrap{background:var(--card);border:1px solid rgba(230,57,70,0.25);border-radius:8px;overflow:hidden}
+.ask-hero{background:linear-gradient(135deg,rgba(230,57,70,0.08),rgba(230,57,70,0.02));padding:40px 28px 32px;text-align:center;border-bottom:1px solid var(--border)}
+.ask-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,9vw,72px);color:var(--rts);line-height:1;margin-bottom:8px;letter-spacing:1px}
+.ask-sub{font-size:13px;color:var(--muted);margin-bottom:28px;letter-spacing:2px;text-transform:uppercase}
+.ask-items{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:4px}
+.ask-item{background:#060608;padding:18px}
+.ask-item-icon{font-size:24px;margin-bottom:8px}
+.ask-item-title{font-size:13px;font-weight:800;margin-bottom:4px}
+.ask-item-desc{font-size:11px;color:var(--dim);line-height:1.5}
+.ask-terms{padding:0}
+.ask-term{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;border-bottom:1px solid var(--border);gap:16px}
+.ask-term:last-child{border-bottom:none}
+.ask-k{font-size:12px;color:var(--muted)}
+.ask-v{font-size:13px;font-weight:700;color:#f2f2f0;text-align:right}
+
+/* NOTE */
+.note{padding:32px;background:var(--card);border-radius:6px;border-left:3px solid var(--rts);border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.note p{font-size:17px;line-height:1.8;color:var(--dim);font-style:italic;margin-bottom:16px}
+.note p strong{color:#f2f2f0;font-style:normal;font-weight:700}
+.note-sig strong{color:#f2f2f0;font-size:15px;display:block;margin-bottom:2px}
+.note-sig{font-size:12px;color:var(--muted)}
+
+.cta{text-align:center;padding:60px 0 80px}
+.cta h2{margin-bottom:16px}
+.cta-sub{font-size:15px;color:var(--dim);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto}
+.btn{display:inline-block;padding:16px 36px;border-radius:4px;font-size:14px;font-weight:800;text-decoration:none;letter-spacing:0.5px}
+.btn-rts{background:var(--rts);color:white}
+.btn-ghost{background:rgba(255,255,255,0.05);color:var(--dim);border:1px solid var(--border);margin-left:10px}
+
+footer{border-top:1px solid var(--border);padding:24px 28px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;max-width:720px;margin:0 auto}
+footer p{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+
+@media(max-width:520px){
+  .cover-stats{grid-template-columns:1fr 1fr}
+  .pc-features{grid-template-columns:1fr}
+  .rev-h,.rev-r{grid-template-columns:1fr 1fr}
+  .rev-c:nth-child(3){display:none}
+  .int-grid{grid-template-columns:1fr;gap:8px}
+  .int-arrow{transform:rotate(90deg)}
+  .ask-items{grid-template-columns:1fr}
+  footer{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logos">
+    <span class="nav-logo rts">RTS</span>
+    <span class="nav-x">×</span>
+    <span class="nav-logo tss">TruckSuperSoftware</span>
+  </div>
+  <div class="nav-tag">Partnership Proposal · 2026</div>
+</nav>
+
+<div class="cover">
+  <div class="cover-grid"></div>
+  <div class="cover-glow"></div>
+  <div class="cover-inner">
+    <div class="cover-tag"><div class="pulse"></div>Confidential · Partnership Proposal · June 2026</div>
+    <h1>
+      <span class="d">The</span>
+      <span class="r">Billion Dollar</span>
+      <span class="w">Opportunity.</span>
+    </h1>
+    <p class="cover-sub">
+      <strong>TruckSuperSoftware is building the operating system for trucking.</strong> Every carrier. Every load. Every dollar — flowing through one platform. RTS Financial becomes the bank inside it.
+    </p>
+    <div class="cover-stats">
+      <div class="cs"><div class="cs-n">3</div><div class="cs-l">Platforms Built</div></div>
+      <div class="cs"><div class="cs-n">$900B</div><div class="cs-l">Trucking Market</div></div>
+      <div class="cs"><div class="cs-n">70%</div><div class="cs-l">Carriers Use Factoring</div></div>
+      <div class="cs"><div class="cs-n">$20M+</div><div class="cs-l">Monthly Invoice Target</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="rule"></div>
+<div class="wrap">
+  <section>
+    <p class="tag">What we've built</p>
+    <h2>The platform carriers <span class="g">already live in.</span></h2>
+    <p class="body">TruckSuperSoftware isn't a concept. <strong>It's a fully deployed, production-ready fleet management and financial platform</strong> with real drivers using it today. Here's what exists right now.</p>
+    <div class="platform-cards">
+
+      <div class="pc">
+        <div class="pc-top">
+          <div class="pc-icon">🚛</div>
+          <div class="pc-info"><div class="pc-name">TWS Fleet Command</div><div class="pc-cat">Fleet Management · Live Today</div></div>
+          <div class="pc-badge badge-live">● LIVE</div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-features">
+            <div class="feat green">Real-time GPS tracking</div><div class="feat green">AI dispatch assistant</div>
+            <div class="feat green">DOT compliance + HOS</div><div class="feat green">Automated payroll</div>
+            <div class="feat green">Digital BOL + tickets</div><div class="feat green">Driver panic button</div>
+          </div>
+          <div class="pc-stat">Real fleet running on it today <strong>39 screens · 32 APIs</strong></div>
+        </div>
+      </div>
+
+      <div class="pc">
+        <div class="pc-top">
+          <div class="pc-icon">💰</div>
+          <div class="pc-info"><div class="pc-name">Profit Command Center</div><div class="pc-cat">Financial Intelligence · Deployed</div></div>
+          <div class="pc-badge badge-live">● LIVE</div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-features">
+            <div class="feat green">Cost per mile calculator</div><div class="feat green">AI load advisor</div>
+            <div class="feat green">Revenue + expense tracking</div><div class="feat green">Tax deduction center</div>
+            <div class="feat green">Freight factoring module</div><div class="feat green">Annual fleet forecast</div>
+          </div>
+          <div class="pc-stat">Built-in factoring workflow ready for RTS integration <strong>Today</strong></div>
+        </div>
+      </div>
+
+      <div class="pc">
+        <div class="pc-top">
+          <div class="pc-icon">📋</div>
+          <div class="pc-info"><div class="pc-name">Live Load Board</div><div class="pc-cat">Freight Marketplace · Deployed</div></div>
+          <div class="pc-badge badge-live">● LIVE</div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-features">
+            <div class="feat green">Post and claim loads</div><div class="feat green">FMCSA carrier verification</div>
+            <div class="feat green">AI load matching</div><div class="feat green">Broker credit scoring</div>
+            <div class="feat green">Lane rate intelligence</div><div class="feat green">Deadhead analysis</div>
+          </div>
+          <div class="pc-stat">Every load = a factoring opportunity for RTS <strong>Built in</strong></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<div class="rule"></div>
+<div class="wrap">
+  <section>
+    <p class="tag">How it works</p>
+    <h2>RTS inside <span class="r">every transaction.</span></h2>
+    <p class="body">The integration is simple. <strong>TruckSuperSoftware becomes the front door. RTS becomes the funding engine behind it.</strong> Carriers never leave the platform to get paid.</p>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-num">01</div>
+        <div class="flow-icon">📋</div>
+        <div class="flow-content">
+          <div class="flow-title">Carrier Completes a Load</div>
+          <div class="flow-desc">Driver submits BOL and delivery confirmation inside TruckSuperSoftware. Everything is digital — no paper, no fax, no email.</div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">
+        <div class="flow-num">02</div>
+        <div class="flow-icon">💵</div>
+        <div class="flow-content">
+          <div class="flow-title">One Tap to Factor</div>
+          <div class="flow-desc">Carrier taps "Get Paid Today" inside the app. Invoice amount, broker info, and BOL automatically submitted to RTS.</div>
+          <div class="flow-rts">⚡ RTS receives the submission instantly</div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">
+        <div class="flow-num">03</div>
+        <div class="flow-icon">🏦</div>
+        <div class="flow-content">
+          <div class="flow-title">RTS Funds Same Day</div>
+          <div class="flow-desc">RTS advances 95% of the invoice value directly to the carrier. TruckSuperSoftware shows the advance status in real time.</div>
+          <div class="flow-rts">⚡ RTS earns factoring fee on every invoice</div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">
+        <div class="flow-num">04</div>
+        <div class="flow-icon">📊</div>
+        <div class="flow-content">
+          <div class="flow-title">Automatic Tracking + Tax Records</div>
+          <div class="flow-desc">Every factored invoice is logged in the carrier's financial center. Revenue tracked, broker payment monitored, tax records updated automatically.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="rule"></div>
+<div class="wrap">
+  <section>
+    <p class="tag">The numbers</p>
+    <h2>What this is worth <span class="gold">to RTS.</span></h2>
+    <p class="body">Trucking does <strong>$900 billion in annual revenue.</strong> 70% of carriers use factoring. At 2-3% per invoice, factoring companies earn billions. TruckSuperSoftware becomes the largest carrier acquisition channel RTS has ever had.</p>
+
+    <div class="rev-table">
+      <div class="rev-h">
+        <div class="rev-c">Carriers on Platform</div>
+        <div class="rev-c">Monthly Invoice Volume</div>
+        <div class="rev-c">RTS Monthly Revenue (3%)</div>
+      </div>
+      <div class="rev-r">
+        <div class="rev-c">100 carriers</div>
+        <div class="rev-c">$2,000,000</div>
+        <div class="rev-c">$60,000</div>
+      </div>
+      <div class="rev-r">
+        <div class="rev-c">250 carriers</div>
+        <div class="rev-c">$5,000,000</div>
+        <div class="rev-c">$150,000</div>
+      </div>
+      <div class="rev-r hl">
+        <div class="rev-c">500 carriers</div>
+        <div class="rev-c">$10,000,000</div>
+        <div class="rev-c">$300,000/mo</div>
+      </div>
+      <div class="rev-r">
+        <div class="rev-c">1,000 carriers</div>
+        <div class="rev-c">$20,000,000</div>
+        <div class="rev-c">$600,000/mo</div>
+      </div>
+      <div class="rev-r gold">
+        <div class="rev-c">5,000 carriers</div>
+        <div class="rev-c">$100,000,000</div>
+        <div class="rev-c">$3,000,000/mo</div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center">Based on avg 10 loads/mo per carrier × $2,000/load × 3% factoring fee. Conservative assumptions.</p>
+  </section>
+</div>
+
+<div class="rule"></div>
+<div class="wrap">
+  <section>
+    <p class="tag">Integration</p>
+    <h2>Built to plug in <span class="r">today.</span></h2>
+    <p class="body">TruckSuperSoftware already has the factoring workflow built. <strong>We just need RTS on the other end.</strong> Here's what the integration looks like.</p>
+
+    <div class="int-grid">
+      <div class="int-box">
+        <div class="int-logo tss">TruckSuperSoftware</div>
+        <div class="int-desc">Carrier-facing platform<br>Load board · Fleet management<br>Financial center · Tax tools</div>
+      </div>
+      <div class="int-arrow">⇄</div>
+      <div class="int-box">
+        <div class="int-logo rts">RTS Financial</div>
+        <div class="int-desc">Funding engine<br>Same-day advances<br>Carrier credit · Collections</div>
+      </div>
+    </div>
+
+    <div class="int-features">
+      <div class="int-feature">
+        <div class="int-feature-icon">🔌</div>
+        <div class="int-feature-text"><strong>API Integration</strong>TruckSuperSoftware submits BOL + invoice data directly to RTS API. No manual entry, no paperwork.</div>
+      </div>
+      <div class="int-feature">
+        <div class="int-feature-icon">⚡</div>
+        <div class="int-feature-text"><strong>Real-Time Status</strong>Carriers see their factoring status — submitted, approved, funded — live inside the app.</div>
+      </div>
+      <div class="int-feature">
+        <div class="int-feature-icon">✅</div>
+        <div class="int-feature-text"><strong>FMCSA Pre-Verification</strong>Every carrier on our platform is DOT-verified before they can factor. RTS gets pre-qualified leads only.</div>
+      </div>
+      <div class="int-feature">
+        <div class="int-feature-icon">📊</div>
+        <div class="int-feature-text"><strong>Carrier Financial Data</strong>RTS gets full visibility into carrier load history, revenue trends, and payment patterns — better underwriting data than any other channel.</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="rule"></div>
+<div class="wrap">
+  <section>
+    <p class="tag">The partnership</p>
+    <h2>What we're <span class="r">proposing.</span></h2>
+    <p class="body">Three ways to structure this. We're open to all of them — or a combination.</p>
+
+    <div class="ask-wrap">
+      <div class="ask-hero">
+        <div class="ask-title">3 PARTNERSHIP MODELS</div>
+        <div class="ask-sub">Pick one. Or all three.</div>
+        <div class="ask-items">
+          <div class="ask-item">
+            <div class="ask-item-icon">🤝</div>
+            <div class="ask-item-title">Referral Partner</div>
+            <div class="ask-item-desc">We send you carriers. You pay us a referral fee per funded invoice. Simplest structure, immediate revenue for both sides.</div>
+          </div>
+          <div class="ask-item">
+            <div class="ask-item-icon">🏷️</div>
+            <div class="ask-item-title">White Label</div>
+            <div class="ask-item-desc">RTS powers the factoring branded as TruckSuperSoftware. Carriers see one seamless experience. RTS handles funding and collections.</div>
+          </div>
+          <div class="ask-item">
+            <div class="ask-item-icon">🔌</div>
+            <div class="ask-item-title">API Integration</div>
+            <div class="ask-item-desc">Full technical integration. TruckSuperSoftware submits directly to RTS systems. Fastest carrier onboarding in the industry.</div>
+          </div>
+          <div class="ask-item">
+            <div class="ask-item-icon">💼</div>
+            <div class="ask-item-title">Strategic Investment</div>
+            <div class="ask-item-desc">RTS invests in TruckSuperSoftware. Equity stake in the platform that becomes your largest carrier acquisition channel.</div>
+          </div>
+        </div>
+      </div>
+      <div class="ask-terms">
+        <div class="ask-term"><span class="ask-k">Platform status</span><span class="ask-v">Live & deployed today</span></div>
+        <div class="ask-term"><span class="ask-k">Factoring module</span><span class="ask-v">Built, ready to connect</span></div>
+        <div class="ask-term"><span class="ask-k">Carrier verification</span><span class="ask-v">FMCSA DOT verified</span></div>
+        <div class="ask-term"><span class="ask-k">Target market</span><span class="ask-v">Owner-operators + small fleets</span></div>
+        <div class="ask-term"><span class="ask-k">Integration timeline</span><span class="ask-v">30 days from agreement</span></div>
+        <div class="ask-term"><span class="ask-k">Revenue share</span><span class="ask-v">Negotiable per model</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="rule"></div>
+<div class="wrap">
+  <section>
+    <p class="tag">From the builder</p>
+    <div class="note">
+      <p>"RTS has been funding trucking for decades. <strong>We're building the platform those truckers live in every day.</strong> Every load they post, every mile they track, every dollar they earn — it runs through TruckSuperSoftware. The factoring button is already built. We just need RTS on the other end of it."</p>
+      <p>"This isn't a startup pitch. <strong>The code is written. The platform is live. The carriers are coming.</strong> We're offering RTS the chance to be the financial backbone of the most advanced trucking platform ever built — before anyone else gets that seat."</p>
+      <div class="note-sig">
+        <strong>Nathan Elliott</strong>
+        Builder · TruckSuperSoftware · TWS Fleet Command · Real360 AI
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="rule"></div>
+<div class="wrap">
+  <div class="cta">
+    <p class="tag" style="text-align:center">Next step</p>
+    <h2 style="text-align:center">See it <span class="g">live.</span></h2>
+    <p class="cta-sub">TruckSuperSoftware is running right now. The load board, the factoring module, the financial center — all of it live and demo-ready.</p>
+    <a href="https://truck-super-software.vercel.app" class="btn btn-rts">🚛 See TruckSuperSoftware Live</a>
+    <a href="https://truck-super-software.vercel.app/loadboard" class="btn btn-ghost">View Load Board</a>
+  </div>
+</div>
+
+<div class="rule"></div>
+<footer>
+  <p>TruckSuperSoftware × RTS Financial · Partnership Proposal · June 2026</p>
+  <p>Confidential · Not for distribution</p>
+</footer>
+
+</body>
+</html>
+
