@@ -240,6 +240,7 @@ export default function AdminDashboard() {
           { key: 'timesheets', label: '🕐 Time' },
           { key: 'maintenance', label: '🔧 Maint.' },
           { key: 'reports', label: '📊 Reports' },
+          { key: 'cpm', label: '💰 CPM' },
           { key: 'messages', label: '💬 Messages' },
           { key: 'assistant', label: '🤖 AI' },
           { key: 'tracking', label: '📍 Live Map' },
@@ -515,6 +516,7 @@ export default function AdminDashboard() {
         )}
 
         {/* REPORTS TAB */}
+        {tab === 'cpm' && (() => { setTimeout(() => router.push('/admin/cpm'), 0); return null })()}
         {tab === 'reports' && (
           <div className="space-y-3">
             {[
