@@ -30,7 +30,11 @@ export async function GET(request) {
     // Hit FMCSA API
     const searchType = dot ? 'USDOT' : 'MC_MX'
     const searchVal = dot || mc
-    const url = `https://mobile.fmcsa.dot.gov/qc/services/carriers/${dot ? dot : 'docket/'+mc}?webKey=${process.env.FMCSA_API_KEY || 'demo'}`
+    const fmcsaKey = process.env.FMCSA_API_KEY
+    if (!fmcsaKey) {
+      console.warn('[FMCSA] FMCSA_API_KEY env var is missing — falling back to demo key. Carrier verification will likely fail or return limited data.')
+    }
+    const url = `https://mobile.fmcsa.dot.gov/qc/services/carriers/${dot ? dot : 'docket/'+mc}?webKey=${fmcsaKey || 'demo'}`
     
     let fmcsaData = null
     try {
