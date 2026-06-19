@@ -10,7 +10,8 @@ export async function POST(request) {
       dot_number, mc_number,
       num_trucks, equipment_types, avg_miles_month,
       primary_lanes, commodities,
-      plan, fuel_card, factoring
+      plan, fuel_card, factoring,
+      user_id
     } = body
 
     if (!company_name || !email) {
@@ -44,6 +45,18 @@ export async function POST(request) {
       .single()
 
     if (companyError) console.error('Company create error:', companyError)
+
+    // Link the auth user to this company as owner
+    if (company?.id && user_id) {
+      await supabaseAdmin.from('company_users').insert({
+        company_id: company.id,
+        user_id,
+        role: 'owner',
+        name: contact_name,
+        email,
+        phone,
+      })
+    }
 
     // Also save to carrier_signups
     await supabaseAdmin.from('carrier_signups').insert({

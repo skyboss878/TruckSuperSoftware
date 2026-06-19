@@ -87,7 +87,7 @@ export default function AdminAssistant() {
           <div className="space-y-4 mt-4">
             <div className="text-center">
               <div className="text-5xl mb-3">🤖</div>
-              <p className="font-bold text-gray-800 text-lg">Smith's AI Assistant</p>
+              <p className="font-bold text-gray-800 text-lg">TruckSuperSoftware AI Assistant</p>
               <p className="text-gray-400 text-sm mt-1">I can read your data, approve tickets, send messages, and more.</p>
             </div>
             <div className="grid grid-cols-2 gap-2 mt-6">
