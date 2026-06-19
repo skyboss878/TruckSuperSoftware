@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
+import { Resend } from 'resend'
 
 export async function GET(request) {
   try {
@@ -24,6 +25,49 @@ export async function GET(request) {
     return NextResponse.json(data || [])
   } catch (err) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
+}
+
+async function notifyMatchingCarriers(load) {
+  try {
+    const { data: carriers } = await supabaseAdmin
+      .from('carrier_profiles')
+      .select('*, companies(name, email)')
+      .eq('verified', true)
+
+    if (!carriers?.length) return
+
+    const matches = carriers.filter(c => {
+      const specialtyMatch = !c.specialty?.length || c.specialty.includes(load.equipment_type)
+      const stateMatch = !c.operating_states?.length ||
+        c.operating_states.includes(load.pickup_state) ||
+        c.operating_states.includes(load.delivery_state)
+      return specialtyMatch && stateMatch && c.companies?.email
+    })
+
+    if (!matches.length) return
+
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    const rate = load.flat_rate ? `$${load.flat_rate} flat` : load.rate_per_mile ? `$${load.rate_per_mile}/mi` : 'Negotiable'
+
+    await Promise.allSettled(matches.map(c =>
+      resend.emails.send({
+        from: 'TruckSuperSoftware <onboarding@resend.dev>',
+        to: c.companies.email,
+        subject: `New load match: ${load.pickup_city}, ${load.pickup_state} → ${load.delivery_city}, ${load.delivery_state}`,
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;">
+            <h2 style="color:#2D7A5F;">New Load Available</h2>
+            <p><strong>${load.title}</strong></p>
+            <p>${load.pickup_city}, ${load.pickup_state} → ${load.delivery_city}, ${load.delivery_state}</p>
+            <p>Equipment: ${load.equipment_type} &nbsp;|&nbsp; Rate: ${rate} &nbsp;|&nbsp; Pickup: ${load.pickup_date}</p>
+            <p><a href="https://truck-super-software.vercel.app/loads/${load.id}" style="background:#2D7A5F;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;margin-top:12px;">View Load</a></p>
+          </div>
+        `
+      })
+    ))
+  } catch (err) {
+    console.error('[Load Notify] Error matching/notifying carriers:', err)
   }
 }
 
@@ -57,6 +101,9 @@ export async function POST(request) {
       .select().single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+    notifyMatchingCarriers(data).catch(err => console.error('[Load Notify] Unhandled error:', err))
+
     return NextResponse.json(data)
   } catch (err) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
