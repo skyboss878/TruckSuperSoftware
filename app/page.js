@@ -14,7 +14,8 @@ const ROUTE = [
   { mm: '03', icon: '📍', title: 'GPS Tracking', desc: 'Live fleet map. Auto-mileage logging. HOS compliance built in.' },
   { mm: '04', icon: '💰', title: 'Profit Center', desc: 'Real cost-per-mile. Know if a load makes money before you take it.' },
   { mm: '05', icon: '🏦', title: 'Factoring', desc: 'Get paid same day. 95% advance on every invoice.' },
-  { mm: '06', icon: '📝', title: 'Tax Center', desc: 'Every deduction tracked automatically. IFTA done for you.' },
+  { mm: '06', icon: '⛽', title: 'Fuel Card', desc: 'Discounts at 1,500+ truck stops. Every purchase logged for IFTA automatically.' },
+  { mm: '07', icon: '📝', title: 'Tax Center', desc: 'Every deduction tracked automatically. IFTA done for you.' },
 ]
 
 const COMPARE = [
@@ -22,6 +23,7 @@ const COMPARE = [
   { tool: 'Samsara / Motive (GPS)', cost: '$35-500/truck/mo' },
   { tool: 'QuickBooks', cost: '$30-200/mo' },
   { tool: 'Factoring company fee', cost: '2-5% per load' },
+  { tool: 'Fuel card program fee', cost: '$15-30/mo' },
   { tool: 'Bookkeeper / CPA', cost: '$200-500/mo' },
 ]
 
@@ -165,7 +167,7 @@ export default function Landing() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {[
               { name: 'Starter', price: 99, color: C.bright, trucks: '1-3 trucks', features: ['Fleet tracking', 'Load board access', 'Basic dispatch', 'DOT compliance'] },
-              { name: 'Pro', price: 199, color: C.caution, trucks: '4-10 trucks', features: ['Everything in Starter', 'AI dispatch + load advisor', 'Profit Command Center', 'Freight factoring built in'], popular: true },
+              { name: 'Pro', price: 199, color: C.caution, trucks: '4-10 trucks', features: ['Everything in Starter', 'AI dispatch + load advisor', 'Profit Command Center', 'Freight factoring built in', 'Fuel card — 1,500+ locations'], popular: true },
               { name: 'Enterprise', price: 399, color: '#a78bfa', trucks: '11+ trucks', features: ['Everything in Pro', 'Unlimited drivers', 'API access', 'Dedicated account manager'] },
             ].map(plan => (
               <div key={plan.name} className="pricecard" style={{ border: `1px solid ${plan.popular ? plan.color + '50' : C.line}`, borderRadius: 12, padding: 22, background: plan.popular ? 'rgba(240,160,32,0.05)' : C.bg2, position: 'relative' }}>
