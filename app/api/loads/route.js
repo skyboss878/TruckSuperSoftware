@@ -80,7 +80,8 @@ export async function POST(request) {
       pickup_location, pickup_city, pickup_state, pickup_date, pickup_time,
       delivery_location, delivery_city, delivery_state, delivery_date,
       rate_per_mile, flat_rate, rate_negotiable, estimated_miles,
-      special_instructions, dot_required, hazmat_required, twic_required
+      special_instructions, dot_required, hazmat_required, twic_required,
+      company_id
     } = body
 
     if (!company_name || !title || !pickup_location || !delivery_location || !pickup_date) {
@@ -96,6 +97,7 @@ export async function POST(request) {
         delivery_location, delivery_city, delivery_state, delivery_date,
         rate_per_mile, flat_rate, rate_negotiable, estimated_miles,
         special_instructions, dot_required, hazmat_required, twic_required,
+        company_id: company_id || null,
         status: 'open'
       })
       .select().single()
