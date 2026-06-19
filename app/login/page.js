@@ -43,10 +43,13 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true); setError('')
 
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password })
-    if (authError) { setError(authError.message); setLoading(false); return }
-
     try {
+      const authPromise = supabase.auth.signInWithPassword({ email, password })
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Sign in timed out. Please try again.')), 10000))
+      const { data: authData, error: authError } = await Promise.race([authPromise, timeoutPromise])
+
+      if (authError) { setError(authError.message); setLoading(false); return }
+
       const res = await fetch(`/api/me?user_id=${authData.user.id}`)
       const me = await res.json()
 
@@ -66,8 +69,9 @@ export default function LoginPage() {
       } else {
         router.replace('/driver')
       }
-    } catch {
-      setError('Could not load account. Try again.')
+    } catch (err) {
+      console.error('[Login] Error:', err)
+      setError(err.message || 'Could not load account. Try again.')
       setLoading(false)
     }
   }
