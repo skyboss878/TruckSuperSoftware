@@ -19,19 +19,7 @@ export async function middleware(req) {
 
   if (pathname === '/login' || pathname === '/') return NextResponse.next()
 
-  // Protect admin routes with JWT cookie
-  if (pathname.startsWith('/admin')) {
-    const token = req.cookies.get('admin_token')?.value
-    if (!token) return NextResponse.redirect(new URL('/login', req.url))
-    try {
-      await jwtVerify(token, secret())
-      return NextResponse.next()
-    } catch {
-      return NextResponse.redirect(new URL('/login', req.url))
-    }
-  }
-
-  // Driver routes — Supabase handles their auth client-side
+  // Admin and driver routes — multi-tenant auth is handled client-side via Supabase session + company_id in localStorage
   return NextResponse.next()
 }
 
