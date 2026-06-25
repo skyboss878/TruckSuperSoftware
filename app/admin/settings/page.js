@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -37,7 +38,7 @@ export default function AdminSettings() {
 
   async function loadPhone() {
     try {
-      const res = await fetch('/api/settings')
+      const res = await authFetch('/api/settings')
       const d = await res.json()
       if (d?.dispatch_phone) setDispatchPhone(d.dispatch_phone)
     } catch {}
@@ -57,7 +58,7 @@ export default function AdminSettings() {
 
   async function loadMe() {
     try {
-      const res = await fetch('/api/admin/me')
+      const res = await authFetch('/api/admin/me')
       if (res.ok) setMe(await res.json())
     } catch {}
   }
@@ -65,8 +66,8 @@ export default function AdminSettings() {
   async function loadAll() {
     try {
       const [c, l] = await Promise.all([
-        fetch('/api/customers').then(r => r.json()),
-        fetch('/api/locations').then(r => r.json()),
+        authFetch('/api/customers').then(r => r.json()),
+        authFetch('/api/locations').then(r => r.json()),
       ])
       setCustomers(Array.isArray(c) ? c : [])
       setLocations(Array.isArray(l) ? l : [])
@@ -75,7 +76,7 @@ export default function AdminSettings() {
 
   async function loadAdmins() {
     try {
-      const res = await fetch('/api/admin/auth')
+      const res = await authFetch('/api/admin/auth')
       const data = await res.json()
       setAdmins(Array.isArray(data) ? data : [])
     } catch {}
@@ -86,7 +87,7 @@ export default function AdminSettings() {
     setSaving(true)
     const url = tab === 'customers' ? '/api/customers' : '/api/locations'
     try {
-      const res = await fetch(url, {
+      const res = await authFetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newName.trim() }),
@@ -101,7 +102,7 @@ export default function AdminSettings() {
 
   async function doToggle(id, active) {
     const url = tab === 'customers' ? '/api/customers' : '/api/locations'
-    await fetch(url, {
+    await authFetch(url, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, active: !active }),
