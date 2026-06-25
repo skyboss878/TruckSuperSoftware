@@ -1,7 +1,10 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
+import { getAuthContext } from '@/lib/auth-helpers'
 
 export async function GET(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
   const { searchParams } = new URL(request.url)
   const driver_id = searchParams.get('driver_id')
   let q = supabaseAdmin.from('driver_documents').select('*, drivers(name)').order('expiry_date', { ascending: true })

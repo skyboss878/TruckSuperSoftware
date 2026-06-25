@@ -2,9 +2,12 @@ export const maxDuration = 60
 
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
+import { getAuthContext } from '@/lib/auth-helpers'
 import crypto from 'crypto'
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
   try {
     const { image, media_type, driver_id } = await request.json()
     if (!image || !driver_id) {
@@ -177,6 +180,8 @@ export async function PATCH(request) {
 }
 
 export async function GET(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
   const { searchParams } = new URL(request.url)
   const driver_id = searchParams.get('driver_id')
   let q = supabaseAdmin.from('scanned_documents').select('*').order('created_at', { ascending: false })

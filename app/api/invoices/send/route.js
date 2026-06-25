@@ -1,10 +1,13 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
+import { getAuthContext } from '@/lib/auth-helpers'
 import { Resend } from 'resend'
 
 // resend initialized lazily inside handler
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
   try {
     const { invoice_id } = await request.json()
     const [{ data: invoice }, { data: settings }] = await Promise.all([

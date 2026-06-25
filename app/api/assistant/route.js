@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
+import { getAuthContext } from '@/lib/auth-helpers'
 
 const tools = [
   {
@@ -305,6 +306,8 @@ async function runTool(name, input) {
 }
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
   try {
     const { messages, role, driver_id } = await request.json()
 

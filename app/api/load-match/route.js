@@ -1,10 +1,13 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import Anthropic from '@anthropic-ai/sdk'
 import { NextResponse } from 'next/server'
+import { getAuthContext } from '@/lib/auth-helpers'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
   try {
     const { driver_id, current_location, hours_available, equipment_type } = await request.json()
 

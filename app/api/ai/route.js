@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
+import { getAuthContext } from '@/lib/auth-helpers'
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
   try {
     const body = await request.json()
     const response = await fetch('https://api.anthropic.com/v1/messages', {

@@ -1,7 +1,10 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
+import { getAuthContext } from '@/lib/auth-helpers'
 
 export async function GET(request, { params }) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
   try {
     const { id } = await params
     const { data, error } = await supabaseAdmin
@@ -17,6 +20,8 @@ export async function GET(request, { params }) {
 }
 
 export async function PATCH(request, { params }) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
   try {
     const { id } = await params
     const body = await request.json()

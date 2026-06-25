@@ -1,7 +1,10 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
+import { getAuthContext } from '@/lib/auth-helpers'
 
 export async function GET(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
   try {
     const { searchParams } = new URL(request.url)
     const driver_id = searchParams.get('driver_id')
@@ -48,6 +51,8 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
   try {
     const body = await request.json()
     const { driver_id, truck_number, items, defects_found, overall_status, notes } = body
