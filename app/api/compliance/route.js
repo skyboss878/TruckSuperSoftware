@@ -16,7 +16,7 @@ export async function GET(request) {
         .from('drivers').select('*').eq('auth_id', auth_id).single()
       if (!driver) return NextResponse.json({ error: 'Driver not found' }, { status: 404 })
       const { data, error } = await supabaseAdmin
-        .from('dot_compliance').select('*')
+        .from('dot_compliance').eq('company_id', ctx.company_id).select('*')
         .eq('driver_id', driver.id).order('expiry_date', { ascending: true })
       if (error) return NextResponse.json({ error: error.message }, { status: 400 })
       return NextResponse.json({ driver, records: data || [] })

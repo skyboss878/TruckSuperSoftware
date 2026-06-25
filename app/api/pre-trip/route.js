@@ -21,6 +21,7 @@ export async function GET(request) {
 
       const { data: inspections } = await supabaseAdmin
         .from('pre_trip_inspections')
+        .eq('company_id', ctx.company_id)
         .select('*')
         .eq('inspection_date', date)
 

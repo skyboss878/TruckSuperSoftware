@@ -9,6 +9,7 @@ export async function GET(request, { params }) {
     const { id } = await params
     const { data, error } = await supabaseAdmin
       .from('drivers')
+        .eq('company_id', ctx.company_id)
       .select('*')
       .eq('id', id)
       .single()
@@ -27,6 +28,7 @@ export async function PATCH(request, { params }) {
     const body = await request.json()
     const { data, error } = await supabaseAdmin
       .from('drivers')
+        .eq('company_id', ctx.company_id)
       .update(body)
       .eq('id', id)
       .select()
