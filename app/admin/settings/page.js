@@ -46,7 +46,7 @@ export default function AdminSettings() {
 
   async function savePhone() {
     setPhoneSaving(true)
-    await fetch('/api/settings', {
+    await authFetch('/api/settings', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dispatch_phone: dispatchPhone }),
@@ -116,7 +116,7 @@ export default function AdminSettings() {
     if (newPin !== confirmPin) { setPinMsg({ type: 'error', text: 'PINs do not match' }); return }
     setPinSaving(true); setPinMsg(null)
     try {
-      const res = await fetch('/api/admin/pin', {
+      const res = await authFetch('/api/admin/pin', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ target_admin_id: pinTarget?.id, current_pin: currentPin, new_pin: newPin }),
@@ -145,7 +145,7 @@ export default function AdminSettings() {
     setNewAdminSaving(true)
     setNewAdminMsg(null)
     try {
-      const res = await fetch('/api/admin/manage', {
+      const res = await authFetch('/api/admin/manage', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newAdminName.trim(), pin: newAdminPin, role: 'admin' }),
@@ -166,7 +166,7 @@ export default function AdminSettings() {
 
   async function deleteAdmin(id, name) {
     if (!confirm(`Remove ${name} from TruckSuperSoftware?`)) return
-    const res = await fetch(`/api/admin/manage?id=${id}`, { method: 'DELETE' })
+    const res = await authFetch(`/api/admin/manage?id=${id}`, { method: 'DELETE' })
     if (res.ok) loadAdmins()
   }
 
