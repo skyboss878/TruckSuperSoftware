@@ -35,7 +35,7 @@ export default function NewDriver() {
       const result = await res.json()
 
       if (!res.ok) {
-        setError(result.error || 'Failed to create driver')
+        setError(typeof result.error === 'string' ? result.error : JSON.stringify(result) || 'Failed to create driver')
         setSaving(false)
         return
       }
