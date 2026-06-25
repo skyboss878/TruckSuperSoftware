@@ -60,10 +60,6 @@ export default function LoginPage() {
         return
       }
 
-      localStorage.setItem('company_id', me.company.id)
-      localStorage.setItem('company_name', me.company.name)
-      localStorage.setItem('user_role', me.role)
-      localStorage.setItem('user_name', me.name || authData.user.email)
 
       if (['owner', 'admin', 'dispatcher'].includes(me.role)) {
         router.replace('/admin')
