@@ -20,6 +20,7 @@ export default function AdminDashboard() {
   const [maintenance, setMaintenance] = useState([])
   const [loading, setLoading] = useState(true)
   const [sessionWarning, setSessionWarning] = useState(false)
+  const [userRole, setUserRole] = useState('')
   const [ticketFilter, setTicketFilter] = useState('all')
   const [showAssign, setShowAssign] = useState(false)
   const [assignForm, setAssignForm] = useState({ driver_id:'', customer_name:'', load_id:'', bol_number:'', location_loaded:'', location_delivered:'', date: new Date().toISOString().split('T')[0], notes:'' })
@@ -30,6 +31,9 @@ export default function AdminDashboard() {
     (async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { router.replace('/login'); return }
+      const meRes = await authFetch('/api/me')
+      const meData = await meRes.json()
+      if (meData?.role) setUserRole(meData.role)
       loadAll()
     })()
     const params = new URLSearchParams(window.location.search)
@@ -249,7 +253,7 @@ export default function AdminDashboard() {
           { key: 'reports', label: '📊 Reports' },
           { key: 'cpm', label: '💰 CPM' },
           { key: 'finance', label: '💵 Finance' },
-          { key: 'superadmin', label: '⚡ Platform' },
+          ...(userRole === 'superadmin' ? [{ key: 'superadmin', label: '⚡ Platform' }] : []),
           { key: 'billing', label: '💳 Billing' },
           { key: 'messages', label: '💬 Messages' },
           { key: 'assistant', label: '🤖 AI' },
