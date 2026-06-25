@@ -3,6 +3,6 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 export default function Redirect() {
   const router = useRouter()
-  useEffect(() => router.replace('/admin/settings'), [])
+  useEffect(() => router.replace('/admin/settings?tab=customers'), [])
   return null
 }
