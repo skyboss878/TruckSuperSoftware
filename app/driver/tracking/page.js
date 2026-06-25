@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { authFetch } from '@/lib/api-client'
 
 export default function DriverTracking() {
   const router = useRouter()
@@ -13,6 +14,8 @@ export default function DriverTracking() {
   const [gpsStatus, setGpsStatus] = useState('waiting')
   const [panicSent, setPanicSent] = useState(false)
   const [lastLocation, setLastLocation] = useState(null)
+  const [currentState, setCurrentState] = useState(null)
+  const [currentSpeed, setCurrentSpeed] = useState(0)
   const watchRef = useRef(null)
   const intervalRef = useRef(null)
   const tripRef = useRef(null)
@@ -21,7 +24,7 @@ export default function DriverTracking() {
     async function init() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
-      const d = await fetch(`/api/drivers?auth_id=${user.id}`).then(r => r.json())
+      const d = await authFetch(`/api/drivers?auth_id=${user.id}`).then(r => r.json())
       setDriver(d)
     }
     init()
@@ -44,6 +47,15 @@ export default function DriverTracking() {
     return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
   }
 
+  async function detectState(lat, lng) {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+      const data = await res.json()
+      const state = data.address?.state_code || data.address?.state || null
+      if (state) setCurrentState(state.toUpperCase().slice(0, 2))
+    } catch {}
+  }
+
   async function startTrip() {
     if (!driver) return
     setGpsStatus('requesting')
@@ -53,7 +65,7 @@ export default function DriverTracking() {
       setLastLocation({ lat, lng })
       setGpsStatus('active')
 
-      const tripData = await fetch('/api/tracking', {
+      const tripData = await authFetch('/api/tracking', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'start_trip', driver_id: driver.id, lat, lng }),
@@ -72,7 +84,7 @@ export default function DriverTracking() {
           setLastLocation({ lat: latitude, lng: longitude })
           setGpsStatus('active')
 
-          const result = await fetch('/api/tracking', {
+          const result = await authFetch('/api/tracking', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -102,7 +114,7 @@ export default function DriverTracking() {
   async function endTrip() {
     stopTracking()
     if (tripRef.current?.id) {
-      await fetch('/api/tracking', {
+      await authFetch('/api/tracking', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'end_trip', trip_id: tripRef.current.id, driver_id: driver.id }),
@@ -115,7 +127,7 @@ export default function DriverTracking() {
   async function sendPanic() {
     if (!driver || panicSent) return
     const loc = lastLocation || { lat: 0, lng: 0 }
-    await fetch('/api/tracking', {
+    await authFetch('/api/tracking', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -166,6 +178,16 @@ export default function DriverTracking() {
           <div className="bg-white rounded-2xl p-4 shadow-sm text-center">
             <p className="text-3xl font-bold text-[#2D7A5F]">{formatTime(elapsed)}</p>
             <p className="text-sm text-gray-400 mt-1">Trip Time</p>
+          </div>
+          <div className={`rounded-2xl p-4 shadow-sm text-center ${currentSpeed > 75 ? 'bg-red-50' : 'bg-white'}`}>
+            <p className={`text-3xl font-bold ${currentSpeed > 75 ? 'text-red-500' : 'text-[#2D7A5F]'}`}>{currentSpeed}</p>
+            <p className={`text-sm mt-1 ${currentSpeed > 75 ? 'text-red-400 font-bold' : 'text-gray-400'}`}>
+              {currentSpeed > 75 ? '⚠️ Speed MPH' : 'Speed MPH'}
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl p-4 shadow-sm text-center">
+            <p className="text-3xl font-bold text-[#2D7A5F]">{currentState || '—'}</p>
+            <p className="text-sm text-gray-400 mt-1">Current State</p>
           </div>
         </div>
 

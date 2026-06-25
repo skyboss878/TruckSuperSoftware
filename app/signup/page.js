@@ -86,14 +86,28 @@ export default function Signup() {
   async function submit() {
     setSubmitting(true)
     try {
-      // Save to Supabase via API
+      // Create the actual auth user first
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+      })
+      if (authError) {
+        alert(authError.message)
+        setSubmitting(false)
+        return
+      }
+
+      // Save to Supabase via API, linking the new auth user
       await fetch('/api/carrier-signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
+        body: JSON.stringify({ ...form, user_id: authData.user?.id })
       })
       setDone(true)
-    } catch { setDone(true) }
+    } catch (err) {
+      console.error('[Signup] Error:', err)
+      alert('Something went wrong creating your account. Please try again.')
+    }
     setSubmitting(false)
   }
 
@@ -108,7 +122,7 @@ export default function Signup() {
     <div style={{ ...S.page, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24, textAlign: 'center' }}>
       <div style={{ fontSize: 72, marginBottom: 24 }}>🚛</div>
       <h1 style={{ fontFamily: '-apple-system,sans-serif', fontSize: 28, fontWeight: 900, marginBottom: 12 }}>You're on board!</h1>
-      <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)', marginBottom: 8, maxWidth: 400 }}>Welcome to TruckSuperSoftware. Your account is being set up. We'll contact you within 1 hour to complete onboarding.</p>
+      <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)', marginBottom: 8, maxWidth: 400 }}>Welcome to TruckSuperSoftware. Your account is ready to go — log in to access your dashboard.</p>
       <p style={{ fontSize: 14, color: '#4ade80', marginBottom: 32 }}>{form.email}</p>
       <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: 20, border: '1px solid rgba(255,255,255,0.07)', marginBottom: 24, width: '100%', maxWidth: 400 }}>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 12 }}>Your plan</div>

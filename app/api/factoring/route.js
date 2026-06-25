@@ -1,11 +1,16 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getAuthContext } from '@/lib/auth-helpers'
 import { NextResponse } from 'next/server'
 
-export async function GET() {
+export async function GET(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const { data, error } = await supabaseAdmin
       .from('factoring_records')
       .select('*')
+      .eq('company_id', ctx.company_id)
       .order('created_at', { ascending: false })
       .limit(50)
 
@@ -22,6 +27,9 @@ export async function GET() {
 }
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const body = await request.json()
     const { ticket_id, driver_id, invoice_amount, advance_rate = 95, factoring_fee_pct = 3, broker_name, broker_payment_days, notes } = body
@@ -35,6 +43,7 @@ export async function POST(request) {
     const { data, error } = await supabaseAdmin
       .from('factoring_records')
       .insert({
+        company_id: ctx.company_id,
         date: new Date().toISOString().split('T')[0],
         ticket_id: ticket_id || null,
         driver_id: driver_id || null,
@@ -59,6 +68,9 @@ export async function POST(request) {
 }
 
 export async function PATCH(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const { id, status } = await request.json()
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
@@ -66,7 +78,11 @@ export async function PATCH(request) {
     if (status === 'advanced') updates.advanced_at = new Date().toISOString()
     if (status === 'collected') updates.collected_at = new Date().toISOString()
     const { data, error } = await supabaseAdmin
-      .from('factoring_records').update(updates).eq('id', id).select().single()
+      .from('factoring_records')
+      .update(updates)
+      .eq('id', id)
+      .eq('company_id', ctx.company_id)
+      .select().single()
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json(data)
   } catch (err) {

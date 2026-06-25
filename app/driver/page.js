@@ -1,4 +1,5 @@
 'use client'
+import ChangePasswordPrompt from '@/components/ChangePasswordPrompt'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -17,6 +18,7 @@ export default function DriverDashboard() {
   const [tab, setTab] = useState('started')
   const [menuOpen, setMenuOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [mustChangePassword, setMustChangePassword] = useState(false)
   const { lang, setLang, tr } = useLang()
   const [syncing, setSyncing] = useState(false)
   const [showTruckVerify, setShowTruckVerify] = useState(false)
@@ -43,6 +45,7 @@ export default function DriverDashboard() {
       .eq('auth_id', user.id)
       .single()
     if (!data) { router.replace('/login'); return }
+      if (data.must_change_password) setMustChangePassword(true)
     if (data.status === 'inactive') {
       await supabase.auth.signOut()
       router.replace('/login')
@@ -126,6 +129,13 @@ export default function DriverDashboard() {
     setTruckSaving(false)
     showToast('Truck number saved')
   }
+
+  if (mustChangePassword) return (
+    <ChangePasswordPrompt
+      driverName={driver?.name || 'Driver'}
+      onComplete={() => setMustChangePassword(false)}
+    />
+  )
 
   if (loading) return (
     <div className="min-h-screen bg-gray-50">

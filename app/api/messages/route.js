@@ -1,7 +1,11 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getAuthContext } from '@/lib/auth-helpers'
 import { NextResponse } from 'next/server'
 
 export async function GET(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const { searchParams } = new URL(request.url)
     const driver_id = searchParams.get('driver_id')
@@ -10,6 +14,7 @@ export async function GET(request) {
     let query = supabaseAdmin
       .from('messages')
       .select('*')
+      .eq('company_id', ctx.company_id)
       .order('created_at', { ascending: true })
 
     if (driver_id) {
@@ -30,6 +35,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const body = await request.json()
     const { content, sender_id, sender_role, recipient_id } = body
@@ -40,7 +48,7 @@ export async function POST(request) {
 
     const { data, error } = await supabaseAdmin
       .from('messages')
-      .insert({ content, sender_id, sender_role, recipient_id: recipient_id || null })
+      .insert({ content, sender_id, sender_role, recipient_id: recipient_id || null, company_id: ctx.company_id })
       .select()
       .single()
 
@@ -52,6 +60,9 @@ export async function POST(request) {
 }
 
 export async function PATCH(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const body = await request.json()
     const { message_ids } = body
@@ -60,6 +71,7 @@ export async function PATCH(request) {
       .from('messages')
       .update({ is_read: true })
       .in('id', message_ids)
+      .eq('company_id', ctx.company_id)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json({ success: true })

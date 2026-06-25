@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Toast, { showToast } from '@/components/Toast'
+import { authFetch } from '@/lib/api-client'
 
 const EXPENSE_TYPES = [
   { key: 'fuel', label: 'Fuel', icon: '⛽', color: 'bg-blue-50 text-blue-700' },
@@ -32,7 +33,7 @@ export default function ExpensesPage() {
   }
 
   async function loadExpenses(id) {
-    const res = await fetch(`/api/expenses?driver_id=${id}`)
+    const res = await authFetch(`/api/expenses?driver_id=${id}`)
     const data = await res.json()
     setExpenses(Array.isArray(data) ? data : [])
   }
@@ -40,7 +41,7 @@ export default function ExpensesPage() {
   async function handleSave() {
     if (!form.amount || !driver) return
     setSaving(true)
-    await fetch('/api/expenses', {
+    await authFetch('/api/expenses', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ driver_id: driver.id, truck_number: driver.truck_number, ...form }),

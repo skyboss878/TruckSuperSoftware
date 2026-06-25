@@ -1,16 +1,16 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { authFetch } from '@/lib/api-client'
 
 export default function NewDriver() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
   const [form, setForm] = useState({
     name: '', email: '', phone: '',
-    license_number: '', truck_number: '',
-    trailer_number: '', password: '',
+    license_number: '', truck_number: '', trailer_number: '',
   })
 
   function set(field, value) {
@@ -18,26 +18,18 @@ export default function NewDriver() {
   }
 
   async function handleSave() {
-    if (!form.name || !form.email || !form.password) {
-      setError('Name, email and password are required')
+    if (!form.name || !form.email) {
+      setError('Name and email are required')
       return
     }
     setSaving(true)
     setError('')
 
     try {
-      const res = await fetch('/api/drivers', {
+      const res = await authFetch('/api/drivers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          phone: form.phone || null,
-          license_number: form.license_number || null,
-          truck_number: form.truck_number || null,
-          trailer_number: form.trailer_number || null,
-          password: form.password,
-        }),
+        body: JSON.stringify(form),
       })
 
       const result = await res.json()
@@ -48,12 +40,26 @@ export default function NewDriver() {
         return
       }
 
-      router.replace('/admin')
+      setSuccess(true)
+      setTimeout(() => router.replace('/admin'), 4000)
     } catch (err) {
       setError('Something went wrong. Please try again.')
       setSaving(false)
     }
   }
+
+  if (success) return (
+    <div style={{ minHeight: '100vh', background: '#050c14', color: 'white', fontFamily: '-apple-system,sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24, textAlign: 'center' }}>
+      <div style={{ fontSize: 64, marginBottom: 16 }}>✅</div>
+      <h2 style={{ fontSize: 22, fontWeight: 900, margin: '0 0 8px' }}>Driver Created!</h2>
+      <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', margin: '0 0 8px' }}>A welcome email with login credentials has been sent to</p>
+      <p style={{ fontSize: 15, color: '#4ade80', fontWeight: 700 }}>{form.email}</p>
+      <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 16 }}>Redirecting in a moment...</p>
+      <button onClick={() => router.replace('/admin')} style={{ marginTop: 16, padding: '12px 24px', background: '#2D7A5F', border: 'none', borderRadius: 12, color: 'white', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
+        Go to Dashboard →
+      </button>
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -64,6 +70,11 @@ export default function NewDriver() {
       </div>
 
       <div className="p-4 space-y-4 pb-32">
+
+        <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+          <p className="text-green-700 text-sm">✉️ A secure password will be auto-generated and emailed to the driver automatically.</p>
+        </div>
+
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
           <h2 className="font-bold text-gray-700">Personal Info</h2>
           {[
@@ -103,19 +114,6 @@ export default function NewDriver() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
-          <h2 className="font-bold text-gray-700">Login Credentials</h2>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
-            <p className="text-yellow-700 text-sm">⚠️ Share these credentials with the driver securely.</p>
-          </div>
-          <div>
-            <label className="text-xs text-gray-400 font-medium uppercase tracking-wide">Password</label>
-            <input type="text" value={form.password} onChange={e => set('password', e.target.value)}
-              placeholder="Set a temporary password"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 mt-1 outline-none focus:border-[#2D7A5F]" />
-          </div>
-        </div>
-
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-3">
             <p className="text-red-600 text-sm">{error}</p>
@@ -126,7 +124,7 @@ export default function NewDriver() {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4">
         <button onClick={handleSave} disabled={saving}
           className="w-full bg-[#2D7A5F] text-white py-4 rounded-2xl font-semibold text-lg disabled:opacity-40">
-          {saving ? 'Creating Driver...' : 'Create Driver'}
+          {saving ? 'Creating & Sending Email...' : '🚛 Create Driver & Send Welcome Email'}
         </button>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Toast, { showToast } from '@/components/Toast'
+import { authFetch } from '@/lib/api-client'
 
 const LOG_TYPES = [
   { value: 'working', label: 'Working', icon: '🚛' },
@@ -43,7 +44,7 @@ export default function TimesheetPage() {
 
   async function loadDriver() {
     const { data: { user } } = await supabase.auth.getUser()
-    const data = await fetch(`/api/drivers?auth_id=${user.id}`).then(r=>r.json())
+    const data = await authFetch(`/api/drivers?auth_id=${user.id}`).then(r=>r.json())
     setDriver(data)
   }
 
@@ -107,7 +108,7 @@ export default function TimesheetPage() {
       return
     }
 
-    await fetch('/api/timesheets', {
+    await authFetch('/api/timesheets', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...payload, auth_id: driver.auth_id }),

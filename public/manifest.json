@@ -1,12 +1,12 @@
 {
   "name": "TruckSuperSoftware",
-  "short_name": "TWS Fleet",
-  "description": "Fleet management platform for TWS Trucking Operations",
-  "start_url": "/driver",
+  "short_name": "TruckSuper",
+  "description": "Fleet management for owner-operators and small fleets",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#050c14",
   "theme_color": "#2D7A5F",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -19,6 +19,25 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "url": "/admin",
+      "description": "Fleet Dashboard"
+    },
+    {
+      "name": "Driver App",
+      "url": "/driver",
+      "description": "Driver Portal"
+    },
+    {
+      "name": "Load Board",
+      "url": "/loadboard",
+      "description": "Live Load Board"
     }
   ]
 }

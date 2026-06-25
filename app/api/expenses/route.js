@@ -1,7 +1,11 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getAuthContext } from '@/lib/auth-helpers'
 import { NextResponse } from 'next/server'
 
 export async function GET(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const { searchParams } = new URL(request.url)
     const year = searchParams.get('year') || new Date().getFullYear()
@@ -11,6 +15,7 @@ export async function GET(request) {
     let query = supabaseAdmin
       .from('expenses')
       .select('*')
+      .eq('company_id', ctx.company_id)
       .gte('date', `${year}-01-01`)
       .lte('date', `${year}-12-31`)
       .order('date', { ascending: false })
@@ -34,6 +39,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const body = await request.json()
     const { date, category, amount, description, vendor, driver_id, truck_number, state, gallons, notes, ticket_id } = body
@@ -42,6 +50,7 @@ export async function POST(request) {
     const { data, error } = await supabaseAdmin
       .from('expenses')
       .insert({
+        company_id: ctx.company_id,
         date: date || new Date().toISOString().split('T')[0],
         category, amount: parseFloat(amount),
         description, vendor,
@@ -62,10 +71,18 @@ export async function POST(request) {
 }
 
 export async function DELETE(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const { id } = await request.json()
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
-    const { error } = await supabaseAdmin.from('expenses').delete().eq('id', id)
+    // Scope the delete to this company so you can't delete another company's row
+    const { error } = await supabaseAdmin
+      .from('expenses')
+      .delete()
+      .eq('id', id)
+      .eq('company_id', ctx.company_id)
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json({ success: true })
   } catch (err) {

@@ -1,12 +1,14 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@supabase/supabase-js'
 
 const CURRENT_YEAR = new Date().getFullYear()
 const CURRENT_QUARTER = Math.ceil((new Date().getMonth() + 1) / 3)
 
 export default function IFTAReport() {
   const router = useRouter()
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
   const [quarter, setQuarter] = useState(CURRENT_QUARTER)
   const [year, setYear] = useState(CURRENT_YEAR)
   const [data, setData] = useState(null)
@@ -18,8 +20,12 @@ export default function IFTAReport() {
   async function loadReport() {
     setLoading(true)
     try {
-      const res = await fetch(`/api/ifta?quarter=${quarter}&year=${year}`)
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch(`/api/ifta?quarter=${quarter}&year=${year}`, {
+        headers: { Authorization: `Bearer ${session?.access_token}` }
+      })
       const json = await res.json()
+      if (json.error) { console.error('IFTA error:', json.error); return; }
       setData(json)
     } catch (e) {
       console.error('IFTA load error:', e)

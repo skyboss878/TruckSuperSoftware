@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getAuthContext } from '@/lib/auth-helpers'
 import { NextResponse } from 'next/server'
 
 const IFTA_RATES = {
@@ -26,6 +27,9 @@ function getQuarterRange(quarter, year) {
 }
 
 export async function GET(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const { searchParams } = new URL(request.url)
     const quarter = parseInt(searchParams.get('quarter') || '1')
@@ -40,6 +44,7 @@ export async function GET(request) {
       .gte('started_at', startDate)
       .lte('started_at', endDate + 'T23:59:59')
       .eq('status', 'ended')
+      .eq('company_id', ctx.company_id)
     if (driver_id) sessionsQuery = sessionsQuery.eq('driver_id', driver_id)
     const { data: sessions, error: sessErr } = await sessionsQuery
     if (sessErr) return NextResponse.json({ error: sessErr.message }, { status: 400 })
@@ -49,6 +54,7 @@ export async function GET(request) {
       .select('driver_id, date, state, gallons, total_cost')
       .gte('date', startDate)
       .lte('date', endDate)
+      .eq('company_id', ctx.company_id)
     if (driver_id) fuelQuery = fuelQuery.eq('driver_id', driver_id)
     const { data: fuelLogs, error: fuelErr } = await fuelQuery
     if (fuelErr) return NextResponse.json({ error: fuelErr.message }, { status: 400 })

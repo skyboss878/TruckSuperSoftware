@@ -1,7 +1,11 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getAuthContext } from '@/lib/auth-helpers'
 import { NextResponse } from 'next/server'
 
 export async function GET(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const { searchParams } = new URL(request.url)
     const year = searchParams.get('year') || new Date().getFullYear()
@@ -9,6 +13,7 @@ export async function GET(request) {
     const { data, error } = await supabaseAdmin
       .from('revenue_records')
       .select('*')
+      .eq('company_id', ctx.company_id)
       .gte('date', `${year}-01-01`)
       .lte('date', `${year}-12-31`)
       .order('date', { ascending: false })
@@ -26,6 +31,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const body = await request.json()
     const { date, source, amount, description, driver_id, ticket_id, miles, origin_state, destination_state, broker_name, payment_status } = body
@@ -36,6 +44,7 @@ export async function POST(request) {
     const { data, error } = await supabaseAdmin
       .from('revenue_records')
       .insert({
+        company_id: ctx.company_id,
         date: date || new Date().toISOString().split('T')[0],
         source: source || 'load',
         amount: parseFloat(amount),

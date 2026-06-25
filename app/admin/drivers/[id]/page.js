@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { authFetch } from '@/lib/api-client'
 
 export default function DriverDetail() {
   const router = useRouter()
@@ -19,10 +20,10 @@ export default function DriverDetail() {
 
   async function loadDriver() {
     const [driverRes, { data: t }, { data: ts }, sessRes] = await Promise.all([
-      fetch(`/api/drivers/${id}`).then(r => r.json()),
-      fetch(`/api/tickets?driver_id=${id}`).then(r=>r.json()),
-      fetch(`/api/timesheets?driver_id=${id}`).then(r=>r.json()),
-      fetch(`/api/tracking?driver_id=${id}`).then(r=>r.json()),
+      authFetch(`/api/drivers/${id}`).then(r => r.json()),
+      authFetch(`/api/tickets?driver_id=${id}`).then(r=>r.json()),
+      authFetch(`/api/timesheets?driver_id=${id}`).then(r=>r.json()),
+      authFetch(`/api/tracking?driver_id=${id}`).then(r=>r.json()),
     ])
     setDriver(driverRes?.id ? driverRes : null)
     setForm(driverRes?.id ? driverRes : {})
@@ -41,7 +42,7 @@ export default function DriverDetail() {
 
   async function handleSave() {
     setSaving(true)
-    await fetch(`/api/drivers/${id}`, {
+    await authFetch(`/api/drivers/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -59,7 +60,7 @@ export default function DriverDetail() {
 
   async function toggleStatus() {
     const newStatus = driver.status === 'active' ? 'inactive' : 'active'
-    await fetch(`/api/drivers/${id}`, {
+    await authFetch(`/api/drivers/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus }),

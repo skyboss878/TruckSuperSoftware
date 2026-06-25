@@ -1,7 +1,10 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getAuthContext } from '@/lib/auth-helpers'
 import { NextResponse } from 'next/server'
 
-export async function GET() {
+export async function GET(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
   return NextResponse.json({
     actions: ['auto_review','paperwork_scan','morning_briefing','broadcast','full_auto'],
     status: 'ready',
@@ -35,22 +38,22 @@ async function messageDriver(driver_id, content) {
   })
 }
 
-async function loadData() {
+async function loadData(company_id) {
   const [
     { data: tickets }, { data: drivers }, { data: timesheets },
     { data: maintenance }, { data: compliance },
   ] = await Promise.all([
-    supabaseAdmin.from('tickets').select('*, drivers(name, id)').order('created_at', { ascending: false }).limit(200),
-    supabaseAdmin.from('drivers').select('*').order('name'),
-    supabaseAdmin.from('timesheets').select('*, drivers(name)').order('date', { ascending: false }).limit(100),
-    supabaseAdmin.from('maintenance').select('*, drivers(name, truck_number)').eq('status', 'open'),
+    supabaseAdmin.from('tickets').select('*, drivers(name, id)').eq('company_id', company_id).order('created_at', { ascending: false }).limit(200),
+    supabaseAdmin.from('drivers').select('*').eq('company_id', company_id).order('name'),
+    supabaseAdmin.from('timesheets').select('*, drivers(name)').eq('company_id', company_id).order('date', { ascending: false }).limit(100),
+    supabaseAdmin.from('maintenance').select('*, drivers(name, truck_number)').eq('company_id', company_id).eq('status', 'open'),
     supabaseAdmin.from('dot_compliance').select('*, drivers(name)').order('expiry_date', { ascending: true }),
   ])
   return { tickets, drivers, timesheets, maintenance, compliance, trips: [] }
 }
 
-async function autoReview() {
-  const { tickets } = await loadData()
+async function autoReview(company_id) {
+  const { tickets } = await loadData(company_id)
   const submitted = tickets?.filter(t => t.status === 'submitted') || []
   if (submitted.length === 0) return { action: 'auto_review', reviewed: 0, approved: 0, flagged: 0, results: [] }
 
@@ -86,8 +89,8 @@ async function autoReview() {
   return { action: 'auto_review', reviewed: submitted.length, approved: results.filter(r => r.action === 'approved').length, flagged: results.filter(r => r.action === 'flagged').length, results }
 }
 
-async function paperworkScan() {
-  const { tickets } = await loadData()
+async function paperworkScan(company_id) {
+  const { tickets } = await loadData(company_id)
   const active = tickets?.filter(t => ['started', 'submitted'].includes(t.status)) || []
   const flagged = []
   for (const ticket of active) {
@@ -102,8 +105,8 @@ async function paperworkScan() {
   return { action: 'paperwork_scan', scanned: active.length, flagged_count: flagged.length, flagged }
 }
 
-async function morningBriefing() {
-  const { tickets, drivers, maintenance, compliance, trips } = await loadData()
+async function morningBriefing(company_id) {
+  const { tickets, drivers, maintenance, compliance, trips } = await loadData(company_id)
   const today = new Date().toISOString().split('T')[0]
   const stats = {
     active_drivers: drivers?.filter(d => d.status === 'active').length || 0,
@@ -133,8 +136,8 @@ Expiring: ${compliance?.filter(c => { if (!c.expiry_date) return false; const d 
   return { action: 'morning_briefing', summary, stats }
 }
 
-async function broadcastMessage(topic) {
-  const { drivers } = await loadData()
+async function broadcastMessage(topic, company_id) {
+  const { drivers } = await loadData(company_id)
   const active = drivers?.filter(d => d.status === 'active') || []
   const msg = await askAI(
     'You are a freight dispatch manager. Write a professional broadcast message to all drivers. Concise and direct. Under 80 words.',
@@ -144,20 +147,23 @@ async function broadcastMessage(topic) {
   return { action: 'broadcast', message: msg, sent_to: active.length, drivers: active.map(d => d.name) }
 }
 
-async function fullAuto() {
-  const [review, scan, briefing] = await Promise.all([autoReview(), paperworkScan(), morningBriefing()])
+async function fullAuto(company_id) {
+  const [review, scan, briefing] = await Promise.all([autoReview(company_id), paperworkScan(company_id), morningBriefing(company_id)])
   return { action: 'full_auto', review, scan, briefing }
 }
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const { action, topic } = await request.json()
     switch (action) {
-      case 'auto_review':      return NextResponse.json(await autoReview())
-      case 'paperwork_scan':   return NextResponse.json(await paperworkScan())
-      case 'morning_briefing': return NextResponse.json(await morningBriefing())
-      case 'broadcast':        return NextResponse.json(await broadcastMessage(topic || 'General update'))
-      case 'full_auto':        return NextResponse.json(await fullAuto())
+      case 'auto_review':      return NextResponse.json(await autoReview(ctx.company_id))
+      case 'paperwork_scan':   return NextResponse.json(await paperworkScan(ctx.company_id))
+      case 'morning_briefing': return NextResponse.json(await morningBriefing(ctx.company_id))
+      case 'broadcast':        return NextResponse.json(await broadcastMessage(topic || 'General update', ctx.company_id))
+      case 'full_auto':        return NextResponse.json(await fullAuto(ctx.company_id))
       default:                 return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
     }
   } catch (err) {

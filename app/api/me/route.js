@@ -1,26 +1,13 @@
-import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getAuthContext } from '@/lib/auth-helpers'
 import { NextResponse } from 'next/server'
 
 export async function GET(request) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const user_id = searchParams.get('user_id')
-    if (!user_id) return NextResponse.json({ error: 'user_id required' }, { status: 400 })
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
 
-    const { data, error } = await supabaseAdmin
-      .from('company_users')
-      .select('*, companies(*)')
-      .eq('user_id', user_id)
-      .single()
-
-    if (error || !data) return NextResponse.json({ company: null, role: null })
-
-    return NextResponse.json({
-      company: data.companies,
-      role: data.role,
-      name: data.name,
-    })
-  } catch (err) {
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
-  }
+  return NextResponse.json({
+    company: ctx.company,
+    role: ctx.role,
+    name: ctx.name,
+  })
 }

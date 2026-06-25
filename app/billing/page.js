@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { authFetch } from '@/lib/api-client'
 
 const PLANS = [
   { id:'starter',name:'Starter',price:99,color:'#4ade80',trucks:'1-3 trucks',features:['Fleet tracking','Load board','Basic dispatch','DOT compliance','Email support'] },
@@ -14,32 +15,35 @@ export default function Billing() {
   const [loading, setLoading] = useState(false)
   const [events, setEvents] = useState([])
 
+  useEffect(() => {
+    authFetch('/api/me').then(r => r.json()).then(me => {
+      if (me.company) setCompany(me.company)
+    })
+  }, [])
+
   const planColor = p => p==='enterprise'?'#a78bfa':p==='pro'?'#f59e0b':'#4ade80'
   const statusColor = s => s==='active'?'#4ade80':s==='trial'?'#f59e0b':s==='past_due'?'#f87171':'#6b7280'
 
   async function openPortal() {
-    if (!company?.id) return
-    setLoading(true)
-    const res = await fetch('/api/paypal/portal', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ company_id: company.id })
-    })
-    const data = await res.json()
-    if (data.url) window.location.href = data.url
-    setLoading(false)
+    // Stripe customer portal — wire up when needed
+    alert('Billing portal coming soon. Contact support@trucksupersoftware.com to manage your subscription.')
   }
 
   async function upgrade(plan) {
     if (!company?.id) return
     setLoading(true)
-    const res = await fetch('/api/paypal/create-subscription', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ company_id: company.id, plan, email: company.email, company_name: company.name })
-    })
-    const data = await res.json()
-    if (data.url) window.location.href = data.url
+    try {
+      const res = await authFetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan })
+      })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+      else alert(data.error || 'Could not start checkout')
+    } catch (err) {
+      alert('Something went wrong. Try again.')
+    }
     setLoading(false)
   }
 

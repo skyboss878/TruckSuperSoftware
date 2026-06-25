@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { authFetch } from '@/lib/api-client'
 
 const GRADE_COLORS = {
   A: { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-300', bar: 'bg-green-500' },
@@ -22,7 +23,7 @@ export default function DriverScorecard() {
   async function loadData() {
     setLoading(true)
     try {
-      const res = await fetch(`/api/scorecard?days=${days}`)
+      const res = await authFetch(`/api/scorecard?days=${days}`)
       const json = await res.json()
       setData(Array.isArray(json) ? json : [])
     } catch (e) {

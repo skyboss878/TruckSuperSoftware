@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { authFetch } from '@/lib/api-client'
 
 const CATS = [
   { key:'fuel',label:'Fuel',icon:'⛽',color:'#f59e0b' },
@@ -57,10 +58,10 @@ export default function Finance() {
     setLoading(true)
     try {
       const [s,e,r,f] = await Promise.all([
-        fetch(`/api/tax?year=${year}`).then(x=>x.json()),
-        fetch(`/api/expenses?year=${year}`).then(x=>x.json()),
-        fetch(`/api/revenue?year=${year}`).then(x=>x.json()),
-        fetch('/api/factoring').then(x=>x.json()),
+        authFetch(`/api/tax?year=${year}`).then(x=>x.json()),
+        authFetch(`/api/expenses?year=${year}`).then(x=>x.json()),
+        authFetch(`/api/revenue?year=${year}`).then(x=>x.json()),
+        authFetch('/api/factoring').then(x=>x.json()),
       ])
       setSummary(s); setExpenses(e.expenses||[]); setRevenue(r.records||[]); setFactoring(f.records||[])
     } catch(err){ console.error(err) }
@@ -70,28 +71,28 @@ export default function Finance() {
   async function addExpense() {
     if (!expForm.amount||!expForm.category) return
     setSaving(true)
-    await fetch('/api/expenses',{ method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(expForm) })
+    await authFetch('/api/expenses',{ method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(expForm) })
     setShowExp(false); setSaving(false); loadAll()
   }
 
   async function addRevenue() {
     if (!revForm.amount) return
     setSaving(true)
-    await fetch('/api/revenue',{ method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(revForm) })
+    await authFetch('/api/revenue',{ method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(revForm) })
     setShowRev(false); setSaving(false); loadAll()
   }
 
   async function submitFactoring() {
     if (!facForm.invoice_amount) return
     setSaving(true)
-    await fetch('/api/factoring',{ method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(facForm) })
+    await authFetch('/api/factoring',{ method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(facForm) })
     setShowFac(false); setSaving(false); loadAll()
   }
 
   async function getAI() {
     if (!summary) return
     setAiLoading(true)
-    const r = await fetch('/api/tax',{ method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ action:'ai_advice',summary }) })
+    const r = await authFetch('/api/tax',{ method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ action:'ai_advice',summary }) })
     const d = await r.json()
     setAiAdvice(d.advice)
     setAiLoading(false)

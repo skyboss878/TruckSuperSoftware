@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { authFetch } from '@/lib/api-client'
 
 const TYPES = ['fuel','repair','toll','parking','food','other']
 const ICONS = { fuel:'⛽', repair:'🔧', toll:'🛣️', parking:'🅿️', food:'🍽️', other:'📎' }
@@ -16,7 +17,7 @@ export default function ExpenseReport() {
   async function loadExpenses() {
     setLoading(true)
     const since = new Date(Date.now() - days * 86400000).toISOString().split('T')[0]
-    const res = await fetch('/api/expenses')
+    const res = await authFetch('/api/expenses')
     const data = await res.json()
     const filtered = Array.isArray(data) ? data.filter(e => e.date >= since) : []
     setExpenses(filtered)

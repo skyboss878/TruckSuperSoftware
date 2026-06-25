@@ -7,6 +7,7 @@ import AdminPreTrip from '@/components/AdminPreTrip'
 import AdminNotificationBell from '@/components/AdminNotificationBell'
 import SystemHealth from '@/components/SystemHealth'
 import Toast, { showToast } from '@/components/Toast'
+import { authFetch } from '@/lib/api-client'
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -26,9 +27,11 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    const auth = localStorage.getItem('admin_auth')
-    if (!auth) { router.replace('/login'); return }
-    loadAll()
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { router.replace('/login'); return }
+      loadAll()
+    })()
     const params = new URLSearchParams(window.location.search)
     if (params.get("refresh")) router.replace("/admin")
   }, [])
@@ -70,10 +73,10 @@ export default function AdminDashboard() {
   async function loadAll() {
     setLoading(true)
     const [t, d, ts, m] = await Promise.all([
-      fetch('/api/tickets').then(r => r.json()),
-      fetch('/api/drivers').then(r => r.json()),
-      fetch('/api/timesheets').then(r => r.json()),
-      fetch('/api/maintenance').then(r => r.json()),
+      authFetch('/api/tickets').then(r => r.json()),
+      authFetch('/api/drivers').then(r => r.json()),
+      authFetch('/api/timesheets').then(r => r.json()),
+      authFetch('/api/maintenance').then(r => r.json()),
     ])
     setTickets(Array.isArray(t) ? t : [])
     setDrivers(Array.isArray(d) ? d : [])
@@ -83,7 +86,11 @@ export default function AdminDashboard() {
   }
 
   function handleLogout() {
-    localStorage.removeItem('admin_auth')
+    supabase.auth.signOut()
+    localStorage.removeItem('company_id')
+    localStorage.removeItem('company_name')
+    localStorage.removeItem('user_role')
+    localStorage.removeItem('user_name')
     router.replace('/login')
   }
 
@@ -114,7 +121,7 @@ export default function AdminDashboard() {
     if (!assignForm.driver_id || !assignForm.customer_name) return
     setAssignSaving(true)
     try {
-      await fetch('/api/tickets', {
+      await authFetch('/api/tickets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...assignForm, source: 'dispatch' })
@@ -438,7 +445,7 @@ export default function AdminDashboard() {
                   <div className="flex gap-2">
                     {ts.status !== 'approved' && (
                       <button onClick={async () => {
-                        await fetch(`/api/timesheets`, {
+                        await authFetch(`/api/timesheets`, {
                           method: 'PATCH',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ id: ts.id, status: 'approved' })
@@ -451,7 +458,7 @@ export default function AdminDashboard() {
                     {!ts.end_time && (
                       <button onClick={async () => {
                         const endTime = new Date().toTimeString().slice(0,5)
-                        await fetch(`/api/timesheets`, {
+                        await authFetch(`/api/timesheets`, {
                           method: 'PATCH',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ id: ts.id, end_time: endTime, status: 'submitted' })
@@ -463,7 +470,7 @@ export default function AdminDashboard() {
                     )}
                     <button onClick={async () => {
                       if (confirm('Delete this timesheet?')) {
-                        await fetch(`/api/timesheets?id=${ts.id}`, { method: 'DELETE' })
+                        await authFetch(`/api/timesheets?id=${ts.id}`, { method: 'DELETE' })
                         loadAll()
                       }
                     }} className="px-3 py-2 bg-red-50 text-red-500 rounded-xl text-xs font-semibold">

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { authFetch } from '@/lib/api-client'
 
 export default function SettlementsReport() {
   const router = useRouter()
@@ -35,8 +36,8 @@ export default function SettlementsReport() {
     const driver = drivers.find(d => d.id === selectedDriver)
 
     const [tickets, timesheets] = await Promise.all([
-      fetch(`/api/tickets?driver_id=${selectedDriver}&start=${startDate}&end=${endDate}&status=approved`).then(r=>r.json()),
-      fetch(`/api/timesheets?driver_id=${selectedDriver}&start=${startDate}&end=${endDate}`).then(r=>r.json()),
+      authFetch(`/api/tickets?driver_id=${selectedDriver}&start=${startDate}&end=${endDate}&status=approved`).then(r=>r.json()),
+      authFetch(`/api/timesheets?driver_id=${selectedDriver}&start=${startDate}&end=${endDate}`).then(r=>r.json()),
     ])
 
     const totalLoads = tickets?.length || 0
@@ -107,7 +108,7 @@ Write a clean, professional settlement summary. Include:
 Keep it professional, clear, and under 400 words.`
 
     try {
-      const response = await fetch('/api/ai', {
+      const response = await authFetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

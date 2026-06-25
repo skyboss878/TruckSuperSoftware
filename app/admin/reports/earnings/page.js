@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { authFetch } from '@/lib/api-client'
 
 export default function EarningsDashboard() {
   const router = useRouter()
@@ -14,7 +15,7 @@ export default function EarningsDashboard() {
   const [generating, setGenerating] = useState(false)
 
   useEffect(() => {
-    fetch('/api/drivers').then(r => r.json()).then(d => setDrivers(Array.isArray(d) ? d : []))
+    authFetch('/api/drivers').then(r => r.json()).then(d => setDrivers(Array.isArray(d) ? d : []))
     // Default to current week
     const now = new Date()
     const monday = new Date(now)
@@ -34,8 +35,8 @@ export default function EarningsDashboard() {
     const params = new URLSearchParams({ driver_id: selectedDriver, start: startDate, end: endDate })
 
     const [tickets, timesheets] = await Promise.all([
-      fetch(`/api/tickets?${params}`).then(r => r.json()),
-      fetch(`/api/timesheets?${params}`).then(r => r.json()),
+      authFetch(`/api/tickets?${params}`).then(r => r.json()),
+      authFetch(`/api/timesheets?${params}`).then(r => r.json()),
     ])
 
     const approvedTickets = (Array.isArray(tickets) ? tickets : []).filter(t => t.status === 'approved')

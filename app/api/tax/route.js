@@ -1,18 +1,22 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getAuthContext } from '@/lib/auth-helpers'
 import Anthropic from '@anthropic-ai/sdk'
 import { NextResponse } from 'next/server'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function GET(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const { searchParams } = new URL(request.url)
     const year = parseInt(searchParams.get('year') || new Date().getFullYear())
 
     const [expRes, revRes, perDiemRes] = await Promise.all([
-      supabaseAdmin.from('expenses').select('*').gte('date', `${year}-01-01`).lte('date', `${year}-12-31`),
-      supabaseAdmin.from('revenue_records').select('*').gte('date', `${year}-01-01`).lte('date', `${year}-12-31`),
-      supabaseAdmin.from('per_diem_records').select('*').eq('year', year)
+      supabaseAdmin.from('expenses').select('*').eq('company_id', ctx.company_id).gte('date', `${year}-01-01`).lte('date', `${year}-12-31`),
+      supabaseAdmin.from('revenue_records').select('*').eq('company_id', ctx.company_id).gte('date', `${year}-01-01`).lte('date', `${year}-12-31`),
+      supabaseAdmin.from('per_diem_records').select('*').eq('company_id', ctx.company_id).eq('year', year)
     ])
 
     const expenses = expRes.data || []
@@ -59,6 +63,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const { action, summary } = await request.json()
     if (action !== 'ai_advice') return NextResponse.json({ error: 'Unknown action' }, { status: 400 })

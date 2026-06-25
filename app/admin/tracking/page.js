@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { authFetch } from '@/lib/api-client'
 
 const CACHE_KEY = 'fleet_map_cache'
 
@@ -102,7 +103,7 @@ export default function AdminTracking() {
   async function loadDrivers() {
     setRefreshing(true)
     try {
-      const res = await fetch('/api/tracking')
+      const res = await authFetch('/api/tracking')
       if (!res.ok) throw new Error('Failed')
       const data = await res.json()
       const arr = Array.isArray(data) ? data : []

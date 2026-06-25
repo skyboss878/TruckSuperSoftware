@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getAuthContext } from '@/lib/auth-helpers'
 import { NextResponse } from 'next/server'
 
 // Haversine formula — calculate miles between two GPS points
@@ -14,6 +15,9 @@ function calcMiles(lat1, lng1, lat2, lng2) {
 }
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const body = await request.json()
     const { action, driver_id, lat, lng, speed, accuracy, trip_id, state, state_miles } = body
@@ -108,6 +112,9 @@ export async function POST(request) {
 }
 
 export async function GET(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const { searchParams } = new URL(request.url)
     const driver_id = searchParams.get('driver_id')
@@ -127,6 +134,7 @@ export async function GET(request) {
       .from('driver_trips')
       .select('*, drivers(name, truck_number, phone)')
       .eq('status', 'active')
+      .eq('company_id', ctx.company_id)
       .order('last_seen', { ascending: false })
 
     return NextResponse.json(data || [])

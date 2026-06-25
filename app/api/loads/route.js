@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getAuthContext } from '@/lib/auth-helpers'
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
@@ -72,6 +73,9 @@ async function notifyMatchingCarriers(load) {
 }
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const body = await request.json()
     const {
@@ -97,7 +101,7 @@ export async function POST(request) {
         delivery_location, delivery_city, delivery_state, delivery_date,
         rate_per_mile, flat_rate, rate_negotiable, estimated_miles,
         special_instructions, dot_required, hazmat_required, twic_required,
-        company_id: company_id || null,
+        company_id: ctx.company_id,
         status: 'open'
       })
       .select().single()
@@ -113,11 +117,14 @@ export async function POST(request) {
 }
 
 export async function PATCH(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const { id, ...updates } = await request.json()
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
     const { data, error } = await supabaseAdmin
-      .from('loads').update(updates).eq('id', id).select().single()
+      .from('loads').update(updates).eq('id', id).eq('company_id', ctx.company_id).select().single()
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json(data)
   } catch (err) {

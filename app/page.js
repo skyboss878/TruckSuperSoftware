@@ -201,7 +201,7 @@ export default function Landing() {
           <h2 style={{ ...S.h1, fontSize: 'clamp(32px,7vw,56px)', lineHeight: 1, marginBottom: 20 }}>
             Your fleet runs<br /><span style={{ color: C.bright }}>better tomorrow.</span>
           </h2>
-          <p style={{ fontSize: 15, color: C.dim, marginBottom: 32 }}>14 days free. Cancel anytime. No card required to start.</p>
+          <p style={{ fontSize: 15, color: C.dim, marginBottom: 32 }}>14 days free. Cancel anytime. No commitment.</p>
           <button onClick={() => router.push('/signup')} style={{ padding: '18px 44px', background: C.diesel, border: 'none', borderRadius: 8, color: 'white', fontSize: 16, fontWeight: 800, cursor: 'pointer' }}>
             🚛 Start Your Free Trial
           </button>

@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { authFetch } from '@/lib/api-client'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -50,7 +51,7 @@ export default function LoginPage() {
 
       if (authError) { setError(authError.message); setLoading(false); return }
 
-      const res = await fetch(`/api/me?user_id=${authData.user.id}`)
+      const res = await authFetch('/api/me')
       const me = await res.json()
 
       if (!me.company) {

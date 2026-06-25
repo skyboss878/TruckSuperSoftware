@@ -1,7 +1,11 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { requireSuperAdmin } from '@/lib/auth-helpers'
 import { NextResponse } from 'next/server'
 
-export async function GET() {
+export async function GET(request) {
+  const ctx = await requireSuperAdmin(request)
+  if (ctx.error) return ctx.error
+
   try {
     const [companiesRes, driversRes, loadsRes, factoringRes] = await Promise.all([
       supabaseAdmin.from('companies').select('plan, plan_status'),

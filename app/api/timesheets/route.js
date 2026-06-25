@@ -1,13 +1,18 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getAuthContext } from '@/lib/auth-helpers'
 import { NextResponse } from 'next/server'
 
 export async function GET(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const { searchParams } = new URL(request.url)
     const driver_id = searchParams.get('driver_id')
     let query = supabaseAdmin
       .from('timesheets')
       .select('*, drivers(name)')
+      .eq('company_id', ctx.company_id)
       .order('date', { ascending: false })
     const start = searchParams.get('start')
     const end   = searchParams.get('end')
@@ -23,18 +28,21 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const body = await request.json()
     const { auth_id, driver_id: direct_driver_id, ...tsData } = body
     let driverId = direct_driver_id
     if (!driverId && auth_id) {
       const { data: driver } = await supabaseAdmin
-        .from('drivers').select('id').eq('auth_id', auth_id).single()
+        .from('drivers').select('id').eq('auth_id', auth_id).eq('company_id', ctx.company_id).single()
       driverId = driver?.id
     }
     if (!driverId) return NextResponse.json({ error: 'Driver not found' }, { status: 404 })
     const { data, error } = await supabaseAdmin
-      .from('timesheets').insert({ ...tsData, driver_id: driverId }).select().single()
+      .from('timesheets').insert({ ...tsData, driver_id: driverId, company_id: ctx.company_id }).select().single()
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json(data)
   } catch (err) {
@@ -43,12 +51,15 @@ export async function POST(request) {
 }
 
 export async function PATCH(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const body = await request.json()
     const { id, ...updates } = body
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
     const { data, error } = await supabaseAdmin
-      .from('timesheets').update(updates).eq('id', id).select().single()
+      .from('timesheets').update(updates).eq('id', id).eq('company_id', ctx.company_id).select().single()
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json(data)
   } catch (err) {
@@ -57,11 +68,14 @@ export async function PATCH(request) {
 }
 
 export async function DELETE(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
-    const { error } = await supabaseAdmin.from('timesheets').delete().eq('id', id)
+    const { error } = await supabaseAdmin.from('timesheets').delete().eq('id', id).eq('company_id', ctx.company_id)
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json({ success: true })
   } catch (err) {

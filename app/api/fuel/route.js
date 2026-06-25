@@ -1,10 +1,15 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getAuthContext } from '@/lib/auth-helpers'
 import { NextResponse } from 'next/server'
 
-export async function GET() {
+export async function GET(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   const { data, error } = await supabaseAdmin
     .from('fuel_logs')
     .select('*')
+    .eq('company_id', ctx.company_id)
     .order('date', { ascending: false })
 
   if (error) {
@@ -15,6 +20,9 @@ export async function GET() {
 }
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   try {
     const body = await request.json()
 
@@ -54,7 +62,8 @@ export async function POST(request) {
         price_per_gallon: priceNum,
         total_cost: computedCost,
         odometer,
-        notes
+        notes,
+        company_id: ctx.company_id
       }])
       .select()
       .single()
@@ -70,6 +79,9 @@ export async function POST(request) {
 }
 
 export async function DELETE(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
 
