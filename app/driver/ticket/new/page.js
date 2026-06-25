@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -37,7 +38,7 @@ export default function NewTicket() {
 
   async function loadDriver() {
     const { data: { user } } = await supabase.auth.getUser()
-    const data = await fetch(`/api/drivers?auth_id=${user.id}`).then(r=>r.json())
+    const data = await authFetch(`/api/drivers?auth_id=${user.id}`).then(r=>r.json())
     setDriver(data)
     if (data) {
       setForm(f => ({ ...f, truck_number: data.truck_number || '', trailer_number: data.trailer_number || '' }))
@@ -47,8 +48,8 @@ export default function NewTicket() {
 
   async function loadCustomers() {
     const [c, l] = await Promise.all([
-      fetch('/api/customers').then(r => r.json()),
-      fetch('/api/locations').then(r => r.json()),
+      authFetch('/api/customers').then(r => r.json()),
+      authFetch('/api/locations').then(r => r.json()),
     ])
     setCustomers(Array.isArray(c) ? c : [])
     setLocations(Array.isArray(l) ? l : [])
@@ -75,7 +76,7 @@ export default function NewTicket() {
   }
 
   async function confirmTruck() {
-    await fetch(`/api/drivers/${driver.id}`, {
+    await authFetch(`/api/drivers/${driver.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ truck_number: form.truck_number, trailer_number: form.trailer_number }),
@@ -120,7 +121,7 @@ export default function NewTicket() {
       return
     }
 
-    const res = await fetch('/api/tickets', {
+    const res = await authFetch('/api/tickets', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...payload, auth_id: driver.auth_id }),
@@ -144,7 +145,7 @@ export default function NewTicket() {
           formData.append('ticket_id', ticketId)
           formData.append('type', 'photo')
           formData.append('caption', photo.caption || '')
-          await fetch('/api/upload', { method: 'POST', body: formData })
+          await authFetch('/api/upload', { method: 'POST', body: formData })
         } catch (e) { console.error('Photo upload failed:', e) }
       }
     }

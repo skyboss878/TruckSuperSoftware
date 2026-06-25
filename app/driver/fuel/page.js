@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -27,7 +28,7 @@ export default function FuelLog() {
   async function init() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.replace('/login'); return }
-    const d = await fetch(`/api/drivers?auth_id=${user.id}`).then(r => r.json())
+    const d = await authFetch(`/api/drivers?auth_id=${user.id}`).then(r => r.json())
     setDriver(d)
     if (d?.id) {
       const { data } = await supabase.from('fuel_logs').select('*').eq('driver_id', d.id).order('date', { ascending: false }).limit(30)
@@ -47,7 +48,7 @@ export default function FuelLog() {
         reader.onerror = rej
         reader.readAsDataURL(file)
       })
-      const response = await fetch('/api/fuel-scan', {
+      const response = await authFetch('/api/fuel-scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: base64, media_type: file.type || 'image/jpeg' }),
@@ -78,7 +79,7 @@ export default function FuelLog() {
     if (!form.gallons || !form.price_per_gallon) return
     setSaving(true)
     const total_cost = parseFloat(form.gallons) * parseFloat(form.price_per_gallon)
-    await fetch('/api/fuel', {
+    await authFetch('/api/fuel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

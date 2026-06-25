@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -60,7 +61,7 @@ export default function HOSLogger() {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.replace('/login'); return }
-      const d = await fetch(`/api/drivers?auth_id=${user.id}`).then(r => r.json())
+      const d = await authFetch(`/api/drivers?auth_id=${user.id}`).then(r => r.json())
       setDriver(d)
       await loadLogs(d.id)
     } catch (err) {

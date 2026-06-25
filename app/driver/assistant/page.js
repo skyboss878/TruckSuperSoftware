@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -23,7 +24,7 @@ export default function DriverAssistant() {
     async function init() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
-      const info = await fetch(`/api/drivers?auth_id=${user.id}`).then(r => r.json())
+      const info = await authFetch(`/api/drivers?auth_id=${user.id}`).then(r => r.json())
       setDriverId(info?.id)
     }
     init()
@@ -44,7 +45,7 @@ export default function DriverAssistant() {
     setMessages(m => [...m, { role: 'user', text: msg }])
 
     try {
-      const res = await fetch('/api/assistant', {
+      const res = await authFetch('/api/assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

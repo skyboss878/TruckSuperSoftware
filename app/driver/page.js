@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import ChangePasswordPrompt from '@/components/ChangePasswordPrompt'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -53,7 +54,7 @@ export default function DriverDashboard() {
     }
     // Check if today's pre-trip inspection is done
     const today = new Date().toISOString().split('T')[0]
-    const res = await fetch(`/api/pre-trip?driver_id=${data.id}&date=${today}`)
+    const res = await authFetch(`/api/pre-trip?driver_id=${data.id}&date=${today}`)
     const pretrip = await res.json()
     if (!pretrip.completed) {
       router.replace('/driver/pretrip')
@@ -76,7 +77,7 @@ export default function DriverDashboard() {
   }
 
   async function loadTickets() {
-    const res = await fetch(`/api/tickets?driver_id=${driver.id}`)
+    const res = await authFetch(`/api/tickets?driver_id=${driver.id}`)
     const data = await res.json()
     setTickets(Array.isArray(data) ? data : [])
   }
@@ -86,7 +87,7 @@ export default function DriverDashboard() {
     if (offline.length === 0) return
     setSyncing(true)
     for (const ticket of offline) {
-      await fetch('/api/tickets', {
+      await authFetch('/api/tickets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...ticket, auth_id: driver.auth_id, synced: true }),
@@ -119,7 +120,7 @@ export default function DriverDashboard() {
   async function saveTruck() {
     if (!truckInput.trim()) return
     setTruckSaving(true)
-    await fetch(`/api/drivers/${driver.id}`, {
+    await authFetch(`/api/drivers/${driver.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ truck_number: truckInput.trim().toUpperCase() }),
@@ -262,7 +263,7 @@ export default function DriverDashboard() {
                   {ticket.status === 'assigned' && (
                     <div className="flex gap-2 mt-3">
                       <button onClick={async () => {
-                        await fetch('/api/tickets', {
+                        await authFetch('/api/tickets', {
                           method: 'PATCH',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ id: ticket.id, status: 'started' })
@@ -274,7 +275,7 @@ export default function DriverDashboard() {
                       </button>
                       <button onClick={async () => {
                         if (!confirm('Decline this load?')) return
-                        await fetch('/api/tickets', {
+                        await authFetch('/api/tickets', {
                           method: 'PATCH',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ id: ticket.id, status: 'declined' })

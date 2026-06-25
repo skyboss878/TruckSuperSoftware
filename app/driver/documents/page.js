@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -33,7 +34,7 @@ export default function DocumentVault() {
   }
 
   async function loadDocs(id) {
-    const res = await fetch(`/api/documents?driver_id=${id}`)
+    const res = await authFetch(`/api/documents?driver_id=${id}`)
     const data = await res.json()
     setDocs(Array.isArray(data) ? data : [])
   }
@@ -52,7 +53,7 @@ export default function DocumentVault() {
         file_name = file.name
       }
     }
-    await fetch('/api/documents', {
+    await authFetch('/api/documents', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ driver_id: driver.id, ...form, file_url, file_name }),
@@ -64,7 +65,7 @@ export default function DocumentVault() {
   }
 
   async function handleDelete(id) {
-    await fetch(`/api/documents?id=${id}`, { method: 'DELETE' })
+    await authFetch(`/api/documents?id=${id}`, { method: 'DELETE' })
     loadDocs(driver.id)
   }
 

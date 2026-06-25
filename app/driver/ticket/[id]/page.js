@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -16,19 +17,19 @@ export default function TicketDetail() {
   useEffect(() => { loadTicket() }, [])
 
   async function loadTicket() {
-    const data = await fetch(`/api/tickets/${id}`).then(r=>r.json())
+    const data = await authFetch(`/api/tickets/${id}`).then(r=>r.json())
     setTicket(data)
     setLoading(false)
   }
 
   async function handleDelete() {
     setDeleting(true)
-    await fetch(`/api/tickets/${id}`, { method: 'DELETE' })
+    await authFetch(`/api/tickets/${id}`, { method: 'DELETE' })
     router.replace('/driver')
   }
 
   async function handlePOD({ signatureData, customerName }) {
-    await fetch(`/api/tickets/${id}`, {
+    await authFetch(`/api/tickets/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -43,7 +44,7 @@ export default function TicketDetail() {
   }
 
   async function handleSubmit() {
-    await fetch(`/api/tickets/${id}`, {
+    await authFetch(`/api/tickets/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'submitted' }),

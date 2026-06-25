@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -42,13 +43,13 @@ export default function MaintenancePage() {
 
   async function loadDriver() {
     const { data: { user } } = await supabase.auth.getUser()
-    const data = await fetch(`/api/drivers?auth_id=${user.id}`).then(r=>r.json())
+    const data = await authFetch(`/api/drivers?auth_id=${user.id}`).then(r=>r.json())
     setDriver(data)
   }
 
   async function loadLogs() {
     try {
-      const res = await fetch(`/api/maintenance?driver_id=${driver.id}`)
+      const res = await authFetch(`/api/maintenance?driver_id=${driver.id}`)
       const data = await res.json()
       setAllLogs(Array.isArray(data) ? data : [])
     } catch(e) {
@@ -86,7 +87,7 @@ export default function MaintenancePage() {
       return
     }
 
-    const res = await fetch('/api/maintenance', {
+    const res = await authFetch('/api/maintenance', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...payload, auth_id: driver.auth_id }),
@@ -101,7 +102,7 @@ export default function MaintenancePage() {
         fd.append('file', receipt)
         fd.append('maintenance_id', saved.id)
         fd.append('type', 'receipt')
-        await fetch('/api/upload', { method: 'POST', body: fd })
+        await authFetch('/api/upload', { method: 'POST', body: fd })
       } catch(e) { console.error('Receipt upload failed:', e) }
       setUploading(false)
     }

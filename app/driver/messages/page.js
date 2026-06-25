@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -38,7 +39,7 @@ export default function DriverMessages() {
   }, [driverId])
 
   async function loadMessages() {
-    const res = await fetch(`/api/messages?user_id=${driverId}`)
+    const res = await authFetch(`/api/messages?user_id=${driverId}`)
     const data = await res.json()
     setMessages(data || [])
     // Mark admin messages as read
@@ -46,7 +47,7 @@ export default function DriverMessages() {
       .filter(m => m.sender_role === 'admin' && !m.is_read)
       .map(m => m.id)
     if (unreadIds.length > 0) {
-      await fetch('/api/messages', {
+      await authFetch('/api/messages', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message_ids: unreadIds }),
@@ -57,7 +58,7 @@ export default function DriverMessages() {
   async function sendMessage() {
     if (!text.trim() || !driverId) return
     setSending(true)
-    await fetch('/api/messages', {
+    await authFetch('/api/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

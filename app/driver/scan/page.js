@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -31,7 +32,7 @@ export default function DocumentScanner() {
   }
 
   async function loadRecent(driver_id) {
-    const res = await fetch(`/api/document-scan?driver_id=${driver_id}`)
+    const res = await authFetch(`/api/document-scan?driver_id=${driver_id}`)
     const data = await res.json()
     setRecent((data || []).slice(0, 5))
   }
@@ -53,7 +54,7 @@ export default function DocumentScanner() {
         reader.readAsDataURL(file)
       })
 
-      const response = await fetch('/api/document-scan', {
+      const response = await authFetch('/api/document-scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: base64, media_type: file.type || 'image/jpeg', driver_id: driver.id }),

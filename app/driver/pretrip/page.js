@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -72,7 +73,7 @@ export default function PreTripPage() {
         `${i.label}${defectNotes[i.key] ? ': ' + defectNotes[i.key] : ''}`
       ).join('; ')
 
-      const res = await fetch('/api/pre-trip', {
+      const res = await authFetch('/api/pre-trip', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
