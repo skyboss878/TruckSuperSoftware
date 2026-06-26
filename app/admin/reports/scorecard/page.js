@@ -15,10 +15,13 @@ export default function DriverScorecard() {
   const router = useRouter()
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
+  const [companyName, setCompanyName] = useState('')
   const [days, setDays] = useState(30)
   const [expanded, setExpanded] = useState(null)
 
-  useEffect(() => { loadData() }, [days])
+  useEffect(() => {
+    authFetch('/api/me').then(r => r.json()).then(d => { if (d?.company?.name) setCompanyName(d.company.name) })
+    loadData() }, [days])
 
   async function loadData() {
     setLoading(true)

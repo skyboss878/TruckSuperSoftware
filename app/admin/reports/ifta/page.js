@@ -13,9 +13,12 @@ export default function IFTAReport() {
   const [year, setYear] = useState(CURRENT_YEAR)
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [companyName, setCompanyName] = useState('')
   const [expanded, setExpanded] = useState(null)
 
-  useEffect(() => { loadReport() }, [quarter, year])
+  useEffect(() => {
+    authFetch('/api/me').then(r => r.json()).then(d => { if (d?.company?.name) setCompanyName(d.company.name) })
+    loadReport() }, [quarter, year])
 
   async function loadReport() {
     setLoading(true)

@@ -7,10 +7,13 @@ export default function MaintenanceReport() {
   const router = useRouter()
   const [logs, setLogs] = useState([])
   const [loading, setLoading] = useState(false)
+  const [companyName, setCompanyName] = useState('')
   const [drivers, setDrivers] = useState([])
   const [filters, setFilters] = useState({ driver_id: '', status: '', severity: '' })
 
-  useEffect(() => { loadDrivers() }, [])
+  useEffect(() => {
+    authFetch('/api/me').then(r => r.json()).then(d => { if (d?.company?.name) setCompanyName(d.company.name) })
+    loadDrivers() }, [])
 
   async function loadDrivers() {
     const data = await fetch('/api/drivers').then(r=>r.json())

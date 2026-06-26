@@ -10,9 +10,12 @@ export default function ExpenseReport() {
   const router = useRouter()
   const [expenses, setExpenses] = useState([])
   const [loading, setLoading] = useState(true)
+  const [companyName, setCompanyName] = useState('')
   const [days, setDays] = useState(30)
 
-  useEffect(() => { loadExpenses() }, [days])
+  useEffect(() => {
+    authFetch('/api/me').then(r => r.json()).then(d => { if (d?.company?.name) setCompanyName(d.company.name) })
+    loadExpenses() }, [days])
 
   async function loadExpenses() {
     setLoading(true)

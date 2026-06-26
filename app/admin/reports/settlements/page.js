@@ -7,6 +7,7 @@ import { authFetch } from '@/lib/api-client'
 export default function SettlementsReport() {
   const router = useRouter()
   const [drivers, setDrivers] = useState([])
+  const [companyName, setCompanyName] = useState('')
   const [selectedDriver, setSelectedDriver] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -16,7 +17,9 @@ export default function SettlementsReport() {
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState('')
 
-  useEffect(() => { loadDrivers() }, [])
+  useEffect(() => {
+    authFetch('/api/me').then(r => r.json()).then(d => { if (d?.company?.name) setCompanyName(d.company.name) })
+    loadDrivers() }, [])
 
   async function loadDrivers() {
     const res = await fetch("/api/drivers")
