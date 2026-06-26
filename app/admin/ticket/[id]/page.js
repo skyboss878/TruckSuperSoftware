@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 
@@ -15,7 +16,7 @@ export default function AdminTicketDetail() {
   useEffect(() => { loadTicket() }, [])
 
   async function loadTicket() {
-    const res = await fetch(`/api/tickets/${id}`)
+    const res = await authFetch(`/api/tickets/${id}`)
     const data = await res.json()
     setTicket(data?.id ? data : null)
     setDriver(data?.drivers)
@@ -32,7 +33,7 @@ export default function AdminTicketDetail() {
 
   async function updateStatus(status) {
     setUpdating(true)
-    await fetch(`/api/tickets/${id}`, {
+    await authFetch(`/api/tickets/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
@@ -43,7 +44,7 @@ export default function AdminTicketDetail() {
 
   async function saveEdits() {
     setUpdating(true)
-    await fetch(`/api/tickets/${id}`, {
+    await authFetch(`/api/tickets/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
@@ -194,7 +195,7 @@ export default function AdminTicketDetail() {
         {/* Delete */}
         <button onClick={async () => {
           if (confirm('Delete this ticket? This cannot be undone.')) {
-            await fetch(`/api/tickets/${id}`, { method: 'DELETE' })
+            await authFetch(`/api/tickets/${id}`, { method: 'DELETE' })
             router.replace('/admin')
           }
         }} className="w-full bg-red-50 text-red-500 py-3 rounded-2xl font-semibold text-sm">

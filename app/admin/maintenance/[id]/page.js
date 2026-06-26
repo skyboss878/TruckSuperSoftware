@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -14,7 +15,7 @@ export default function AdminMaintenanceDetail() {
 
   async function loadLog() {
     try {
-      const res = await fetch(`/api/maintenance?id=${id}`)
+      const res = await authFetch(`/api/maintenance?id=${id}`)
       const data = await res.json()
       setLog(Array.isArray(data) ? data[0] : data?.id ? data : null)
     } catch (e) {
@@ -27,7 +28,7 @@ export default function AdminMaintenanceDetail() {
     setUpdating(true)
     const update = { status }
     if (status === 'resolved') update.resolved_at = new Date().toISOString()
-    await fetch('/api/maintenance', {
+    await authFetch('/api/maintenance', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, ...update }),

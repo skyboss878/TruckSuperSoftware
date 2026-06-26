@@ -24,7 +24,7 @@ export default function IFTAReport() {
     setLoading(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      const res = await fetch(`/api/ifta?quarter=${quarter}&year=${year}`, {
+      const res = await authFetch(`/api/ifta?quarter=${quarter}&year=${year}`, {
         headers: { Authorization: `Bearer ${session?.access_token}` }
       })
       const json = await res.json()

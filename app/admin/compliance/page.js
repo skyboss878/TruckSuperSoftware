@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -40,8 +41,8 @@ export default function AdminCompliance() {
   async function loadAll() {
     setLoading(true)
     const [d, r] = await Promise.all([
-      fetch('/api/drivers').then(res=>res.json()),
-      fetch('/api/compliance').then(res=>res.json()),
+      authFetch('/api/drivers').then(res=>res.json()),
+      authFetch('/api/compliance').then(res=>res.json()),
     ])
     setDrivers(Array.isArray(d) ? d : [])
     setRecords(Array.isArray(r) ? r : [])
@@ -97,7 +98,7 @@ export default function AdminCompliance() {
     if (!payload.expiry_date) delete payload.expiry_date
     if (!payload.result)      delete payload.result
     if (!payload.notes)       delete payload.notes
-    await fetch('/api/compliance', {
+    await authFetch('/api/compliance', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -150,7 +151,7 @@ Write a professional DOT compliance report with:
 Professional tone, under 500 words, clear headings.`
 
     try {
-      const res  = await fetch('/api/ai', {
+      const res  = await authFetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

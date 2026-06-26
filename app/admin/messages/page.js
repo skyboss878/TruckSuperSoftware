@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -38,7 +39,7 @@ export default function AdminMessages() {
   }, [selected])
 
   async function loadDrivers() {
-    const res = await fetch('/api/drivers')
+    const res = await authFetch('/api/drivers')
     const data = await res.json()
     setDrivers(data || [])
     // Load unread counts
@@ -67,7 +68,7 @@ export default function AdminMessages() {
       .filter(m => m.sender_role === 'driver' && !m.is_read)
       .map(m => m.id)
     if (unreadIds.length > 0) {
-      await fetch('/api/messages', {
+      await authFetch('/api/messages', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message_ids: unreadIds }),
@@ -79,7 +80,7 @@ export default function AdminMessages() {
   async function sendMessage() {
     if (!text.trim()) return
     setSending(true)
-    await fetch('/api/messages', {
+    await authFetch('/api/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -116,7 +117,7 @@ export default function CostPerMile() {
   async function getAIAdvice() {
     setAiLoading(true); setAiAdvice(null)
     try {
-      const res = await fetch('/api/assistant', {
+      const res = await authFetch('/api/assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

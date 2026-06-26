@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -41,7 +42,7 @@ export default function AdminAssistant() {
     setMessages(m => [...m, { role: 'user', text: msg }])
 
     try {
-      const res = await fetch('/api/assistant', {
+      const res = await authFetch('/api/assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

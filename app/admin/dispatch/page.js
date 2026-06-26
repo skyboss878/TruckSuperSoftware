@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -22,7 +23,7 @@ export default function DispatchCenter() {
     if (key === 'broadcast' && !broadcastTopic.trim()) { setShowBroadcast(true); return }
     setLoading(key); setResult(null); setError('')
     try {
-      const res = await fetch('/api/dispatch', {
+      const res = await authFetch('/api/dispatch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: key, topic: broadcastTopic }),

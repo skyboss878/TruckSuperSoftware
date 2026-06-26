@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -73,7 +74,7 @@ Today's date: ${new Date().toLocaleDateString()}
 Answer the user's question based on this data. Be helpful, specific, and concise. If asked to calculate pay/settlements, use the data available. If asked about something not in the data, say so clearly.`
 
     try {
-      const response = await fetch('/api/ai', {
+      const response = await authFetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

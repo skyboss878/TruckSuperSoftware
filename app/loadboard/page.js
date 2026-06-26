@@ -1,4 +1,5 @@
 'use client'
+import { authFetch } from '@/lib/api-client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -33,7 +34,7 @@ export default function LoadBoard() {
     const params = new URLSearchParams()
     if (filter.state) params.append('state', filter.state)
     if (filter.equipment) params.append('equipment', filter.equipment)
-    const data = await fetch(`/api/loads?${params}`).then(r => r.json())
+    const data = await authFetch(`/api/loads?${params}`).then(r => r.json())
     setLoads(Array.isArray(data) ? data : [])
     setLoading(false)
   }
@@ -41,7 +42,7 @@ export default function LoadBoard() {
   async function postLoad() {
     if (!form.company_name || !form.title || !form.pickup_location || !form.delivery_location || !form.pickup_date) return
     setPosting(true)
-    await fetch('/api/loads', {
+    await authFetch('/api/loads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form)
@@ -54,13 +55,13 @@ export default function LoadBoard() {
   async function verifyCarrier() {
     if (!verifyDot) return
     setVerifying(true)
-    const data = await fetch(`/api/verify-carrier?dot=${verifyDot}`).then(r => r.json())
+    const data = await authFetch(`/api/verify-carrier?dot=${verifyDot}`).then(r => r.json())
     setVerifyResult(data)
     setVerifying(false)
   }
 
   async function claimLoad(load) {
-    await fetch('/api/loads', {
+    await authFetch('/api/loads', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: load.id, status: 'claimed' })

@@ -19,7 +19,7 @@ export default function TicketsReport() {
     loadDrivers() }, [])
 
   async function loadDrivers() {
-    const data = await fetch('/api/drivers').then(r=>r.json())
+    const data = await authFetch('/api/drivers').then(r=>r.json())
     setDrivers(data || [])
   }
 
