@@ -103,6 +103,16 @@ export default function Signup() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, user_id: authData.user?.id })
       })
+
+      // Auto sign in and redirect to billing
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
+      })
+      if (!signInError) {
+        router.push('/billing?new=true')
+        return
+      }
       setDone(true)
     } catch (err) {
       console.error('[Signup] Error:', err)
@@ -131,7 +141,7 @@ export default function Signup() {
         {form.fuel_card && <div style={{ marginTop: 10, fontSize: 12, color: '#4ade80' }}>✅ RTS Fuel Card included</div>}
         {form.factoring && <div style={{ fontSize: 12, color: '#4ade80' }}>✅ Freight factoring enabled</div>}
       </div>
-      <button onClick={() => router.push('/login')} style={S.btn}>Go to Dashboard →</button>
+      <button onClick={() => router.push('/billing?new=true')} style={S.btn}>Choose Your Plan →</button>
     </div>
   )
 

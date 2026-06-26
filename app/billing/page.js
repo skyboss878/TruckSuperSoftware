@@ -1,6 +1,7 @@
 'use client'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+
 import { authFetch } from '@/lib/api-client'
 
 const PLANS = [
@@ -11,6 +12,8 @@ const PLANS = [
 
 export default function Billing() {
   const router = useRouter()
+  const [isNew, setIsNew] = React.useState(false)
+  React.useEffect(() => { setIsNew(new URLSearchParams(window.location.search).get('new') === 'true') }, [])
   const [company, setCompany] = useState(null)
   const [loading, setLoading] = useState(false)
   const [events, setEvents] = useState([])
@@ -85,6 +88,12 @@ export default function Billing() {
 
         {/* Plans */}
         <p style={{ fontSize:13,fontWeight:800,marginBottom:12,color:'rgba(255,255,255,0.6)' }}>Available Plans</p>
+        {isNew && (
+          <div style={{ background:'linear-gradient(135deg,#2D7A5F,#1a4d3a)', borderRadius:16, padding:16, marginBottom:16, border:'1px solid #4ade8040' }}>
+            <p style={{ fontWeight:800, fontSize:16, margin:0 }}>🎉 Welcome to TruckSuperSoftware!</p>
+            <p style={{ fontSize:13, color:'rgba(255,255,255,0.7)', margin:'6px 0 0' }}>Your account is ready. Choose a plan to get started — all plans include a 14-day free trial.</p>
+          </div>
+        )}
         {PLANS.map(plan=>(
           <div key={plan.id}
             style={{ background:'rgba(255,255,255,0.03)',borderRadius:16,border:`1px solid ${company?.plan===plan.id?`${plan.color}40`:'rgba(255,255,255,0.07)'}`,padding:18,marginBottom:10,position:'relative' }}>
