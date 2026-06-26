@@ -15,6 +15,7 @@ export default function EarningsDashboard() {
   const [generating, setGenerating] = useState(false)
 
   useEffect(() => {
+    authFetch('/api/me').then(r => r.json()).then(d => { if (d?.company?.name) setCompanyName(d.company.name.toUpperCase()) })
     authFetch('/api/drivers').then(r => r.json()).then(d => setDrivers(Array.isArray(d) ? d : []))
     // Default to current week
     const now = new Date()
@@ -96,7 +97,7 @@ export default function EarningsDashboard() {
   function downloadCSV() {
     if (!report) return
     const rows = [
-      ['TWS FLEET COMMAND - EARNINGS REPORT'],
+      [`${companyName} - EARNINGS REPORT`],
       ['Driver:', report.driver?.name],
       ['Period:', report.period],
       ['Truck #:', report.driver?.truck_number || 'N/A'],
