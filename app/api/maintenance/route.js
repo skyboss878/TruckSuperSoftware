@@ -26,6 +26,8 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
   try {
     const body = await request.json()
     const { auth_id, ...mData } = body
