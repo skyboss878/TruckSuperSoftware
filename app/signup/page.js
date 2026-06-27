@@ -92,7 +92,7 @@ export default function Signup() {
         password: form.password,
       })
       if (authError) {
-        alert(authError.message)
+        alert(authError.message || authError.msg || JSON.stringify(authError))
         setSubmitting(false)
         return
       }
