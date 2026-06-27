@@ -326,6 +326,7 @@ Key behaviors:
       : `You are an AI assistant for a truck driver at TruckSuperSoftware. You can only access this driver's own data (driver_id: ${driver_id}). Today is ${new Date().toLocaleDateString()}. Be helpful and concise.`
 
     // Agentic loop — keep calling tools until done
+    if (!messages || !Array.isArray(messages)) return NextResponse.json({ error: 'messages must be an array' }, { status: 400 })
     let currentMessages = [...messages]
     let iterations = 0
     const maxIterations = 5
