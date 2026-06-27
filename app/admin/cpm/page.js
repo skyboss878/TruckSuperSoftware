@@ -121,7 +121,7 @@ export default function CostPerMile() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: `Analyze this trucking load and give a 3-sentence recommendation:
+          messages: [{ role: 'user', content: `Analyze this trucking load and give a 3-sentence recommendation:
 Load: ${load.origin || 'Unknown'} → ${load.destination || 'Unknown'}
 Miles: ${load.miles} loaded + ${load.deadhead_miles} deadhead = ${totalLoadMiles} total
 Rate: $${load.rate} ($${loadedRPM.toFixed(2)}/loaded mi, $${trueRPM.toFixed(2)}/true mi)
@@ -129,7 +129,7 @@ Our CPM: $${totalCPM.toFixed(3)}
 Load Profit: $${loadProfit.toFixed(0)}
 Broker: ${load.broker_name || 'Unknown'}, pays in ${load.broker_days_to_pay} days, credit score ${load.broker_credit}
 Market rate for this lane: $${marketRate}/mi
-Be direct. Start with ACCEPT or DECLINE. Then explain why in 2 sentences.`,
+Be direct. Start with ACCEPT or DECLINE. Then explain why in 2 sentences.`}],
           role: 'admin'
         })
       })
