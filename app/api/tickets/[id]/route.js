@@ -9,9 +9,9 @@ export async function GET(request, { params }) {
     const { id } = await params
     const { data, error } = await supabaseAdmin
       .from('tickets')
-        .eq('company_id', ctx.company_id)
       .select('*, drivers(*)')
       .eq('id', id)
+      .eq('company_id', ctx.company_id)
       .single()
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json(data)
@@ -27,7 +27,12 @@ export async function PATCH(request, { params }) {
     const { id } = await params
     const body = await request.json()
     const { data, error } = await supabaseAdmin
-      .from('tickets').update(body).eq('id', id).eq('company_id', ctx.company_id).select('*, drivers(*)').single()
+      .from('tickets')
+      .update(body)
+      .eq('id', id)
+      .eq('company_id', ctx.company_id)
+      .select('*, drivers(*)')
+      .single()
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json(data)
   } catch (err) {
@@ -36,9 +41,15 @@ export async function PATCH(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
   try {
     const { id } = await params
-    const { error } = await supabaseAdmin.from('tickets').delete().eq('id', id).eq('company_id', ctx.company_id)
+    const { error } = await supabaseAdmin
+      .from('tickets')
+      .delete()
+      .eq('id', id)
+      .eq('company_id', ctx.company_id)
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json({ success: true })
   } catch (err) {

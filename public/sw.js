@@ -1,4 +1,4 @@
-const CACHE = 'tss-v1'
+const CACHE = 'tss-v2'
 const OFFLINE_URLS = ['/', '/login', '/driver', '/admin']
 
 self.addEventListener('install', e => {
@@ -20,7 +20,7 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return
   if (e.request.url.includes('/api/')) return
   e.respondWith(
-    fetch(e.request).catch(() => caches.match(e.request))
+    fetch(e.request).catch(() => caches.match(e.request).then(r => r || new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } })))
   )
 })
 

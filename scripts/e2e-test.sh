@@ -127,7 +127,7 @@ check_post "$BASE_URL/api/carrier-signup" "Signup rejects bad data" '{"company_n
 
 # ─── AUTH PROTECTION ───
 log_section "API AUTH PROTECTION (unauthenticated)"
-for route in drivers tickets messages maintenance timesheets expenses fuel ifta settings customers locations documents compliance dispatch loads invoices revenue scorecard tracking; do
+for route in drivers tickets messages maintenance timesheets expenses fuel ifta settings customers locations documents compliance dispatch invoices revenue scorecard tracking; do
   check_status "$BASE_URL/api/$route" "$route blocks unauth" "401"
 done
 
@@ -140,6 +140,7 @@ done
 # ─── PUBLIC API ENDPOINTS ───
 log_section "PUBLIC API ENDPOINTS"
 check_status "$BASE_URL/api/health" "Health public"
+check_status "$BASE_URL/api/loads" "Loads public (load board)"
 check_status "$BASE_URL/api/verify-carrier?dot=123456" "Verify carrier accessible"
 
 # ─── WEBHOOK ENDPOINTS ───

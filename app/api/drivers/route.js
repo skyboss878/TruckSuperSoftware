@@ -17,7 +17,7 @@ export async function POST(request) {
     // Use Supabase invite — sends branded email with magic link
     // Driver clicks link, sets their own password, lands on dashboard
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_URL}/driver`,
+      redirectTo: 'https://truck-super-software.vercel.app/setup-password',
       data: {
         name,
         company_id: ctx.company_id,
