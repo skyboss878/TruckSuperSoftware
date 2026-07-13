@@ -1,7 +1,7 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 const STEPS = [
   { num: 1, label: 'Company Info' },
@@ -39,7 +39,8 @@ const PLANS = [
   },
 ]
 
-export default function Signup() {
+function SignupForm() {
+  const searchParams = useSearchParams()
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [verifying, setVerifying] = useState(false)
@@ -59,12 +60,23 @@ export default function Signup() {
     // Step 4
     password: '', confirm_password: '',
     // Step 5
-    plan: 'pro',
+    plan: 'pro', // overridden by ?plan= below
     fuel_card: true,
     factoring: true,
   })
 
   function update(key, val) { setForm(f => ({ ...f, [key]: val })) }
+
+  useEffect(() => {
+    const p = searchParams.get('plan')
+    if (p && PLANS.some(pl => pl.id === p)) update('plan', p)
+  }, [])
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) router.push('/billing?new=true')
+    })
+  }, [])
 
   function toggleEquipment(type) {
     const arr = form.equipment_types
@@ -90,6 +102,9 @@ export default function Signup() {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/billing?new=true`,
+        },
       })
       if (authError) {
         alert(authError.message || authError.msg || JSON.stringify(authError))
@@ -141,7 +156,7 @@ export default function Signup() {
         {form.fuel_card && <div style={{ marginTop: 10, fontSize: 12, color: '#4ade80' }}>✅ RTS Fuel Card included</div>}
         {form.factoring && <div style={{ fontSize: 12, color: '#4ade80' }}>✅ Freight factoring enabled</div>}
       </div>
-      <button onClick={() => router.push('/billing?new=true')} style={S.btn}>Choose Your Plan →</button>
+      <button onClick={() => router.push('/billing?new=true')} style={S.btn}>Start {PLANS.find(p => p.id === form.plan)?.name} — ${PLANS.find(p => p.id === form.plan)?.price}/mo →</button>
     </div>
   )
 
@@ -424,5 +439,14 @@ export default function Signup() {
         )}
       </div>
     </div>
+  )
+}
+
+
+export default function Signup() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0a0c0f' }} />}>
+      <SignupForm />
+    </Suspense>
   )
 }
