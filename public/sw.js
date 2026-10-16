@@ -1,4 +1,4 @@
-const CACHE = 'tss-v3'
+const CACHE = 'tss-v4'
 const OFFLINE_URLS = ['/', '/login', '/driver', '/admin']
 
 self.addEventListener('install', e => {

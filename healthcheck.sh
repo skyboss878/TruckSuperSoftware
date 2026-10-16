@@ -78,6 +78,30 @@ echo -e "\n── SERVICE WORKER CACHE ─────────────�
 CACHE_VER=$(grep "CACHE = " public/sw.js 2>/dev/null | head -1)
 echo "Current: $CACHE_VER"
 
+echo -e "\n── MAP TILES ─────────────────────────"
+if grep -q "cartocdn" components/DriveTracker.js 2>/dev/null; then
+  fail "CARTO tile URL still in DriveTracker.js"
+else
+  pass "No CARTO tile URL in source"
+fi
+if grep -q "tile.openstreetmap.org" components/DriveTracker.js 2>/dev/null; then
+  pass "tileUrl uses OSM"
+else
+  fail "tileUrl is not using OSM"
+fi
+if grep -q "OpenStreetMap" components/DriveTracker.js 2>/dev/null; then
+  pass "OSM attribution present"
+else
+  warn "OSM attribution missing"
+fi
+TC=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 -A "TruckSuperSoftware-check" https://tile.openstreetmap.org/0/0/0.png)
+if [ "$TC" = "200" ]; then pass "OSM tile server reachable"; else fail "OSM tile server → $TC"; fi
+git fetch -q 2>/dev/null
+if [ "$(git rev-parse HEAD)" = "$(git rev-parse @{u} 2>/dev/null)" ]; then
+  pass "Local is in sync with origin"
+else
+  warn "Local and origin differ — push or pull before deploying"
+fi
 echo -e "\n── BUILD ─────────────────────────────"
 if npm run build > $HOME/build.log 2>&1; then
   pass "Build succeeded"
