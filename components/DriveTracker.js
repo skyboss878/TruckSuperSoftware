@@ -355,6 +355,9 @@ export default function DriveTracker({ driver, onSessionComplete }) {
     <div style={{ background: 'linear-gradient(135deg, #080d1a, #0d2137)', borderRadius: '20px', marginBottom: '16px', overflow: 'hidden', border: '1px solid rgba(45,122,95,0.4)' }}>
       {/* Map tile with truck overlay */}
       <div style={{ position: 'relative', width: '100%', paddingBottom: '70%', overflow: 'hidden', background: '#ddd' }}>
+        <div style={{ position: 'absolute', right: 4, bottom: 4, fontSize: 10, background: 'rgba(255,255,255,0.85)', padding: '1px 4px', borderRadius: 3, zIndex: 5, color: '#333' }}>
+          © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" style={{ color: '#333' }}>OpenStreetMap</a> contributors
+        </div>
         {tilePos && (
           <img
             key={`${tilePos.x}-${tilePos.y}`}
