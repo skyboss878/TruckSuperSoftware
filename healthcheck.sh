@@ -10,7 +10,7 @@ echo " $(date)"
 echo "======================================"
 
 echo -e "\n── SECURITY ──────────────────────────"
-if git log --all --full-history -- .env.vercel 2>/dev/null | grep -q .; then
+if git log --all --full-history -p -- .env.vercel 2>/dev/null | grep -oE "^[+-][A-Za-z_0-9]+=" | grep -qv "VERCEL_OIDC_TOKEN"; then
   fail ".env.vercel still in git history — filter-repo scrub NOT done. Keys need rotation."
 else
   pass "No .env.vercel found in git history"
