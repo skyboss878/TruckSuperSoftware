@@ -25,7 +25,7 @@ export async function POST(request) {
     if (action === 'start_trip') {
       const { data, error } = await supabaseAdmin
         .from('driver_trips')
-        .insert({ driver_id, status: 'active', last_lat: lat, last_lng: lng, last_seen: new Date().toISOString() })
+        .insert({ driver_id, company_id: ctx.company_id, status: 'active', last_lat: lat, last_lng: lng, last_seen: new Date().toISOString() })
         .select().single()
       if (error) return NextResponse.json({ error: error.message }, { status: 400 })
       return NextResponse.json(data)
@@ -129,7 +129,7 @@ export async function GET(request) {
       return NextResponse.json(data || [])
     }
 
-    // Get all active drivers with last location
+    // Get all active drivers with last location, deduped to most recent trip per driver
     const { data } = await supabaseAdmin
       .from('driver_trips')
       .select('*, drivers(name, truck_number, phone)')
@@ -137,7 +137,33 @@ export async function GET(request) {
       .eq('company_id', ctx.company_id)
       .order('last_seen', { ascending: false })
 
-    return NextResponse.json(data || [])
+    // Keep only the most recent active trip per driver (data is already sorted newest-first)
+    const seen = new Set()
+    const deduped = (data || []).filter(trip => {
+      if (seen.has(trip.driver_id)) return false
+      seen.add(trip.driver_id)
+      return true
+    })
+
+    // Auto-close trips stale for 12+ hours so they stop showing as "active"
+    const STALE_HOURS = 12
+    const staleIds = deduped
+      .filter(trip => {
+        const lastSeen = new Date(trip.last_seen).getTime()
+        return Date.now() - lastSeen > STALE_HOURS * 60 * 60 * 1000
+      })
+      .map(trip => trip.id)
+
+    if (staleIds.length > 0) {
+      await supabaseAdmin
+        .from('driver_trips')
+        .update({ status: 'ended', end_time: new Date().toISOString() })
+        .in('id', staleIds)
+    }
+
+    const fresh = deduped.filter(trip => !staleIds.includes(trip.id))
+
+    return NextResponse.json(fresh)
   } catch (err) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }

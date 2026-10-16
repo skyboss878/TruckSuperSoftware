@@ -67,7 +67,10 @@ export default function Landing() {
           <div style={{ width: 32, height: 32, borderRadius: 7, background: C.diesel, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🚛</div>
           <span style={{ ...S.h1, fontSize: 14, letterSpacing: 0.5 }}>TruckSuperSoftware</span>
         </div>
-        <button onClick={() => router.push('/login')} style={{ background: 'none', border: `1px solid ${C.line}`, borderRadius: 8, color: C.dim, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Sign In</button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={() => router.push('/login')} style={{ background: 'none', border: `1px solid ${C.line}`, borderRadius: 8, color: C.dim, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Sign In</button>
+          <button onClick={() => router.push('/login?role=driver')} style={{ background: '#2D7A5F', border: '1px solid #2D7A5F', borderRadius: 8, color: '#fff', padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>🚛 Driver Login</button>
+        </div>
       </nav>
 
       {/* HERO */}

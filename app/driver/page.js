@@ -296,7 +296,7 @@ export default function DriverDashboard() {
       {/* FAB */}
       <button
         onClick={() => router.push('/driver/ticket/new')}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-[#2D7A5F] rounded-full shadow-lg flex items-center justify-center text-white text-2xl active:opacity-80"
+        className="fixed bottom-6 left-6 w-14 h-14 bg-[#2D7A5F] rounded-full shadow-lg flex items-center justify-center text-white text-2xl active:opacity-80 z-40"
       >
         +
       </button>

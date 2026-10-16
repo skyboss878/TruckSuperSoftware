@@ -1,0 +1,25 @@
+Cleanup audit for: /data/data/com.termux/files/home/TruckSuperSoftware
+Generated: Thu Aug  6 21:32:15 PDT 2026
+======================================
+
+## BACKUP / DUPLICATE FILES ##
+./app/api/tracking/route.js.bak_20260806_212659
+
+## TODO / FIXME / HACK COMMENTS ##
+
+## DEBUG LEFTOVERS (console.log / print) ##
+26
+(count above — full list in console_log_lines.txt if you want detail)
+
+## COMMENTED-OUT CODE BLOCKS (3+ consecutive commented lines) ##
+
+## DUPLICATE FILENAMES (same base name, different suffix — likely dead variants) ##
+page.js
+route.js
+
+## LARGE FILES (>50KB, often bloated/dead) ##
+
+## UNUSED .env EXAMPLE VARS (present in .env.example but not referenced in code) ##
+(no .env.example found)
+
+======================================

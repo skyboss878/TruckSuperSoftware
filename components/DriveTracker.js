@@ -59,7 +59,7 @@ function tilePosition(lat, lon, z = TILE_ZOOM) {
 function tileUrl(x, y, z) {
   const subdomains = ['a', 'b', 'c', 'd']
   const s = subdomains[(x + y) % subdomains.length]
-  return `https://${s}.basemaps.cartocdn.com/rastertiles/voyager/${z}/${x}/${y}.png`
+  return `https://tile.openstreetmap.org/${z}/${x}/${y}.png`
 }
 
 export default function DriveTracker({ driver, onSessionComplete }) {
@@ -141,6 +141,7 @@ export default function DriveTracker({ driver, onSessionComplete }) {
       // Also create driver_trips record for admin Live Fleet Map
       const { data: tripData } = await supabase.from('driver_trips').insert({
         driver_id: driver.id,
+        company_id: driver.company_id,
         status: 'active',
         last_lat: lat,
         last_lng: lon,

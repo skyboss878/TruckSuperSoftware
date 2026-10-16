@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
+import { authFetch } from '@/lib/api-client'
 
 const CURRENT_YEAR = new Date().getFullYear()
 const CURRENT_QUARTER = Math.ceil((new Date().getMonth() + 1) / 3)

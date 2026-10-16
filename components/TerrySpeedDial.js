@@ -1,12 +1,13 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { authFetch } from '@/lib/api-client'
 
-export default function TerrySpeedDial() {
+export default function DispatchSpeedDial() {
   const [phone, setPhone] = useState(null)
-  const [name, setName] = useState('Terry')
+  const [name, setName] = useState('Dispatch')
 
   useEffect(() => {
-    fetch('/api/settings').then(r => r.json()).then(d => {
+    authFetch('/api/settings').then(r => r.json()).then(d => {
       if (d?.dispatch_phone) setPhone(d.dispatch_phone)
       if (d?.dispatch_name) setName(d.dispatch_name)
     }).catch(() => {})

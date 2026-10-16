@@ -2,19 +2,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { getAuthContext } from '@/lib/auth-helpers'
 import { NextResponse } from 'next/server'
 
-export async function GET(request) {
-  const ctx = await getAuthContext(request)
-  if (ctx.error) return ctx.error
-  const { data, error } = await supabaseAdmin
-    .from('company_settings')
-    .select('*')
-    .eq('company_id', ctx.company_id)
-    .single()
-  if (error && error.code !== 'PGRST116') return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data || {})
-}
-
-export async function POST(request) {
+async function upsertSettings(request) {
   const ctx = await getAuthContext(request)
   if (ctx.error) return ctx.error
   try {
@@ -38,4 +26,24 @@ export async function POST(request) {
     if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 })
     return NextResponse.json(result.data)
   } catch { return NextResponse.json({ error: 'Server error' }, { status: 500 }) }
+}
+
+export async function GET(request) {
+  const ctx = await getAuthContext(request)
+  if (ctx.error) return ctx.error
+  const { data, error } = await supabaseAdmin
+    .from('company_settings')
+    .select('*')
+    .eq('company_id', ctx.company_id)
+    .single()
+  if (error && error.code !== 'PGRST116') return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data || {})
+}
+
+export async function POST(request) {
+  return upsertSettings(request)
+}
+
+export async function PATCH(request) {
+  return upsertSettings(request)
 }
