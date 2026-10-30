@@ -4,11 +4,6 @@ import { supabase } from '@/lib/supabase'
 import { qdb } from '@/lib/ticket-queue'
 import TicketCard from './TicketCard'
 
-const LABELS = {
-  customer_name: 'Customer', location_delivered: 'Delivered to', po_number: 'PO #',
-  afe_number: 'AFE #', sand_type: 'Product', quantity: 'Quantity', unit: 'Unit', bol_signed_by: 'Signed by',
-}
-
 export default function VoiceTicket() {
   const [rec, setRec] = useState(false)
   const [items, setItems] = useState([])
@@ -105,12 +100,6 @@ export default function VoiceTicket() {
       <p className="text-xs text-gray-500 mt-3">Say: customer, delivered to, PO, AFE, product, quantity, who signed.</p>
       <div className="mt-6 space-y-3 text-left">
         {items.map(n => <TicketCard key={n.id} n={n} onChange={load} />)}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        ))}
       </div>
     </div>
   )
