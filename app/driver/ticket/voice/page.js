@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { qdb } from '@/lib/ticket-queue'
+import TicketCard from './TicketCard'
 
 const LABELS = {
   customer_name: 'Customer', location_delivered: 'Delivered to', po_number: 'PO #',
@@ -103,22 +104,7 @@ export default function VoiceTicket() {
       </button>
       <p className="text-xs text-gray-500 mt-3">Say: customer, delivered to, PO, AFE, product, quantity, who signed.</p>
       <div className="mt-6 space-y-3 text-left">
-        {items.map(n => (
-          <div key={n.id} className="border rounded p-3">
-            <div className="flex justify-between text-sm">
-              <span>{new Date(n.ts).toLocaleTimeString()}</span>
-              <span className={n.status === 'synced' ? 'text-blue-700' : 'text-yellow-700'}>
-                {n.status === 'synced' ? 'Sent' : 'Waiting for signal'}
-              </span>
-            </div>
-            {n.status === 'synced' && n.ticket && (
-              <div className="text-sm mt-2">
-                <div>{n.ticket.customer_name || 'No customer'} · {n.ticket.quantity ?? '?'} {n.ticket.unit || ''} {n.ticket.sand_type || ''}</div>
-                {n.missing?.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {n.missing.map(k => (
-                      <span key={k} className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded">Missing: {LABELS[k] || k}</span>
-                    ))}
+        {items.map(n => <TicketCard key={n.id} n={n} onChange={load} />)}
                   </div>
                 )}
               </div>
