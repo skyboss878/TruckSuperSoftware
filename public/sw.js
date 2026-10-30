@@ -1,4 +1,4 @@
-const CACHE = 'tss-v4'
+const CACHE = 'tss-v5'
 const OFFLINE_URLS = ['/', '/login', '/driver', '/admin']
 
 self.addEventListener('install', e => {
@@ -17,10 +17,36 @@ self.addEventListener('activate', e => {
 })
 
 self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return
-  if (e.request.url.includes('/api/')) return
+  const req = e.request
+  if (req.method !== 'GET') return
+  const url = new URL(req.url)
+  if (url.origin !== self.location.origin) return
+  if (url.pathname.startsWith('/api/')) return
+
+  // Hashed build assets never change: cache-first
+  if (url.pathname.startsWith('/_next/static/')) {
+    e.respondWith(
+      caches.match(req).then(hit => hit || fetch(req).then(res => {
+        if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)) }
+        return res
+      }))
+    )
+    return
+  }
+
+  // Pages: network-first, remember the last good copy for offline
   e.respondWith(
-    fetch(e.request).catch(() => caches.match(e.request).then(r => r || new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } })))
+    fetch(req).then(res => {
+      if (res.ok && !res.redirected && res.type === 'basic') {
+        const copy = res.clone()
+        caches.open(CACHE).then(c => c.put(req, copy))
+      }
+      return res
+    }).catch(() =>
+      caches.match(req, { ignoreVary: true })
+        .then(hit => hit || caches.match(url.pathname, { ignoreVary: true }))
+        .then(hit => hit || new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } }))
+    )
   )
 })
 
